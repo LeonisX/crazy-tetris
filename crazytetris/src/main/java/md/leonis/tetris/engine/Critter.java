@@ -1,7 +1,5 @@
 package md.leonis.tetris.engine;
 
-import md.leonis.tetris.Tetris;
-
 import static md.leonis.tetris.engine.CritterState.*;
 
 //TODO need thread???
@@ -18,19 +16,14 @@ public class Critter extends Thread {
     private int direction = 1;        // 1 - вправо, -1 - влево, 0 - никуда
     private int verticalDirection = 0; // аналогично
     private boolean paused = false;
-    private int[][] glass;
-    private int width, height;
     private Figure figure = null;
     private int speed;
     private int[][] v;
 
-    private Tetris tetris;
+    private PropertiesHolder properties;
 
-    public Critter(Tetris tetris) {
-        this.tetris = tetris;
-        this.glass = tetris.getBoard().getGlass();
-        width = glass.length;
-        height = glass[0].length;
+    public Critter(PropertiesHolder properties) {
+        this.properties = properties;
 //        System.out.println(width+"|"+height);
         x = 0;
         y = 0;
@@ -133,7 +126,7 @@ public class Critter extends Thread {
     }
 
     private boolean isStanding() {
-        return ((y + 1 == height) || (!(glass[x][y + 1] == tetris.getTransparentColor())));
+        return ((y + 1 == properties.getBoard().getHeight()) || (!(properties.getGlass()[x][y + 1] == properties.getTransparentColor())));
     }
 
     private void moveVertical() {
@@ -190,13 +183,13 @@ public class Critter extends Thread {
 //        System.out.println("correct: i'm living");
         if (dx < 0) return false;
 //        System.out.println("correct: dx>=0");
-        if (dx >= width) return false;
+        if (dx >= properties.getBoard().getWidth()) return false;
 //        System.out.println("correct: dx<width");
-        if (dy >= height) return false;
+        if (dy >= properties.getBoard().getHeight()) return false;
 //        System.out.println("correct: dy<height");
         if (dy < 0) return false;
 //        System.out.println("correct: dy>=0");
-        if (glass[dx][dy] != tetris.getTransparentColor()) return false;
+        if (properties.getGlass()[dx][dy] != properties.getTransparentColor()) return false;
 //        System.out.println("correct: board==black");
         if (figure != null)
             for (int i = 0; i < figure.getX().length; i++)

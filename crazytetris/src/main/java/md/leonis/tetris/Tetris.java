@@ -1,9 +1,6 @@
 package md.leonis.tetris;
 
-import md.leonis.tetris.engine.Board;
-import md.leonis.tetris.engine.Critter;
-import md.leonis.tetris.engine.CritterState;
-import md.leonis.tetris.engine.Figure;
+import md.leonis.tetris.engine.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +9,7 @@ import java.awt.image.BufferedImage;
 
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
 
-public class Tetris extends KeyAdapter {
+public class Tetris extends KeyAdapter implements PropertiesHolder {
 
     private Color[] colors = {
             Color.BLACK, // == transparent
@@ -358,8 +355,8 @@ public class Tetris extends KeyAdapter {
         return colors[index];
     }
 
-    public Color[] getColors() {
-        return colors;
+    public int getColorsCount() {
+        return colors.length;
     }
 
     public int getTransparentColor() {
@@ -372,6 +369,10 @@ public class Tetris extends KeyAdapter {
 
     public boolean isCrazy() {
         return crazy;
+    }
+
+    public int[][] getGlass() {
+        return board.getGlass();
     }
 }
 

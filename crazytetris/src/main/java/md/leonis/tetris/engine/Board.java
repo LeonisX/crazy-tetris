@@ -1,18 +1,16 @@
 package md.leonis.tetris.engine;
 
-import md.leonis.tetris.Tetris;
-
 public class Board {
     //TODO interface for GUI instead of Tetris
-    private Tetris tetris;
+    private PropertiesHolder properties;
     private int width, height;
     private int[][] glass;//, newGlass;
     private int[] deleted = new int[4];
     private int deletedLines = 0;
     private int falledFigure = 255;
 
-    public Board(Tetris tetris, int width, int height) {
-        this.tetris = tetris;
+    public Board(PropertiesHolder properties, int width, int height) {
+        this.properties = properties;
         this.width = width;
         this.height = height;
         start();
@@ -23,7 +21,7 @@ public class Board {
         glass = new int[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                glass[i][j] = tetris.getTransparentColor();
+                glass[i][j] = properties.getTransparentColor();
             }
         }
     }
@@ -38,7 +36,7 @@ public class Board {
         for (int j = height - 1; j >= 0; j--) {
             boolean f = false;
             for (int i = 0; i < width; i++) {
-                if (glass[i][j] == tetris.getTransparentColor()) {
+                if (glass[i][j] == properties.getTransparentColor()) {
                     f = true;
                     break;
                 }
@@ -57,7 +55,7 @@ public class Board {
         }
         for (int j = 0; j < currentLine; j++) {
             for (int i = 0; i < width; i++) {
-                glass[i][j] = tetris.getTransparentColor();
+                glass[i][j] = properties.getTransparentColor();
             }
         }
     }
@@ -80,5 +78,13 @@ public class Board {
 
     public int getFalledFigure() {
         return falledFigure;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

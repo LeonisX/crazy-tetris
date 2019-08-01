@@ -1,7 +1,5 @@
 package md.leonis.tetris.engine;
 
-import md.leonis.tetris.Tetris;
-
 import java.util.Arrays;
 import java.util.Random;
 
@@ -33,26 +31,24 @@ public class Figure {
     private int leftt, topt;         // резервное положение в "стакане"
     private int angle;                      // Поворот фигуры в градусах
     private boolean falled;
-    private int[][] glass;
     private int width, height;
 
-    private final Tetris tetris;
+    private final PropertiesHolder properties;
 
-    public Figure(Tetris tetris) {
-        this.tetris = tetris;
-        this.glass = tetris.getBoard().getGlass();
+    public Figure(PropertiesHolder properties) {
+        this.properties = properties;
         initFigure();
     }
 
     private void initFigure() {
         falled = false;
 //        crazy=false;
-        width = glass.length;
-        height = glass[0].length;
+        width = properties.getBoard().getWidth();
+        height = properties.getBoard().getHeight();
         left = width / 2;
         top = 2;
         int k = 4;
-        if (tetris.isCrazy()) {
+        if (properties.isCrazy()) {
             int r = rand.nextInt(10);
             if (r == 0) k = rand.nextInt(3) + 1;
             if (r > 5) k = 5;
@@ -67,7 +63,7 @@ public class Figure {
                 x[i] = figureDef[type * 2][i];
                 y[i] = figureDef[type * 2 + 1][i];
             }
-        color = rand.nextInt(tetris.getColors().length - 1) + 1;
+        color = rand.nextInt(properties.getColorsCount() - 1) + 1;
         angle = rand.nextInt(3);
         for (int i = 0; i < angle; i++) rotateLeft();
 
@@ -212,7 +208,7 @@ public class Figure {
                     flag = false;
                     break;
                 }
-                if (!(glass[x[i] + left][y[i] + k] == tetris.getTransparentColor())) {
+                if (!(properties.getGlass()[x[i] + left][y[i] + k] == properties.getTransparentColor())) {
                     flag = false;
                     break;
                 }
@@ -229,7 +225,7 @@ public class Figure {
         }
         int k = 0;
         for (int i = 0; i < x.length; i++) {
-            if (glass[x[i] + left][y[i] + top] == tetris.getTransparentColor()) k++;
+            if (properties.getGlass()[x[i] + left][y[i] + top] == properties.getTransparentColor()) k++;
         }
         return (k == x.length);
     }
