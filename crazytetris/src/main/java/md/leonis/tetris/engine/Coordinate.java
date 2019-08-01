@@ -2,12 +2,12 @@ package md.leonis.tetris.engine;
 
 import java.util.Objects;
 
-public class Pair {
+public class Coordinate {
 
     private int x;
     private int y;
 
-    Pair(int x, int y) {
+    Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -24,8 +24,8 @@ public class Pair {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Pair pair = (Pair) o;
-        return x == pair.x && y == pair.y;
+        Coordinate coordinate = (Coordinate) o;
+        return x == coordinate.x && y == coordinate.y;
     }
 
     @Override

@@ -8,7 +8,7 @@ public class Board {
     private PropertiesHolder properties;
     private int width, height;
     private int[][] glass;//, newGlass;
-    private List<Integer> deletedLines;
+    private List<Integer> deletedRows;
     private int falledFigure = 255;
 
     public Board(PropertiesHolder properties, int width, int height) {
@@ -19,7 +19,7 @@ public class Board {
     }
 
     private void start() {
-        resetDeletedLines();
+        resetDeletedRows();
         glass = new int[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -29,7 +29,7 @@ public class Board {
     }
 
     public void falled(Figure figure) {
-        resetDeletedLines();
+        resetDeletedRows();
         falledFigure = figure.getType();
         for (int i = 0; i < figure.getX().length; i++) {
             glass[figure.getX()[i] + figure.getLeft()][figure.getY()[i] + figure.getTop()] = figure.getColor();
@@ -51,7 +51,7 @@ public class Board {
                 }
                 currentLine--;
             } else {
-                deletedLines.add(j);
+                deletedRows.add(j);
             }
         }
         for (int j = 0; j < currentLine; j++) {
@@ -61,12 +61,24 @@ public class Board {
         }
     }
 
+    boolean isCoordinateNotAllowed(int x, int y) {
+        return outOfBound(x, y) || isCoordinateOccupied(x, y);
+    }
+
+    private boolean outOfBound(int x, int y) {
+        return (x < 0) || (y < 0) || (x >= width) || (y >= height);
+    }
+
+    private boolean isCoordinateOccupied(int x, int y) {
+        return glass[x][y] != properties.getTransparentColor();
+    }
+
     public int[][] getGlass() {
         return glass;
     }
 
-    public List<Integer> getDeletedLines() {
-        return deletedLines;
+    public List<Integer> getDeletedRows() {
+        return deletedRows;
     }
 
     public int getFalledFigure() {
@@ -81,7 +93,7 @@ public class Board {
         return height;
     }
 
-    public void resetDeletedLines() {
-        deletedLines = new ArrayList<>();
+    public void resetDeletedRows() {
+        deletedRows = new ArrayList<>();
     }
 }

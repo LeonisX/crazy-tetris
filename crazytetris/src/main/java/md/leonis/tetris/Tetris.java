@@ -114,7 +114,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 return;
             }
             board.falled(figure);
-            critter.correctYPosition(board.getDeletedLines());
+            critter.correctYPosition(board.getDeletedRows());
             critter.setPaused(false);
             score();
         }
@@ -228,7 +228,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     }
 
     private void score() {
-        lines += board.getDeletedLines().size();
+        lines += board.getDeletedRows().size();
         switch (board.getFalledFigure()) {
             case 0:
             case 6:
@@ -243,7 +243,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             case 5:
                 score += 20;
         }
-        switch (board.getDeletedLines().size()) {
+        switch (board.getDeletedRows().size()) {
             case 1:
                 score += 100;
                 break;
@@ -257,7 +257,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 score += 600;
         }
         level = score / nextLevel;
-        board.resetDeletedLines();
+        board.resetDeletedRows();
 //        board.falledFigure=255;
     }
 
@@ -292,10 +292,17 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         g.drawString("Линий: " + lines, lpos, 30);
         g.drawString("Уровень: " + level, lpos, 50);
         String st = "Жизнь прекрасна :)";
-        if (critter.getAir() < 75) st = "Надо отдышаться...";
-        if (critter.isBounded()) if (critter.getAir() < 50) st = "Задыхаюсь!!!";
-        else st = "Тут мало воздуха...";
-        g.drawString("Дыхание: " + (int) critter.getAir() + "%", lpos, 70);
+        if (critter.getAir() < 75) {
+            st = "Надо отдышаться...";
+        }
+        if (critter.isBounded()) {
+            if (critter.getAir() < 50) {
+                st = "Задыхаюсь!!!";
+            } else {
+                st = "Тут мало воздуха...";
+            }
+        }
+        g.drawString("Воздух: " + (int) critter.getAir() + "%", lpos, 70);
         g.drawString(st, lpos, 90);
 
         //рисуем фигуру
@@ -330,7 +337,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         if (critter.getStatus() != CritterState.DEAD) {
             g.setColor(Color.WHITE);
             g.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
-            kx = critter.getDirection() * 2;
+            kx = critter.getHorizontalDirection() * 2;
             ky = 0;
             if (critter.getStatus() == CritterState.FALLING) ky = 1;
             if (critter.getStatus() == CritterState.JUMPING) ky = -1;

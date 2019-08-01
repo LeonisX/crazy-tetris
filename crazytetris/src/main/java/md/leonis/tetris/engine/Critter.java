@@ -6,15 +6,27 @@ import static md.leonis.tetris.engine.CritterState.*;
 
 public class Critter extends Thread {
 
+    private static final double MOVING_AIR_FLOW_RATE = 2.5;
+    private static final double STAYING_AIR_FLOW_RATE = 5;
+    private static final double BOUNDED_AIR_FLOW_RATE = 1;    //делимое
+    private static final double FALLING_AIR_FLOW_RATE = 0;
+    private static final double JUMPING_AIR_FLOW_RATE = 10;    //вычитается
+
+    private static final int VERTICAL_SPEED = 400;
+    private static final int HORIZONTAL_SPEED = 80;
+
+
     private CritterState status;
     private double air;
-    private int freeTilesCount;
+    private int availableAirVolume;
 
     private int x, y;
     private int maxJump = 2;
     private int jumpPower = 0;
-    private int direction = 1;        // 1 - вправо, -1 - влево, 0 - никуда
+
+    private int horizontalDirection = 1;        // 1 - вправо, -1 - влево, 0 - никуда
     private int verticalDirection = 0; // аналогично
+
     private boolean isPaused = false;
 
     private PropertiesHolder properties;
@@ -29,13 +41,13 @@ public class Critter extends Thread {
 
     public void run() {
         while (status != DEAD) {
-            int speed = (verticalDirection == 0) ? 400 : 80;
+            int speed = (verticalDirection == 0) ? VERTICAL_SPEED : HORIZONTAL_SPEED;
             try {
-                sleep(speed);
+                Critter.sleep(speed);
             } catch (InterruptedException e) {
                 //TODO
             }
-            if (isCoordinateIsOccupied(x, y)) {
+            if (isOccupiedCoordinate(x, y)) {
                 status = DEAD;
                 break;
             }
@@ -48,38 +60,29 @@ public class Critter extends Thread {
     }
 
     private void airControl() {
-        if (isPaused || (status == DEAD)) return;
-        final double airMOVING = 2;        //  /2
-        final double airSTAYING = 5;
-        final double airBLOCKED = 1;    //делимое
-        final double airFALLING = 0;
-        final double airJUMPING = 10;    //вычитается
-        double ak;
-        if (status == MOVING || status == STAYING) {
-            ak = airSTAYING;
-        } else {
-            ak = 0;
-        }
+        double airReplenishment = 0;
         switch (status) {
-            case DEAD:
-                air = 0;
+            case STAYING:
+                airReplenishment = STAYING_AIR_FLOW_RATE;
                 break;
             case MOVING:
-                ak /= airMOVING;
+                airReplenishment = MOVING_AIR_FLOW_RATE;
                 break;
             case FALLING:
-                ak = airFALLING;
+                airReplenishment = FALLING_AIR_FLOW_RATE;
                 break;
             case JUMPING:
-                ak = -airJUMPING;
+                airReplenishment = -JUMPING_AIR_FLOW_RATE;
                 break;
         }
         if (isBounded()) {
-            ak = -airBLOCKED / freeTilesCount / airMOVING;
-            if (status == STAYING) ak /= 2;
+            airReplenishment = -BOUNDED_AIR_FLOW_RATE / availableAirVolume / 2;
+            if (status == STAYING) {
+                airReplenishment /= 2;
+            }
         }
-        air += ak;
-        air = Math.min(5.0, air);
+        air += airReplenishment;
+        air = Math.min(100.0, air);
         setState();
         if (air <= 0.0) {
             air = 0;
@@ -87,45 +90,44 @@ public class Critter extends Thread {
         }
     }
 
+    private void setState() {
+        double movementThreshold = isBounded() ? 50.0 : 80.0;
+        status = (air > movementThreshold) ? MOVING : STAYING;
+    }
+
     private void makeMove() {
-        if (isPaused || (status == DEAD)) return;
-        if (verticalDirection != 0) {
-            moveVertical();
-        } else {
+        if (verticalDirection == 0) {
             moveHorizontal();
+        } else {
+            moveVertical();
         }
     }
 
-    private void setState() {
-        double k = isBounded() ? 50.0 : 80.0;
-        status = (air > k) ? MOVING : STAYING;
-    }
-
     private void moveHorizontal() {
-        if (isStanding()) {
-            if (isCoordinateIsOccupied(x + direction, y)) {
+        if (isStandingOnTheGround()) {
+            if (isOccupiedCoordinate(x + horizontalDirection, y)) {
                 if (status == MOVING) {
-                    verticalDirection = -1;
+                    verticalDirection = -1; // Try to jump
                     jumpPower = maxJump;
                 }
             } else {
                 if (status == MOVING) {
-                    x += direction;
+                    x += horizontalDirection; // Move
                 }
             }
         } else {
-            verticalDirection = 1;
+            verticalDirection = 1; // Fall
         }
     }
 
-    private boolean isStanding() {
-        return ((y + 1 == properties.getBoard().getHeight()) || (!(properties.getGlass()[x][y + 1] == properties.getTransparentColor())));
+    private boolean isStandingOnTheGround() {
+        return isOccupiedCoordinate(x, y + 1);
     }
 
     private void moveVertical() {
         switch (verticalDirection) {
             case 1:
-                if (!isStanding()) {
+                if (!isStandingOnTheGround()) {
                     y++;
                     status = FALLING;
                 } else {
@@ -133,12 +135,12 @@ public class Critter extends Thread {
                 }
                 break;
             case -1:
-                if (isCoordinateIsOccupied(x + direction, y)) {           // если после подъёма нет возможности уйти в сторону
+                if (isOccupiedCoordinate(x + horizontalDirection, y)) {           // если после подъёма нет возможности уйти в сторону
                     if (jumpPower == 0) {
-                        direction = -direction;
+                        horizontalDirection = -horizontalDirection;
                     }   // на излёте меняем направление движения
                 } else {
-                    x += direction;
+                    x += horizontalDirection;
                     setState();
                     verticalDirection = 0;
                     return;
@@ -149,33 +151,28 @@ public class Critter extends Thread {
                     return;
                 }            // если закончилась высота прыжка
 
-                if (isCoordinateIsFree(x, y - 1)) {                // если есть куда ещё подниматься
+                if (isFreeCoordinate(x, y - 1)) {                // если есть куда ещё подниматься
                     status = JUMPING;
                     y--;
                     jumpPower--;
                 } else {                        // если некуда больше подниматься (потолок)
                     jumpPower = 0;
                     verticalDirection = 1;
-                    direction = -direction;
+                    horizontalDirection = -horizontalDirection;
                 }
         }
     }
 
     public boolean isDead() {
-        return isCoordinateIsOccupied(x, y);
+        return isOccupiedCoordinate(x, y);
     }
 
-    private boolean isCoordinateIsOccupied(int newX, int newY) {
-        return !isCoordinateIsFree(newX, newY);
+    private boolean isOccupiedCoordinate(int newX, int newY) {
+        return !isFreeCoordinate(newX, newY);
     }
 
-    private boolean isCoordinateIsFree(int newX, int newY) {
-        if (status == DEAD
-                || newX < 0
-                || newY < 0
-                || newX >= properties.getBoard().getWidth()
-                || newY >= properties.getBoard().getHeight()
-                || properties.getGlass()[newX][newY] != properties.getTransparentColor()) {
+    private boolean isFreeCoordinate(int newX, int newY) {
+        if (status == DEAD || properties.getBoard().isCoordinateNotAllowed(newX, newY)) {
             return false;
         }
         Figure figure = properties.getFigure();
@@ -186,43 +183,33 @@ public class Critter extends Thread {
     }
 
     public boolean isBounded() {
-        Pairs freeTiles = new Pairs();
-        int ax, ay;
-        freeTiles.add(x, y);
+        Coordinates freeCoordinates = new Coordinates();
+        freeCoordinates.add(x, y);
         do {
-            int size = freeTiles.size();
+            int size = freeCoordinates.size();
             for (int i = 0; i < size; i++) {
-                ax = freeTiles.get(i).getX() + 1;
-                ay = freeTiles.get(i).getY();
-                if (isCoordinateIsFree(ax, ay)) {
-                    freeTiles.addUnique(ax, ay);
-                }
-                ax = freeTiles.get(i).getX() - 1;
-                ay = freeTiles.get(i).getY();
-                if (isCoordinateIsFree(ax, ay)) {
-                    freeTiles.addUnique(ax, ay);
-                }
-                ax = freeTiles.get(i).getX();
-                ay = freeTiles.get(i).getY() + 1;
-                if (isCoordinateIsFree(ax, ay)) {
-                    freeTiles.addUnique(ax, ay);
-                }
-                ax = freeTiles.get(i).getX();
-                ay = freeTiles.get(i).getY() - 1;
-                if (isCoordinateIsFree(ax, ay)) {
-                    freeTiles.addUnique(ax, ay);
-                }
+                Coordinate coordinate = freeCoordinates.get(i);
+                addFreeUniqueCoordinate(freeCoordinates, coordinate.getX() + 1, coordinate.getY());
+                addFreeUniqueCoordinate(freeCoordinates, coordinate.getX() - 1, coordinate.getY());
+                addFreeUniqueCoordinate(freeCoordinates, coordinate.getX(), coordinate.getY() + 1);
+                addFreeUniqueCoordinate(freeCoordinates, coordinate.getX(), coordinate.getY() - 1);
             }
-            if (freeTiles.size() == size || freeTiles.size() > 10) {
+            if (freeCoordinates.size() == size || freeCoordinates.size() > 10) {
                 break;
             }
         } while (true);
-        freeTilesCount = freeTiles.size();
-        return (freeTilesCount < 10);
+        availableAirVolume = freeCoordinates.size();
+        return (availableAirVolume < 10);
     }
 
-    public void correctYPosition(List<Integer> deletedLines) {
-        y += deletedLines.stream().filter(dy -> dy > y).count();
+    private void addFreeUniqueCoordinate(Coordinates freeTiles, int x, int y) {
+        if (isFreeCoordinate(x, y)) {
+            freeTiles.addUnique(x, y);
+        }
+    }
+
+    public void correctYPosition(List<Integer> deletedRows) { // After deleting rows
+        y += deletedRows.stream().filter(dy -> dy > y).count();
     }
 
     public void setPaused(boolean isPaused) {
@@ -249,7 +236,7 @@ public class Critter extends Thread {
         return y;
     }
 
-    public int getDirection() {
-        return direction;
+    public int getHorizontalDirection() {
+        return horizontalDirection;
     }
 }
