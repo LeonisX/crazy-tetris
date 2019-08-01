@@ -1,10 +1,12 @@
-package md.leonis.tetris;
+package md.leonis.tetris.engine;
 
-import java.util.Random;
-import java.awt.Color;
+import md.leonis.tetris.Tetris;
+
 import java.util.Arrays;
+import java.util.Random;
 
 public class Figure {
+
     private int[][] figureDef = {           // Координаты тайлов "кирпичиков"
             {-1, -1, 0, 0},                // "O" - X
             {0, 1, 0, 1},                  // "O" - Y
@@ -21,33 +23,36 @@ public class Figure {
             {-1, 0, 1, 2},                 // "I" - X
             {0, 0, 0, 0}                   // "I" - Y
     };
+
     private Random rand = new Random();       // для генерации случайных чисел
-    Color color;
-    int type;
-    int[] x, y;           // массив тайлов
+    private int color;
+    private int type;
+    private int[] x, y;           // массив тайлов
     private int[] xt, yt;           // резервный массив тайлов
-    int left, top;         // положение в "стакане"
+    private int left, top;         // положение в "стакане"
     private int leftt, topt;         // резервное положение в "стакане"
-    static boolean crazy;
     private int angle;                      // Поворот фигуры в градусах
-    boolean falled;
-    private Color[][] board;
+    private boolean falled;
+    private int[][] glass;
     private int width, height;
 
-    public Figure(Color[][] board) {
-        this.board = board;
+    private final Tetris tetris;
+
+    public Figure(Tetris tetris) {
+        this.tetris = tetris;
+        this.glass = tetris.getBoard().getGlass();
         initFigure();
     }
 
     private void initFigure() {
         falled = false;
 //        crazy=false;
-        width = board.length;
-        height = board[0].length;
+        width = glass.length;
+        height = glass[0].length;
         left = width / 2;
         top = 2;
         int k = 4;
-        if (crazy) {
+        if (tetris.isCrazy()) {
             int r = rand.nextInt(10);
             if (r == 0) k = rand.nextInt(3) + 1;
             if (r > 5) k = 5;
@@ -62,8 +67,7 @@ public class Figure {
                 x[i] = figureDef[type * 2][i];
                 y[i] = figureDef[type * 2 + 1][i];
             }
-        color = new Color(rand.nextInt(2) * 255, rand.nextInt(2) * 255, rand.nextInt(2) * 255);
-        if (color.equals(Color.BLACK)) color = Color.GRAY;
+        color = rand.nextInt(tetris.getColors().length - 1) + 1;
         angle = rand.nextInt(3);
         for (int i = 0; i < angle; i++) rotateLeft();
 
@@ -111,10 +115,6 @@ public class Figure {
             }
         }
         return flag;
-    }
-
-    public void setCrazy(boolean crazy) {
-        Figure.crazy = crazy;
     }
 
     private void backup() {
@@ -212,7 +212,7 @@ public class Figure {
                     flag = false;
                     break;
                 }
-                if (!board[x[i] + left][y[i] + k].equals(Color.BLACK)) {
+                if (!(glass[x[i] + left][y[i] + k] == tetris.getTransparentColor())) {
                     flag = false;
                     break;
                 }
@@ -229,9 +229,36 @@ public class Figure {
         }
         int k = 0;
         for (int i = 0; i < x.length; i++) {
-            if (board[x[i] + left][y[i] + top].equals(Color.BLACK)) k++;
+            if (glass[x[i] + left][y[i] + top] == tetris.getTransparentColor()) k++;
         }
         return (k == x.length);
     }
 
+    public int getColor() {
+        return color;
+    }
+
+    int getType() {
+        return type;
+    }
+
+    public int[] getX() {
+        return x;
+    }
+
+    public int[] getY() {
+        return y;
+    }
+
+    public int getLeft() {
+        return left;
+    }
+
+    public int getTop() {
+        return top;
+    }
+
+    public boolean isFalled() {
+        return falled;
+    }
 }

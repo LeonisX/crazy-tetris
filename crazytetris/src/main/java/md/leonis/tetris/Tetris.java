@@ -1,5 +1,9 @@
 package md.leonis.tetris;
 
+import md.leonis.tetris.engine.Board;
+import md.leonis.tetris.engine.Critter;
+import md.leonis.tetris.engine.Figure;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -8,6 +12,21 @@ import java.awt.image.BufferedImage;
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
 
 public class Tetris extends KeyAdapter {
+
+    private Color[] colors = {
+            Color.BLACK, // == transparent
+            Color.WHITE,
+            Color.GRAY,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.MAGENTA,
+            Color.CYAN,
+            Color.BLUE
+    };
+
+    private int transparentColor = 0;
+
     //TODO enum
     private final int NOTINIT = 0;
     private final int RUNNING = 1;
@@ -69,12 +88,11 @@ public class Tetris extends KeyAdapter {
 
     public void start() {
         board = new Board(this, width, height);
-        critter = new Critter(board.glass);
+        critter = new Critter(this);
         level = startLevel;
         score = 0;
         lines = 0;
         erasedLines = 0;
-        Figure.crazy = crazy;
         makeNextFigure();
         next();
         nm = new NextMove();
@@ -86,7 +104,7 @@ public class Tetris extends KeyAdapter {
     }
 
     private void makeNextFigure() {
-        nextFigure = new Figure(board.glass);
+        nextFigure = new Figure(this);
     }
 
     private void makeFigure() {
@@ -99,14 +117,14 @@ public class Tetris extends KeyAdapter {
         if (state == GAMEOVER) return;
         if (state > NOTINIT) {
             soundMonitor.play(0);
-            critter.paused = true;
+            critter.setPaused(true);
             if (critter.isNotCorrect()) {
                 finish();
                 return;
             }
             board.falled(figure);
-            critter.correctY(board.deleted, board.deletedLines);
-            critter.paused = false;
+            critter.correctY(board.getDeleted(), board.getDeletedLines());
+            critter.setPaused(false);
             score();
         }
         makeFigure();
@@ -117,11 +135,11 @@ public class Tetris extends KeyAdapter {
     public void pause(boolean paused) {
         if (paused) state = PAUSED;
         else state = RUNNING;
-        critter.paused = paused;
+        critter.setPaused(paused);
     }
 
     public void finish() {
-        critter.state = critter.DEAD;
+        critter.setStatus(critter.DEAD);
         monitor.actionPerformed(new ActionEvent(monitor, ActionEvent.ACTION_PERFORMED, "gameover"));
         state = GAMEOVER;
     }
@@ -165,14 +183,14 @@ public class Tetris extends KeyAdapter {
     class NextMove extends Thread {
         public void run() {
             while (state < GAMEOVER) {
-                if (state != PAUSED) if (figure.falled) next();
+                if (state != PAUSED) if (figure.isFalled()) next();
                 try {
                     sleep(1001 - level * 100);
 //                    sleep(10001-level*100);
                 } catch (InterruptedException e) {
                     //TODO
                 }
-                if (state != PAUSED) if (!figure.falled) figure.moveDown();
+                if (state != PAUSED) if (!figure.isFalled()) figure.moveDown();
             }
         }
     }
@@ -187,8 +205,8 @@ public class Tetris extends KeyAdapter {
                     //TODO
                 }
                 soundMonitor.schedule();
-                int k = (critter.air < 50) ? 1 : 0;
-                if (critter.air < 10) k = 2;
+                int k = (critter.getAir() < 50) ? 1 : 0;
+                if (critter.getAir() < 10) k = 2;
                 switch (k) {
                     case 2:                 //скоро конец
                         if (soundMonitor.isLooping(3)) soundMonitor.stop(3);
@@ -208,8 +226,8 @@ public class Tetris extends KeyAdapter {
     }
 
     private void score() {
-        lines += board.deletedLines;
-        switch (board.falledFigure) {
+        lines += board.getDeletedLines();
+        switch (board.getFalledFigure()) {
             case 0:
             case 6:
                 score += 10;
@@ -223,7 +241,7 @@ public class Tetris extends KeyAdapter {
             case 5:
                 score += 20;
         }
-        switch (board.deletedLines) {
+        switch (board.getDeletedLines()) {
             case 1:
                 score += 100;
                 break;
@@ -237,7 +255,7 @@ public class Tetris extends KeyAdapter {
                 score += 600;
         }
         level = score / nextLevel;
-        board.deletedLines = 0;
+        board.setDeletedLines(0);
 //        board.falledFigure=255;
     }
 
@@ -260,7 +278,7 @@ public class Tetris extends KeyAdapter {
 
         for (int i = 0; i < width; i++) {
             for (int j = 2; j < height; j++) {
-                g.setColor(board.glass[i][j]);
+                g.setColor(colors[board.getGlass()[i][j]]);
                 g.fillRoundRect(i * tileWidth, (j - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
             }
         }
@@ -272,67 +290,87 @@ public class Tetris extends KeyAdapter {
         g.drawString("Линий: " + lines, lpos, 30);
         g.drawString("Уровень: " + level, lpos, 50);
         String st = "Жизнь прекрасна :)";
-        if (critter.air < 75) st = "Надо отдышаться...";
-        if (critter.isBlocked()) if (critter.air < 50) st = "Задыхаюсь!!!";
+        if (critter.getAir() < 75) st = "Надо отдышаться...";
+        if (critter.isBlocked()) if (critter.getAir() < 50) st = "Задыхаюсь!!!";
         else st = "Тут мало воздуха...";
-        g.drawString("Дыхание: " + (int) critter.air + "%", lpos, 70);
+        g.drawString("Дыхание: " + (int) critter.getAir() + "%", lpos, 70);
         g.drawString(st, lpos, 90);
 
         //рисуем фигуру
-        for (int i = 0; i < figure.x.length; i++) {
+        for (int i = 0; i < figure.getX().length; i++) {
             int k = figure.ghostTop();
-            g.setColor(new Color(figure.color.getRed() / 7, figure.color.getGreen() / 7, figure.color.getBlue() / 4));
-            if ((figure.y[i] + k) >= 2)
-                g.fillRoundRect((figure.x[i] + figure.left) * tileWidth, (figure.y[i] + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            g.setColor(new Color(colors[figure.getColor()].getRed() / 7, colors[figure.getColor()].getGreen() / 7, colors[figure.getColor()].getBlue() / 4));
+            if ((figure.getY()[i] + k) >= 2)
+                g.fillRoundRect((figure.getX()[i] + figure.getLeft()) * tileWidth, (figure.getY()[i] + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
         }
 
         int kx = 0;
-        for (int i = 0; i < nextFigure.x.length; i++) if (nextFigure.x[i] < kx) kx = nextFigure.x[i];
+        for (int i = 0; i < nextFigure.getX().length; i++) if (nextFigure.getX()[i] < kx) kx = nextFigure.getX()[i];
         int ky = 0;
-        for (int i = 0; i < nextFigure.y.length; i++) if (nextFigure.y[i] < ky) ky = nextFigure.y[i];
+        for (int i = 0; i < nextFigure.getY().length; i++) if (nextFigure.getY()[i] < ky) ky = nextFigure.getY()[i];
 
-        for (int i = 0; i < nextFigure.x.length; i++) {
-            g.setColor(new Color(figure.color.getRed() / 4, figure.color.getGreen() / 4, figure.color.getBlue() / 3));
-            g.fillRoundRect((nextFigure.x[i] - kx) * tileWidth + lpos + 1, (nextFigure.y[i] - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+        for (int i = 0; i < nextFigure.getX().length; i++) {
+            g.setColor(new Color(colors[figure.getColor()].getRed() / 4, colors[figure.getColor()].getGreen() / 4, colors[figure.getColor()].getBlue() / 3));
+            g.fillRoundRect((nextFigure.getX()[i] - kx) * tileWidth + lpos + 1, (nextFigure.getY()[i] - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
 
-            g.setColor(nextFigure.color);
-            g.fillRoundRect((nextFigure.x[i] - kx) * tileWidth + lpos, (nextFigure.y[i] - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            g.setColor(colors[nextFigure.getColor()]);
+            g.fillRoundRect((nextFigure.getX()[i] - kx) * tileWidth + lpos, (nextFigure.getY()[i] - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
 
         }
 
-        for (int i = 0; i < figure.x.length; i++) {
-            g.setColor(figure.color);
-            if ((figure.y[i] + figure.top) >= 2)
-                g.fillRoundRect((figure.x[i] + figure.left) * tileWidth, (figure.y[i] + figure.top - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+        for (int i = 0; i < figure.getX().length; i++) {
+            g.setColor(colors[figure.getColor()]);
+            if ((figure.getY()[i] + figure.getTop()) >= 2)
+                g.fillRoundRect((figure.getX()[i] + figure.getLeft()) * tileWidth, (figure.getY()[i] + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
         }
 
         //рисую персонажа
-        if (critter.state != critter.DEAD) {
+        if (critter.getStatus() != critter.DEAD) {
             g.setColor(Color.WHITE);
-            g.drawOval(critter.x * tileWidth, (critter.y - 2) * tileHeight, tileWidth, tileHeight);
-            kx = critter.direction * 2;
+            g.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
+            kx = critter.getDirection() * 2;
             ky = 0;
-            if (critter.state == critter.FALLING) ky = 1;
-            if (critter.state == critter.JUMPING) ky = -1;
-            if (critter.state == critter.STAYING) kx = 0;
+            if (critter.getStatus() == critter.FALLING) ky = 1;
+            if (critter.getStatus() == critter.JUMPING) ky = -1;
+            if (critter.getStatus() == critter.STAYING) kx = 0;
             //глаза
-            g.drawArc(critter.x * tileWidth + 7 + kx, (critter.y - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
-            g.drawArc(critter.x * tileWidth + 12 + kx, (critter.y - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+            g.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+            g.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
             //глаза
-            if (critter.air < 50) {
-                g.drawRect(critter.x * tileWidth + 7 + kx + 1, (critter.y - 2) * tileHeight + 6 + ky - 1, 0, 0);
-                g.drawRect(critter.x * tileWidth + 12 + kx, (critter.y - 2) * tileHeight + 6 + ky - 1, 0, 0);
+            if (critter.getAir() < 50) {
+                g.drawRect(critter.getX() * tileWidth + 7 + kx + 1, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
+                g.drawRect(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
             }
             //рот
             int wx;
             if (critter.isBlocked()) wx = 2;
             else wx = 6;
-            if ((critter.air > 75) && (!critter.isBlocked())) {
-                g.drawArc(critter.x * tileWidth + 7 + kx - 1, (critter.y - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
-            } else g.drawRect(critter.x * tileWidth + 7 + kx + (6 - wx) / 2, (critter.y - 2) * tileHeight + 14, wx, 0);
+            if ((critter.getAir() > 75) && (!critter.isBlocked())) {
+                g.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
+            } else g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
 
         }
 //        g.translate(0,0);
+    }
+
+    public Color getColor(int index) {
+        return colors[index];
+    }
+
+    public Color[] getColors() {
+        return colors;
+    }
+
+    public int getTransparentColor() {
+        return transparentColor;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public boolean isCrazy() {
+        return crazy;
     }
 }
 

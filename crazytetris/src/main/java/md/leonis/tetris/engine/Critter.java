@@ -1,42 +1,46 @@
-package md.leonis.tetris;
+package md.leonis.tetris.engine;
 
-import java.awt.Color;
+import md.leonis.tetris.Tetris;
 
+//TODO need thread???
 public class Critter extends Thread {
 
     //TODO enum
-    final int DEAD = 0;
-    final int FALLING = 1;
-    final int JUMPING = 2;
-    final int MOVING = 3;
-    final int STAYING = 4;
+    public final int DEAD = 0;
+    public final int FALLING = 1;
+    public final int JUMPING = 2;
+    public final int MOVING = 3;
+    public final int STAYING = 4;
 
-    int state;
-    double air;
+    private int status;
+    private double air;
     private int count;
     private int placeCount;
 
-    int x, y, dx, dy;
+    private int x, y, dx, dy;
     private int maxJump = 2;
     private int jumpPower = 0, jumpPowert;
-    int direction = 1;        // 1 - вправо, -1 - влево, 0 - никуда
+    private int direction = 1;        // 1 - вправо, -1 - влево, 0 - никуда
     private int verticalDirection = 0; // аналогично
-    boolean paused = false;
-    private Color[][] board;
+    private boolean paused = false;
+    private int[][] glass;
     private int width, height;
     private Figure figure = null;
     private int speed;
     private int[][] v;
 
-    public Critter(Color[][] board) {
-        this.board = board;
-        width = board.length;
-        height = board[0].length;
+    private Tetris tetris;
+
+    public Critter(Tetris tetris) {
+        this.tetris = tetris;
+        this.glass = tetris.getBoard().getGlass();
+        width = glass.length;
+        height = glass[0].length;
 //        System.out.println(width+"|"+height);
         x = 0;
         y = 0;
         air = 100; //сделать учёт воздуха относительно полости
-        state = MOVING;
+        status = MOVING;
     }
 
     public void setFigure(Figure figure) {
@@ -44,7 +48,7 @@ public class Critter extends Thread {
     }
 
     public void run() {
-        while (state != DEAD) {
+        while (status != DEAD) {
             if (verticalDirection == 0) speed = 400;
             else speed = 80;
             if (paused) speed = 10;
@@ -53,23 +57,23 @@ public class Critter extends Thread {
             } catch (InterruptedException e) {
                 //TODO
             }
-            if (!isCorrect(x, y)) state = DEAD;
+            if (!isCorrect(x, y)) status = DEAD;
             airControl();
             if (!paused) makeMove();
         }
     }
 
     private void airControl() {
-        if ((paused) || (state == DEAD)) return;
+        if ((paused) || (status == DEAD)) return;
         final double airMOVING = 2;        //  /2
         final double airSTAYING = 5;
         final double airBLOCKED = 1;    //делимое
         final double airFALLING = 0;
         final double airJUMPING = 10;    //вычитается
         double ak;
-        if (state >= MOVING) ak = airSTAYING;
+        if (status >= MOVING) ak = airSTAYING;
         else ak = 0;
-        switch (state) {
+        switch (status) {
             //TODO
             case DEAD:
                 air = 0;
@@ -86,7 +90,7 @@ public class Critter extends Thread {
         }
         if (isBlocked()) {
             ak = -airBLOCKED / placeCount / airMOVING;
-            if (state == STAYING) ak /= 2;
+            if (status == STAYING) ak /= 2;
 //            System.out.println(ak);
         }
         air += ak;
@@ -94,12 +98,12 @@ public class Critter extends Thread {
         setState();
         if (air <= 0.0) {
             air = 0;
-            state = DEAD;
+            status = DEAD;
         }
     }
 
     private void makeMove() {
-        if ((paused) || (state == DEAD)) return;
+        if ((paused) || (status == DEAD)) return;
         if (verticalDirection != 0) moveVertical();
         else moveHorizontal();
     }
@@ -107,20 +111,20 @@ public class Critter extends Thread {
     private void setState() {
         double k = 80.0;
         if (isBlocked()) k = 50.0;
-        if (air > k) state = MOVING;
-        else state = STAYING;
+        if (air > k) status = MOVING;
+        else status = STAYING;
     }
 
     private void moveHorizontal() {
 //        System.out.println("preparing for moving to ("+direction+")");
         if (isStanding()) {
             if (!isCorrect(x + direction, y)) {
-                if (state == MOVING) {
+                if (status == MOVING) {
                     verticalDirection = -1;
                     jumpPower = maxJump;
                 }   //System.out.println("will jump!");
             } else {
-                if (state == MOVING) {
+                if (status == MOVING) {
                     x += direction;
                 }
             }    //System.out.println("moved to direction ("+direction+")");
@@ -131,7 +135,7 @@ public class Critter extends Thread {
     }
 
     private boolean isStanding() {
-        return ((y + 1 == height) || (!board[x][y + 1].equals(Color.BLACK)));
+        return ((y + 1 == height) || (!(glass[x][y + 1] == tetris.getTransparentColor())));
     }
 
     private void moveVertical() {
@@ -140,7 +144,7 @@ public class Critter extends Thread {
 //                System.out.println("i'm falling... (in process)");
                 if (!isStanding()) {
                     y++;
-                    state = FALLING;
+                    status = FALLING;
                 } else {
                     verticalDirection = 0;
                 } //System.out.println("falled!");
@@ -165,7 +169,7 @@ public class Critter extends Thread {
                 }            // System.out.println("now will falling");если закончилась высота прыжка
 
                 if (isCorrect(x, y - 1)) {                // если есть куда ещё подниматься
-                    state = JUMPING;
+                    status = JUMPING;
                     y--;
                     jumpPower--;
 //                    System.out.println("jumped by 1");
@@ -182,9 +186,9 @@ public class Critter extends Thread {
         return !isCorrect(x, y);
     }
 
-    public boolean isCorrect(int dx, int dy){
+    private boolean isCorrect(int dx, int dy){
 //        System.out.println("correct: x="+x+" dx="+dx+" y="+y+" dy="+dy);
-        if (state == DEAD) return false;
+        if (status == DEAD) return false;
 //        System.out.println("correct: i'm living");
         if (dx < 0) return false;
 //        System.out.println("correct: dx>=0");
@@ -194,11 +198,11 @@ public class Critter extends Thread {
 //        System.out.println("correct: dy<height");
         if (dy < 0) return false;
 //        System.out.println("correct: dy>=0");
-        if (!board[dx][dy].equals(Color.BLACK)) return false;
+        if (glass[dx][dy] != tetris.getTransparentColor()) return false;
 //        System.out.println("correct: board==black");
         if (figure != null)
-            for (int i = 0; i < figure.x.length; i++)
-                if ((dx == (figure.x[i] + figure.left)) && (dy == (figure.y[i] + figure.top))) return false;
+            for (int i = 0; i < figure.getX().length; i++)
+                if ((dx == (figure.getX()[i] + figure.getLeft())) && (dy == (figure.getY()[i] + figure.getTop()))) return false;
 //        System.out.println("correct: not intersect by figure");
 //        return result;
         return true;
@@ -278,5 +282,33 @@ public class Critter extends Thread {
         }
         y += k;
 //        System.out.println("2: "+y);
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public double getAir() {
+        return air;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getDirection() {
+        return direction;
     }
 }
