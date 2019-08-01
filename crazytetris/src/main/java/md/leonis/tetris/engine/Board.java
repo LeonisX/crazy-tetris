@@ -1,12 +1,14 @@
 package md.leonis.tetris.engine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Board {
     //TODO interface for GUI instead of Tetris
     private PropertiesHolder properties;
     private int width, height;
     private int[][] glass;//, newGlass;
-    private int[] deleted = new int[4];
-    private int deletedLines = 0;
+    private List<Integer> deletedLines;
     private int falledFigure = 255;
 
     public Board(PropertiesHolder properties, int width, int height) {
@@ -17,7 +19,7 @@ public class Board {
     }
 
     private void start() {
-        deletedLines = 0;
+        resetDeletedLines();
         glass = new int[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -27,7 +29,7 @@ public class Board {
     }
 
     public void falled(Figure figure) {
-        deletedLines = 0;
+        resetDeletedLines();
         falledFigure = figure.getType();
         for (int i = 0; i < figure.getX().length; i++) {
             glass[figure.getX()[i] + figure.getLeft()][figure.getY()[i] + figure.getTop()] = figure.getColor();
@@ -49,8 +51,7 @@ public class Board {
                 }
                 currentLine--;
             } else {
-                deleted[deletedLines] = j;
-                deletedLines++;
+                deletedLines.add(j);
             }
         }
         for (int j = 0; j < currentLine; j++) {
@@ -64,16 +65,8 @@ public class Board {
         return glass;
     }
 
-    public int[] getDeleted() {
-        return deleted;
-    }
-
-    public int getDeletedLines() {
+    public List<Integer> getDeletedLines() {
         return deletedLines;
-    }
-
-    public void setDeletedLines(int deletedLines) {
-        this.deletedLines = deletedLines;
     }
 
     public int getFalledFigure() {
@@ -86,5 +79,9 @@ public class Board {
 
     public int getHeight() {
         return height;
+    }
+
+    public void resetDeletedLines() {
+        deletedLines = new ArrayList<>();
     }
 }

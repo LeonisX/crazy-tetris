@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
+import static md.leonis.tetris.engine.GameState.PAUSED;
+import static md.leonis.tetris.engine.GameState.RUNNING;
 
 public class GameFrame extends JFrame {
 
@@ -256,15 +258,14 @@ public class GameFrame extends JFrame {
                     System.exit(0);
                     break;
                 case KeyEvent.VK_P:
-                    if (tetris.state == 1) {
+                    if (tetris.getState() == RUNNING) {
                         tetris.pause(true);
                         myPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
                         pausePanel.setVisible(true);
                         continueButton.requestFocus();
-                    } else if (tetris.state == 2) {
+                    } else if (tetris.getState() == PAUSED) {
                         pausePanel.setVisible(false);
                         tetris.pause(false);
-                        System.out.println(tetris.state);
                     }
                     myPanel.repaint();                        // вызываем перерисовку панели
                     break;

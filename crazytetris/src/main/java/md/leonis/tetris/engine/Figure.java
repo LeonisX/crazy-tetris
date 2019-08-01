@@ -130,7 +130,7 @@ public class Figure {
     public boolean moveLeft() {
         backup();
         left--;
-        if (!correct()) {
+        if (!isAllowed()) {
             restore();
             return false;
         }
@@ -140,7 +140,7 @@ public class Figure {
     public boolean moveRight() {
         backup();
         left++;
-        if (!correct()) {
+        if (!isAllowed()) {
             restore();
             return false;
         }
@@ -155,7 +155,7 @@ public class Figure {
             x[i] = y[i];
             y[i] = -k;
         }
-        if (!correct()) {
+        if (!isAllowed()) {
             restore();
             return false;
         }
@@ -170,7 +170,7 @@ public class Figure {
             y[i] = x[i];
             x[i] = -k;
         }
-        if (!correct()) {
+        if (!isAllowed()) {
             restore();
             return false;
         }
@@ -181,7 +181,7 @@ public class Figure {
         boolean result = true;
         backup();
         top++;
-        if (!correct()) {
+        if (!isAllowed()) {
             restore();
             falled = true;
             result = false;
@@ -193,7 +193,7 @@ public class Figure {
         do {
             backup();
             top++;
-        } while (correct());
+        } while (isAllowed());
         restore();
         falled = true;
     }
@@ -217,7 +217,7 @@ public class Figure {
         return --k;
     }
 
-    public boolean correct() {
+    public boolean isAllowed() {
         for (int i = 0; i < x.length; i++) {
             if (y[i] + top >= height) return false;
             if (x[i] + left < 0) return false;
@@ -228,6 +228,15 @@ public class Figure {
             if (properties.getGlass()[x[i] + left][y[i] + top] == properties.getTransparentColor()) k++;
         }
         return (k == x.length);
+    }
+
+    boolean isNotConflict(int newX, int newY) {
+        for (int i = 0; i < x.length; i++) {
+            if ((newX == (x[i] + left)) && (newY == (y[i] + top))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public int getColor() {

@@ -12,4 +12,5 @@ public interface PropertiesHolder {
 
     int[][] getGlass();
 
+    Figure getFigure();
 }

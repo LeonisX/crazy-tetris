@@ -8,6 +8,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
+import static md.leonis.tetris.engine.GameState.*;
 
 public class Tetris extends KeyAdapter implements PropertiesHolder {
 
@@ -25,11 +26,6 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
 
     private int transparentColor = 0;
 
-    //TODO enum
-    private final int NOTINIT = 0;
-    private final int RUNNING = 1;
-    private final int PAUSED = 2;
-    private final int GAMEOVER = 3;
     private int nextLevel;
     private int startLevel;
     private int level;
@@ -39,13 +35,13 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     private int tileWidth, tileHeight;
     private int width = 10, height = 22;
     private Board board;
-    private Figure figure, nextFigure;
-    private Critter critter;
+    private volatile Figure figure, nextFigure;
+    private volatile Critter critter;
     private NextMove nm;
     private NextFrame nf;
     JPanel panel;
     Monitor monitor;
-    int state = NOTINIT;
+    private GameState state = VOID;
     private boolean crazy = false;
     BufferedImage frameBuffer;
     private SoundMonitor soundMonitor;                    // монитор для звуковых эффектов
@@ -80,10 +76,6 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         }
     }
 
-    //TODO move to callbacks
-
-
-
     public void start() {
         board = new Board(this, width, height);
         critter = new Critter(this);
@@ -107,46 +99,53 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
 
     private void makeFigure() {
         figure = nextFigure;
-        critter.setFigure(figure);
         makeNextFigure();
     }
 
     private void next() {
-        if (state == GAMEOVER) return;
-        if (state > NOTINIT) {
+        if (state == GAME_OVER) {
+            return;
+        }
+        if (state != VOID) {
             soundMonitor.play(0);
             critter.setPaused(true);
-            if (critter.isNotCorrect()) {
+            if (critter.isDead()) {
                 finish();
                 return;
             }
             board.falled(figure);
-            critter.correctY(board.getDeleted(), board.getDeletedLines());
+            critter.correctYPosition(board.getDeletedLines());
             critter.setPaused(false);
             score();
         }
         makeFigure();
-        if (critter.isNotCorrect()) finish();
-        if (!figure.correct()) finish();
+        if (critter.isDead() || !figure.isAllowed()) {
+            finish();
+        }
     }
 
-    public void pause(boolean paused) {
-        if (paused) state = PAUSED;
-        else state = RUNNING;
-        critter.setPaused(paused);
+    public void pause(boolean isPaused) {
+        if (isPaused) {
+            state = PAUSED;
+        } else {
+            state = RUNNING;
+        }
+        critter.setPaused(isPaused);
     }
 
     public void finish() {
         critter.setStatus(CritterState.DEAD);
         monitor.actionPerformed(new ActionEvent(monitor, ActionEvent.ACTION_PERFORMED, "gameover"));
-        state = GAMEOVER;
+        state = GAME_OVER;
     }
 
     /*
     "Слушатель". По требованию добавляет/убирает спрайты.
     */
     public void keyPressed(KeyEvent e) {
-        if (state >= PAUSED) return;
+        if (state == PAUSED || state == GAME_OVER) {
+            return;
+        }
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_LEFT:
@@ -180,7 +179,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     //3. Поток опускания фигуры - интервал зависит от скорости игры
     class NextMove extends Thread {
         public void run() {
-            while (state < GAMEOVER) {
+            while (state != GAME_OVER) {
                 if (state != PAUSED) if (figure.isFalled()) next();
                 try {
                     sleep(1001 - level * 100);
@@ -188,7 +187,9 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 } catch (InterruptedException e) {
                     //TODO
                 }
-                if (state != PAUSED) if (!figure.isFalled()) figure.moveDown();
+                if ((state != PAUSED) && !figure.isFalled()) {
+                    figure.moveDown();
+                }
             }
         }
     }
@@ -196,7 +197,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     //2. Поток рисования - интервал 33 мс (30 кадров в секунду), больше не надо
     class NextFrame extends Thread {
         public void run() {
-            while (state < GAMEOVER) {
+            while (state != GAME_OVER) {
                 try {
                     sleep(33);
                 } catch (InterruptedException e) {
@@ -219,12 +220,15 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                         if (soundMonitor.isLooping(4)) soundMonitor.stop(4);
                 }
                 panel.repaint();
+                if (critter.isDead()) {
+                    finish();
+                }
             }
         }
     }
 
     private void score() {
-        lines += board.getDeletedLines();
+        lines += board.getDeletedLines().size();
         switch (board.getFalledFigure()) {
             case 0:
             case 6:
@@ -239,7 +243,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             case 5:
                 score += 20;
         }
-        switch (board.getDeletedLines()) {
+        switch (board.getDeletedLines().size()) {
             case 1:
                 score += 100;
                 break;
@@ -253,7 +257,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 score += 600;
         }
         level = score / nextLevel;
-        board.setDeletedLines(0);
+        board.resetDeletedLines();
 //        board.falledFigure=255;
     }
 
@@ -289,7 +293,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         g.drawString("Уровень: " + level, lpos, 50);
         String st = "Жизнь прекрасна :)";
         if (critter.getAir() < 75) st = "Надо отдышаться...";
-        if (critter.isBlocked()) if (critter.getAir() < 50) st = "Задыхаюсь!!!";
+        if (critter.isBounded()) if (critter.getAir() < 50) st = "Задыхаюсь!!!";
         else st = "Тут мало воздуха...";
         g.drawString("Дыхание: " + (int) critter.getAir() + "%", lpos, 70);
         g.drawString(st, lpos, 90);
@@ -341,9 +345,9 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             }
             //рот
             int wx;
-            if (critter.isBlocked()) wx = 2;
+            if (critter.isBounded()) wx = 2;
             else wx = 6;
-            if ((critter.getAir() > 75) && (!critter.isBlocked())) {
+            if ((critter.getAir() > 75) && (!critter.isBounded())) {
                 g.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
             } else g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
 
@@ -351,28 +355,38 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
 //        g.translate(0,0);
     }
 
-    public Color getColor(int index) {
-        return colors[index];
+    public GameState getState() {
+        return state;
     }
 
+    @Override
     public int getColorsCount() {
         return colors.length;
     }
 
+    @Override
     public int getTransparentColor() {
         return transparentColor;
     }
 
+    @Override
     public Board getBoard() {
         return board;
     }
 
+    @Override
     public boolean isCrazy() {
         return crazy;
     }
 
+    @Override
     public int[][] getGlass() {
         return board.getGlass();
+    }
+
+    @Override
+    public Figure getFigure() {
+        return figure;
     }
 }
 
