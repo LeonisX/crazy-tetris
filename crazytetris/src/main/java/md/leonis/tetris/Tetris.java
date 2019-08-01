@@ -2,6 +2,7 @@ package md.leonis.tetris;
 
 import md.leonis.tetris.engine.Board;
 import md.leonis.tetris.engine.Critter;
+import md.leonis.tetris.engine.CritterState;
 import md.leonis.tetris.engine.Figure;
 
 import javax.swing.*;
@@ -139,7 +140,7 @@ public class Tetris extends KeyAdapter {
     }
 
     public void finish() {
-        critter.setStatus(critter.DEAD);
+        critter.setStatus(CritterState.DEAD);
         monitor.actionPerformed(new ActionEvent(monitor, ActionEvent.ACTION_PERFORMED, "gameover"));
         state = GAMEOVER;
     }
@@ -325,14 +326,14 @@ public class Tetris extends KeyAdapter {
         }
 
         //рисую персонажа
-        if (critter.getStatus() != critter.DEAD) {
+        if (critter.getStatus() != CritterState.DEAD) {
             g.setColor(Color.WHITE);
             g.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
             kx = critter.getDirection() * 2;
             ky = 0;
-            if (critter.getStatus() == critter.FALLING) ky = 1;
-            if (critter.getStatus() == critter.JUMPING) ky = -1;
-            if (critter.getStatus() == critter.STAYING) kx = 0;
+            if (critter.getStatus() == CritterState.FALLING) ky = 1;
+            if (critter.getStatus() == CritterState.JUMPING) ky = -1;
+            if (critter.getStatus() == CritterState.STAYING) kx = 0;
             //глаза
             g.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
             g.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);

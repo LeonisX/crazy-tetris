@@ -2,17 +2,12 @@ package md.leonis.tetris.engine;
 
 import md.leonis.tetris.Tetris;
 
+import static md.leonis.tetris.engine.CritterState.*;
+
 //TODO need thread???
 public class Critter extends Thread {
 
-    //TODO enum
-    public final int DEAD = 0;
-    public final int FALLING = 1;
-    public final int JUMPING = 2;
-    public final int MOVING = 3;
-    public final int STAYING = 4;
-
-    private int status;
+    private CritterState status;
     private double air;
     private int count;
     private int placeCount;
@@ -71,8 +66,11 @@ public class Critter extends Thread {
         final double airFALLING = 0;
         final double airJUMPING = 10;    //вычитается
         double ak;
-        if (status >= MOVING) ak = airSTAYING;
-        else ak = 0;
+        if (status == MOVING || status == STAYING) {
+            ak = airSTAYING;
+        } else {
+            ak = 0;
+        }
         switch (status) {
             //TODO
             case DEAD:
@@ -288,11 +286,11 @@ public class Critter extends Thread {
         this.paused = paused;
     }
 
-    public int getStatus() {
+    public CritterState getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(CritterState status) {
         this.status = status;
     }
 
