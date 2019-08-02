@@ -1,37 +1,32 @@
 package md.leonis.tetris.engine;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Figure {
 
-    private int[][] figureDef = {           // Координаты тайлов "кирпичиков"
-            {-1, -1, 0, 0},                // "O" - X
-            {0, 1, 0, 1},                  // "O" - Y
-            {-1, 0, 1, 1},                 // "J" - X
-            {0, 0, 0, 1},                  // "J" - Y
-            {-1, 0, 1, 1},                 // "L" - X
-            {0, 0, 0, -1},                 // "L" - Y
-            {-1, 0, 1, 0},                 // "T" - X
-            {0, 0, 0, 1},                  // "T" - Y
-            {-1, 0, 0, 1},                 // "Z" - X
-            {0, 0, 1, 1},                  // "Z" - Y
-            {-1, 0, 0, 1},                 // "S" - X
-            {1, 1, 0, 0},                  // "S" - Y
-            {-1, 0, 1, 2},                 // "I" - X
-            {0, 0, 0, 0}                   // "I" - Y
-    };
+    private static final Random RAND = new Random();       // для генерации случайных чисел
 
-    private Random rand = new Random();       // для генерации случайных чисел
+    private static List<Coordinates> FIGURE_DEF = new ArrayList<>();
+
+    static {
+        FIGURE_DEF.add(new Coordinates(-1,0,-1,1,0,0,0,1)); // O
+        FIGURE_DEF.add(new Coordinates(-1,0,0,0,1,0,1,1)); // J
+        FIGURE_DEF.add(new Coordinates(-1,0,0,0,1,0,1,-1)); // L
+        FIGURE_DEF.add(new Coordinates(-1,0,0,0,1,0,0,1)); // T
+        FIGURE_DEF.add(new Coordinates(-1,0,0,0,0,1,1,1)); // Z
+        FIGURE_DEF.add(new Coordinates(-1,1,0,1,0,0,1,0)); // S
+        FIGURE_DEF.add(new Coordinates(-1,0,0,0,1,0,2,0)); // I
+    }
+
     private int color;
     private int type;
-    private int[] x, y;           // массив тайлов
-    private int[] xt, yt;           // резервный массив тайлов
+    private Coordinates coordinates; // Figure tiles coordinates
+    private Coordinates coordinatesCopy; // Reserve copy
     private int left, top;         // положение в "стакане"
-    private int leftt, topt;         // резервное положение в "стакане"
-    private int angle;                      // Поворот фигуры в градусах
-    private boolean falled;
-    private int width, height;
+    private int leftCopy, topCopy;         // резервное положение в "стакане"
+    private boolean fallen;
 
     private final PropertiesHolder properties;
 
@@ -41,96 +36,88 @@ public class Figure {
     }
 
     private void initFigure() {
-        falled = false;
-//        crazy=false;
-        width = properties.getWidth();
-        height = properties.getHeight();
-        left = width / 2;
+        fallen = false;
+        left = properties.getWidth() / 2;
         top = 2;
-        int k = 4;
-        if (properties.isCrazy()) {
-            int r = rand.nextInt(10);
-            if (r == 0) k = rand.nextInt(3) + 1;
-            if (r > 5) k = 5;
+
+        type = RAND.nextInt(FIGURE_DEF.size());
+        int tilesCount = figureTilesCount();
+        coordinates = new Coordinates(FIGURE_DEF.get(type), tilesCount);
+        color = RAND.nextInt(properties.getColorsCount() - 1) + 1;
+
+        // Поворот фигуры в градусах
+        int angle = RAND.nextInt(3);
+        for (int i = 0; i < angle; i++) {
+            rotateLeft();
         }
-        x = new int[k];
-        y = new int[k];
-        xt = new int[k];
-        yt = new int[k];
-        type = rand.nextInt(7);
-        for (int i = 0; i < 4; i++)
-            if (i < x.length) {
-                x[i] = figureDef[type * 2][i];
-                y[i] = figureDef[type * 2 + 1][i];
-            }
-        color = rand.nextInt(properties.getColorsCount() - 1) + 1;
-        angle = rand.nextInt(3);
-        for (int i = 0; i < angle; i++) rotateLeft();
 
         //тут сделать генерацию пятого элемента
-        if (k == 5) {
-            int ax = 0, ay = 0;
-            boolean f = true;
-            do {
-                int r = rand.nextInt(5);
-                int ra = rand.nextInt(4);
-                switch (ra) {
-                    case 0:
-                        ax = x[r] + 1;
-                        ay = y[r];
-                        f = in(ax, ay);
-                        break;
-                    case 1:
-                        ax = x[r] - 1;
-                        ay = y[r];
-                        f = in(ax, ay);
-                        break;
-                    case 2:
-                        ax = x[r];
-                        ay = y[r] + 1;
-                        f = in(ax, ay);
-                        break;
-                    case 3:
-                        ax = x[r];
-                        ay = y[r] - 1;
-                        f = in(ax, ay);
-                        break;
-                }
-            } while (f);
-            x[4] = ax;
-            y[4] = ay;
+        if (tilesCount == 5) {
+            generateFifthElement();
         }
     }
 
-    private boolean in(int dx, int dy) {
-        boolean flag = false;
-        for (int i = 0; i < x.length; i++) {
-            if ((dx == x[i]) & (dy == y[i])) {
-                flag = true;
-                break;
+    private int figureTilesCount() {
+        if (properties.isCrazy()) {
+            int r = RAND.nextInt(10);
+            if (r == 0) {
+                return RAND.nextInt(3) + 1;
+            }
+            if (r > 5) {
+                return 5;
             }
         }
-        return flag;
+        return 4;
+    }
+
+    private void generateFifthElement() {
+        int newX = 0, newY = 0;
+        boolean f = true;
+        do {
+            int r = RAND.nextInt(coordinates.size());
+            int ra = RAND.nextInt(4);
+            switch (ra) {
+                case 0:
+                    newX = coordinates.get(r).getX() + 1;
+                    newY = coordinates.get(r).getY();
+                    f = coordinates.contains(newX, newY);
+                    break;
+                case 1:
+                    newX = coordinates.get(r).getX() - 1;
+                    newY = coordinates.get(r).getY();
+                    f = coordinates.contains(newX, newY);
+                    break;
+                case 2:
+                    newX = coordinates.get(r).getX();
+                    newY = coordinates.get(r).getY() + 1;
+                    f = coordinates.contains(newX, newY);
+                    break;
+                case 3:
+                    newX = coordinates.get(r).getX();
+                    newY = coordinates.get(r).getY() - 1;
+                    f = coordinates.contains(newX, newY);
+                    break;
+            }
+        } while (f);
+        coordinates.add(newX, newY);
     }
 
     private void backup() {
-        leftt = left;
-        topt = top;
-        xt = Arrays.copyOf(x, x.length);
-        yt = Arrays.copyOf(y, y.length);
+        leftCopy = left;
+        topCopy = top;
+        coordinatesCopy = coordinates.copy();
     }
 
     private void restore() {
-        left = leftt;
-        top = topt;
-        x = Arrays.copyOf(xt, xt.length);
-        y = Arrays.copyOf(yt, yt.length);
+        left = leftCopy;
+        top = topCopy;
+        coordinates = coordinatesCopy;
     }
 
     public boolean moveLeft() {
         backup();
         left--;
-        if (!isAllowed()) {
+        if (!isAllowedNewPosition()) {
             restore();
             return false;
         }
@@ -140,7 +127,7 @@ public class Figure {
     public boolean moveRight() {
         backup();
         left++;
-        if (!isAllowed()) {
+        if (!isAllowedNewPosition()) {
             restore();
             return false;
         }
@@ -149,92 +136,79 @@ public class Figure {
 
     public boolean rotateRight() {
         backup();
-        int k;
-        for (int i = 0; i < x.length; i++) {
-            k = x[i];
-            x[i] = y[i];
-            y[i] = -k;
-        }
-        if (!isAllowed()) {
+        coordinates.forEach(c -> {
+            int k = c.getX();
+            c.setX(c.getY());
+            c.setY(-k);
+        });
+        if (!isAllowedNewPosition()) {
             restore();
             return false;
         }
         return true;
     }
 
-    public boolean rotateLeft() {
+    private void rotateLeft() {
         backup();
-        int k;
-        for (int i = 0; i < x.length; i++) {
-            k = y[i];
-            y[i] = x[i];
-            x[i] = -k;
-        }
-        if (!isAllowed()) {
+        coordinates.forEach(c -> {
+            int k = c.getY();
+            c.setY(c.getX());
+            c.setX(-k);
+        });
+        if (!isAllowedNewPosition()) {
             restore();
-            return false;
+            //return false;
         }
-        return true;
+        //return true;
     }
 
     public boolean moveDown() {
-        boolean result = true;
         backup();
         top++;
-        if (!isAllowed()) {
+        if (!isAllowedNewPosition()) {
             restore();
-            falled = true;
-            result = false;
+            fallen = true;
+            return false;
         }
-        return result;
+        return true;
     }
 
     public void fall() {
         do {
             backup();
             top++;
-        } while (isAllowed());
+        } while (isAllowedNewPosition());
         restore();
-        falled = true;
+        fallen = true;
     }
 
-    public int ghostTop() {
-        int k = top;
+    public int getGhostTop() {
+        int ghostTop = top;
         boolean flag = true;
         do {
-            k++;
-            for (int i = 0; i < x.length; i++) {
-                if (y[i] + k >= height) {
-                    flag = false;
-                    break;
-                }
-                if (properties.getGlass().get(x[i] + left, y[i] + k) != properties.getTransparentColor()) {
+            ghostTop++;
+            for (Coordinate coordinate : coordinates) {
+                if (properties.getBoard().isCoordinateNotAllowed(coordinate.getX() + left, coordinate.getY() + ghostTop)) {
                     flag = false;
                     break;
                 }
             }
         } while (flag);
-        return --k;
+        return --ghostTop;
     }
 
-    public boolean isAllowed() {
-        for (int i = 0; i < x.length; i++) {
-            if (y[i] + top >= height) return false;
-            if (x[i] + left < 0) return false;
-            if (x[i] + left >= width) return false;
-        }
-        int k = 0;
-        for (int i = 0; i < x.length; i++) {
-            if (properties.getGlass().get(x[i] + left, y[i] + top) == properties.getTransparentColor()) {
-                k++;
+    public boolean isAllowedNewPosition() {
+        for (Coordinate coordinate : coordinates) {
+            if (properties.getBoard().isCoordinateNotAllowed(coordinate.getX() + left, coordinate.getY() + top)) {
+                return false;
             }
         }
-        return (k == x.length);
+        return true;
     }
 
-    boolean isNotConflict(int newX, int newY) {
-        for (int i = 0; i < x.length; i++) {
-            if ((newX == (x[i] + left)) && (newY == (y[i] + top))) {
+    boolean isNotOccupied(int newX, int newY) {
+        for (Coordinate coordinate : coordinates) {
+            if ((newX == (coordinate.getX() + left)) && (newY == (coordinate.getY() + top))) {
                 return false;
             }
         }
@@ -249,12 +223,8 @@ public class Figure {
         return type;
     }
 
-    public int[] getX() {
-        return x;
-    }
-
-    public int[] getY() {
-        return y;
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
     public int getLeft() {
@@ -265,7 +235,7 @@ public class Figure {
         return top;
     }
 
-    public boolean isFalled() {
-        return falled;
+    public boolean isFallen() {
+        return fallen;
     }
 }

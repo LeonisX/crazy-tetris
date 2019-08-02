@@ -15,7 +15,6 @@ public class Critter extends Thread {
     private static final int VERTICAL_SPEED = 400;
     private static final int HORIZONTAL_SPEED = 80;
 
-
     private CritterState status;
     private double air;
     private int availableAirVolume;
@@ -177,7 +176,7 @@ public class Critter extends Thread {
         }
         Figure figure = properties.getFigure();
         if (figure != null) {
-            return figure.isNotConflict(newX, newY);
+            return figure.isNotOccupied(newX, newY);
         }
         return true;
     }

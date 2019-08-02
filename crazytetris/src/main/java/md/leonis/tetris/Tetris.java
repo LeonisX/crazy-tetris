@@ -120,7 +120,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             score();
         }
         makeFigure();
-        if (critter.isDead() || !figure.isAllowed()) {
+        if (critter.isDead() || !figure.isAllowedNewPosition()) {
             finish();
         }
     }
@@ -150,7 +150,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_LEFT:
-                 if (figure.moveLeft()) soundMonitor.play(2);
+                if (figure.moveLeft()) soundMonitor.play(2);
 //            if(!critter.correct()) finish();
                 break;
             case KeyEvent.VK_RIGHT:
@@ -181,14 +181,14 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     class NextMove extends Thread {
         public void run() {
             while (state != GAME_OVER) {
-                if (state != PAUSED) if (figure.isFalled()) next();
+                if (state != PAUSED) if (figure.isFallen()) next();
                 try {
                     sleep(1001 - level * 100);
 //                    sleep(10001-level*100);
                 } catch (InterruptedException e) {
                     //TODO
                 }
-                if ((state != PAUSED) && !figure.isFalled()) {
+                if ((state != PAUSED) && !figure.isFallen()) {
                     figure.moveDown();
                 }
             }
@@ -306,31 +306,37 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
         g.drawString(st, lpos, 90);
 
         //рисуем фигуру
-        for (int i = 0; i < figure.getX().length; i++) {
-            int k = figure.ghostTop();
+        for (Coordinate coordinate : figure.getCoordinates()) {
+            int k = figure.getGhostTop();
             g.setColor(new Color(colors[figure.getColor()].getRed() / 7, colors[figure.getColor()].getGreen() / 7, colors[figure.getColor()].getBlue() / 4));
-            if ((figure.getY()[i] + k) >= 2)
-                g.fillRoundRect((figure.getX()[i] + figure.getLeft()) * tileWidth, (figure.getY()[i] + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            if ((coordinate.getY() + k) >= 2)
+                g.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
         }
 
         int kx = 0;
-        for (int i = 0; i < nextFigure.getX().length; i++) if (nextFigure.getX()[i] < kx) kx = nextFigure.getX()[i];
         int ky = 0;
-        for (int i = 0; i < nextFigure.getY().length; i++) if (nextFigure.getY()[i] < ky) ky = nextFigure.getY()[i];
+        for (Coordinate coordinate : nextFigure.getCoordinates()) {
+            if (coordinate.getX() < kx) {
+                kx = coordinate.getX();
+            }
+            if (coordinate.getY() < ky) {
+                ky = coordinate.getY();
+            }
+        }
 
-        for (int i = 0; i < nextFigure.getX().length; i++) {
+        for (Coordinate coordinate : nextFigure.getCoordinates()) {
             g.setColor(new Color(colors[figure.getColor()].getRed() / 4, colors[figure.getColor()].getGreen() / 4, colors[figure.getColor()].getBlue() / 3));
-            g.fillRoundRect((nextFigure.getX()[i] - kx) * tileWidth + lpos + 1, (nextFigure.getY()[i] - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            g.fillRoundRect((coordinate.getX() - kx) * tileWidth + lpos + 1, (coordinate.getY() - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
 
             g.setColor(colors[nextFigure.getColor()]);
-            g.fillRoundRect((nextFigure.getX()[i] - kx) * tileWidth + lpos, (nextFigure.getY()[i] - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            g.fillRoundRect((coordinate.getX() - kx) * tileWidth + lpos, (coordinate.getY() - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
 
         }
 
-        for (int i = 0; i < figure.getX().length; i++) {
+        for (Coordinate coordinate : figure.getCoordinates()) {
             g.setColor(colors[figure.getColor()]);
-            if ((figure.getY()[i] + figure.getTop()) >= 2)
-                g.fillRoundRect((figure.getX()[i] + figure.getLeft()) * tileWidth, (figure.getY()[i] + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            if ((coordinate.getY() + figure.getTop()) >= 2)
+                g.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
         }
 
         //рисую персонажа
@@ -356,7 +362,8 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             else wx = 6;
             if ((critter.getAir() > 75) && (!critter.isBounded())) {
                 g.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
-            } else g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
+            } else
+                g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
 
         }
 //        g.translate(0,0);
@@ -404,17 +411,5 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     @Override
     public Figure getFigure() {
         return figure;
-    }
-}
-
-abstract class Monitor implements ActionListener, KeyListener {
-    abstract public void actionPerformed(ActionEvent e);
-
-    abstract public void keyPressed(KeyEvent e);
-
-    public void keyReleased(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
     }
 }

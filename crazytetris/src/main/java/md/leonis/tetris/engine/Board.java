@@ -23,8 +23,8 @@ public class Board {
     }
 
     public void mergeFigure(Figure figure) {
-        for (int i = 0; i < figure.getX().length; i++) {
-            glass.set(figure.getX()[i] + figure.getLeft(), figure.getY()[i] + figure.getTop(), figure.getColor());
+        for (Coordinate coordinate: figure.getCoordinates()) {
+            glass.set(coordinate.getX() + figure.getLeft(), coordinate.getY() + figure.getTop(), figure.getColor());
         }
     }
 
