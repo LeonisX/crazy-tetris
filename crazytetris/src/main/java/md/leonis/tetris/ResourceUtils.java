@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class ResourceUtils {
+class ResourceUtils {
 
-    public static InputStream getResourceAsStream(String path, boolean isDebug) {
+    static InputStream getResourceAsStream(String path, boolean isDebug) {
         if (isDebug) {
             try {
                 return new BufferedInputStream(new FileInputStream(ResourceUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath() + path));

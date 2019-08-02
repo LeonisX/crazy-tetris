@@ -1,5 +1,8 @@
 package md.leonis.tetris;
 
+import md.leonis.tetris.engine.Records;
+import md.leonis.tetris.engine.StorageInterface;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -8,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
 import static md.leonis.tetris.engine.GameState.PAUSED;
@@ -24,7 +28,8 @@ public class GameFrame extends JFrame {
     private final JTextField myTextField;                        // поле для ввода текста
     private Tetris tetris;
     private Monitor monitor;
-    private Records GameRecords;
+    private Records gameRecords;
+    private StorageInterface storage;
     private DefaultTableModel model;
     private JTable table;
     private BufferedImage frameBuffer;
@@ -37,6 +42,8 @@ public class GameFrame extends JFrame {
     private boolean isDebug;
 
     GameFrame(String s, boolean isDebug) {                            // конструктор
+
+        storage = new FileSystemStorage();
 
         this.isDebug = isDebug;
 
@@ -115,9 +122,9 @@ public class GameFrame extends JFrame {
 
         model = new DefaultTableModel();
         table = new JTable(model);
+        model.addColumn("N");
         model.addColumn("Имя");
         model.addColumn("Рекорд");
-//    GameRecords.fillModel(model);
 
         recordPanel.add(table.getTableHeader(), BorderLayout.PAGE_START);
         recordPanel.add(table);
@@ -193,12 +200,12 @@ public class GameFrame extends JFrame {
                     break;
 
                 case "gameover":
-                    if (crazy) s = "crazy.res";
-                    else s = "tet.res";
-                    GameRecords = new Records(s);
-                    int place = GameRecords.getPlace(tetris.score);
-                    if (GameRecords.verify(tetris.score)) {
-                        GameRecords.fillModel(model);
+                    String fileName = crazy ? "crazy.res" : "tet.res";
+                    storage.setFileName(fileName);
+                    gameRecords = new Records(storage);
+                    int place = gameRecords.getPlace(tetris.score);
+                    if (gameRecords.canAddNewRecord(place)) {
+                        fillModel(gameRecords, model);
                         myTextField.setVisible(true);
                         saveButton.setText("Записать");
                         switch (place) {
@@ -230,8 +237,8 @@ public class GameFrame extends JFrame {
                     recordPanel.setVisible(false);
                     String str = myTextField.getText();
                     if (str.length() == 0) str = "Капитан Немо";
-                    GameRecords.verifyAndAdd(str, tetris.score);
-                    GameRecords.save();
+                    gameRecords.verifyAndAddScore(str, tetris.score);
+                    storage.save(gameRecords.getRecords());
                     myPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
 
                     startPanel.setVisible(true);
@@ -254,7 +261,7 @@ public class GameFrame extends JFrame {
             switch (keyCode) {
                 case KeyEvent.VK_ESCAPE:
                     tetris.finish();
-                    GameRecords.save();
+                    storage.save(gameRecords.getRecords());
                     System.exit(0);
                     break;
                 case KeyEvent.VK_P:
@@ -269,6 +276,15 @@ public class GameFrame extends JFrame {
                     }
                     myPanel.repaint();                        // вызываем перерисовку панели
                     break;
+            }
+        }
+
+        private void fillModel(Records records, DefaultTableModel model) {
+            model.setRowCount(0);
+            List<Records.Rec> recordsRecords = records.getRecords();
+            for (int i = 0; i < records.getRecords().size(); i++) {
+                Records.Rec r = recordsRecords.get(i);
+                model.addRow(new Object[]{i + 1, r.getName(), r.getScore()});
             }
         }
     }
