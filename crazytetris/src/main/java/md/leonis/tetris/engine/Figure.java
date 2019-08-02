@@ -43,8 +43,8 @@ public class Figure {
     private void initFigure() {
         falled = false;
 //        crazy=false;
-        width = properties.getBoard().getWidth();
-        height = properties.getBoard().getHeight();
+        width = properties.getWidth();
+        height = properties.getHeight();
         left = width / 2;
         top = 2;
         int k = 4;
@@ -208,7 +208,7 @@ public class Figure {
                     flag = false;
                     break;
                 }
-                if (!(properties.getGlass()[x[i] + left][y[i] + k] == properties.getTransparentColor())) {
+                if (properties.getGlass().get(x[i] + left, y[i] + k) != properties.getTransparentColor()) {
                     flag = false;
                     break;
                 }
@@ -225,7 +225,9 @@ public class Figure {
         }
         int k = 0;
         for (int i = 0; i < x.length; i++) {
-            if (properties.getGlass()[x[i] + left][y[i] + top] == properties.getTransparentColor()) k++;
+            if (properties.getGlass().get(x[i] + left, y[i] + top) == properties.getTransparentColor()) {
+                k++;
+            }
         }
         return (k == x.length);
     }
@@ -243,7 +245,7 @@ public class Figure {
         return color;
     }
 
-    int getType() {
+    public int getType() {
         return type;
     }
 

@@ -9,8 +9,5 @@
         <module name="crazytetris" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="crazytetris" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

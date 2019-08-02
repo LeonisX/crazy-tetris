@@ -24,7 +24,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             Color.BLUE
     };
 
-    private int transparentColor = 0;
+    private final Integer transparentColor = 0;
 
     private int nextLevel;
     private int startLevel;
@@ -77,7 +77,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     }
 
     public void start() {
-        board = new Board(this, width, height);
+        board = new Board(this);
         critter = new Critter(this);
         level = startLevel;
         score = 0;
@@ -113,8 +113,9 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 finish();
                 return;
             }
-            board.falled(figure);
-            critter.correctYPosition(board.getDeletedRows());
+            board.mergeFigure(figure);
+            board.deleteCompletedRows();
+            critter.correctYPosition(board.getCompletedRows());
             critter.setPaused(false);
             score();
         }
@@ -228,8 +229,8 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     }
 
     private void score() {
-        lines += board.getDeletedRows().size();
-        switch (board.getFalledFigure()) {
+        lines += board.getCompletedRows().size();
+        switch (figure.getType()) {
             case 0:
             case 6:
                 score += 10;
@@ -243,7 +244,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
             case 5:
                 score += 20;
         }
-        switch (board.getDeletedRows().size()) {
+        switch (board.getCompletedRows().size()) {
             case 1:
                 score += 100;
                 break;
@@ -257,8 +258,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
                 score += 600;
         }
         level = score / nextLevel;
-        board.resetDeletedRows();
-//        board.falledFigure=255;
+        //board.resetCompletedRows();
     }
 
     public void draw(Graphics gx) {
@@ -280,7 +280,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
 
         for (int i = 0; i < width; i++) {
             for (int j = 2; j < height; j++) {
-                g.setColor(colors[board.getGlass()[i][j]]);
+                g.setColor(colors[board.getGlass().get(i, j)]);
                 g.fillRoundRect(i * tileWidth, (j - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
             }
         }
@@ -372,8 +372,18 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     }
 
     @Override
-    public int getTransparentColor() {
+    public Integer getTransparentColor() {
         return transparentColor;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
     }
 
     @Override
@@ -387,7 +397,7 @@ public class Tetris extends KeyAdapter implements PropertiesHolder {
     }
 
     @Override
-    public int[][] getGlass() {
+    public Board.Glass getGlass() {
         return board.getGlass();
     }
 

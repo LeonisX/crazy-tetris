@@ -2,15 +2,19 @@ package md.leonis.tetris.engine;
 
 public interface PropertiesHolder {
 
+    int getWidth();
+
+    int getHeight();
+
     Board getBoard();
 
     int getColorsCount();
 
-    int getTransparentColor();
+    Integer getTransparentColor();
 
     boolean isCrazy();
 
-    int[][] getGlass();
+    Board.Glass getGlass();
 
     Figure getFigure();
 }

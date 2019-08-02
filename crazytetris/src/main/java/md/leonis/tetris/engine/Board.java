@@ -2,63 +2,35 @@ package md.leonis.tetris.engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Board {
-    //TODO interface for GUI instead of Tetris
-    private PropertiesHolder properties;
-    private int width, height;
-    private int[][] glass;//, newGlass;
-    private List<Integer> deletedRows;
-    private int falledFigure = 255;
 
-    public Board(PropertiesHolder properties, int width, int height) {
-        this.properties = properties;
-        this.width = width;
-        this.height = height;
-        start();
+    private final int width;
+    private final int height;
+    private final int transparentColor;
+
+    private volatile Glass glass;
+
+    private List<Integer> completedRows = new ArrayList<>();
+
+    public Board(PropertiesHolder properties) {
+        this.width = properties.getWidth();
+        this.height = properties.getHeight();
+        this.transparentColor = properties.getTransparentColor();
+        glass = new Glass();
     }
 
-    private void start() {
-        resetDeletedRows();
-        glass = new int[width][height];
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                glass[i][j] = properties.getTransparentColor();
-            }
-        }
-    }
-
-    public void falled(Figure figure) {
-        resetDeletedRows();
-        falledFigure = figure.getType();
+    public void mergeFigure(Figure figure) {
         for (int i = 0; i < figure.getX().length; i++) {
-            glass[figure.getX()[i] + figure.getLeft()][figure.getY()[i] + figure.getTop()] = figure.getColor();
+            glass.set(figure.getX()[i] + figure.getLeft(), figure.getY()[i] + figure.getTop(), figure.getColor());
         }
-        int currentLine = height - 1;
-        for (int j = height - 1; j >= 0; j--) {
-            boolean f = false;
-            for (int i = 0; i < width; i++) {
-                if (glass[i][j] == properties.getTransparentColor()) {
-                    f = true;
-                    break;
-                }
-            }
-            if (f) {
-                if (currentLine != j) {
-                    for (int i = 0; i < width; i++) {
-                        glass[i][currentLine] = glass[i][j];
-                    }
-                }
-                currentLine--;
-            } else {
-                deletedRows.add(j);
-            }
-        }
-        for (int j = 0; j < currentLine; j++) {
-            for (int i = 0; i < width; i++) {
-                glass[i][j] = properties.getTransparentColor();
-            }
-        }
+    }
+
+    public void deleteCompletedRows() {
+        completedRows = glass.getCompletedRows();
+        glass.removeCompletedRowsAndAddEmpty(completedRows);
     }
 
     boolean isCoordinateNotAllowed(int x, int y) {
@@ -70,30 +42,53 @@ public class Board {
     }
 
     private boolean isCoordinateOccupied(int x, int y) {
-        return glass[x][y] != properties.getTransparentColor();
+        return glass.get(x, y) != transparentColor;
     }
 
-    public int[][] getGlass() {
+    public Board.Glass getGlass() {
         return glass;
     }
 
-    public List<Integer> getDeletedRows() {
-        return deletedRows;
+    public List<Integer> getCompletedRows() {
+        return completedRows;
     }
 
-    public int getFalledFigure() {
-        return falledFigure;
-    }
+    public class Glass {
 
-    public int getWidth() {
-        return width;
-    }
+        private List<Row> rows;
 
-    public int getHeight() {
-        return height;
-    }
+        Glass() {
+            rows = IntStream.range(0, height).mapToObj(i -> new Row(width, transparentColor)).collect(Collectors.toList());
+        }
 
-    public void resetDeletedRows() {
-        deletedRows = new ArrayList<>();
+        void set(int x, int y, int color) {
+            rows.get(y).getElements()[x] = color;
+        }
+
+        public int get(int x, int y) {
+            return rows.get(y).getElements()[x];
+        }
+
+        List<Integer> getCompletedRows() {
+            List<Integer> completedRows = new ArrayList<>();
+            for (int j = rows.size() - 1; j >= 0; j--) {
+                if (rows.get(j).isFull()) {
+                    completedRows.add(j);
+                }
+            }
+            return completedRows;
+        }
+
+        void removeCompletedRowsAndAddEmpty(List<Integer> completedRows) {
+            rows = rows.stream().filter(Row::isNotFull).collect(Collectors.toList());
+            completedRows.forEach(i -> rows.add(0, new Row(width, transparentColor)));
+        }
+
+        @Override
+        public String toString() {
+            return "Glass{" +
+                    "rows=" + rows.stream().map(row -> row.toString() + "\n").collect(Collectors.joining()) +
+                    '}';
+        }
     }
 }
