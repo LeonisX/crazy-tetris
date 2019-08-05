@@ -1,7 +1,6 @@
 package md.leonis.tetris;
 
-import md.leonis.tetris.engine.Records;
-import md.leonis.tetris.engine.StorageInterface;
+import md.leonis.tetris.engine.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -39,13 +38,19 @@ public class GameFrame extends JFrame {
     private MusicChannel musicChannel;
     private boolean crazy = false;
 
-    private boolean isDebug;
+    private int tileWidth, tileHeight;
+
+    private Config config;
 
     GameFrame(String s, boolean isDebug) {                            // конструктор
+        config = new Config();
+        config.isDebug = isDebug;
+
+        this.tileWidth = config.tileWidth;
+        this.tileHeight = config.tileHeight;
+
 
         storage = new FileSystemStorage();
-
-        this.isDebug = isDebug;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // при закрытии закрывается окно
         setTitle(s);
@@ -150,7 +155,6 @@ public class GameFrame extends JFrame {
             super.paintComponent(g);
             frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-
             Graphics2D g2d = (Graphics2D) frameBuffer.getGraphics();
             g2d.drawImage(ic, 0, 0, null);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB);
@@ -159,8 +163,124 @@ public class GameFrame extends JFrame {
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 11));
             g2d.drawString("© Leonis, 2015-2019", width - 117, height - 50);
             g2d.dispose();
-            if (tetris != null) tetris.draw(frameBuffer.getGraphics());
+            if (tetris != null && tetris.isInitialized()) {
+                draw(frameBuffer.getGraphics());
+            }
             g.drawImage(frameBuffer, 0, 0, this);
+        }
+
+        public void draw(Graphics gx) {
+//        g=frameBuffer.getGraphics();
+            //рисуем стакан
+            Graphics2D g = (Graphics2D) gx;
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.translate(10, 10);
+            g.setColor(Color.BLACK);
+
+            int width = tetris.getWidth();
+            int height = tetris.getHeight();
+
+            g.fillRect(0, 0, width * tileWidth, (height - 2) * tileHeight);
+            g.setColor(new Color(100, 100, 100));
+            for (int i = 1; i < width; i++) {
+                for (int j = 3; j < height; j++) {
+                    g.drawRect(i * tileWidth, (j - 2) * tileHeight, 0, 0);
+                }
+            }
+
+            for (int i = 0; i < width; i++) {
+                for (int j = 2; j < height; j++) {
+                    g.setColor(config.colors[tetris.getGlass().get(i, j)]);
+                    g.fillRoundRect(i * tileWidth, (j - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+                }
+            }
+
+            //выводим счёт, линии.
+            int lpos = width * tileWidth + 7;
+            g.setColor(Color.BLACK);
+            g.drawString("Счёт: " + tetris.getScore(), lpos, 10);
+            g.drawString("Линий: " + tetris.getLines(), lpos, 30);
+            g.drawString("Уровень: " + tetris.getLevel(), lpos, 50);
+            String st = "Жизнь прекрасна :)";
+            if (tetris.getCritter().getAir() < 75) {
+                st = "Надо отдышаться...";
+            }
+            Critter critter = tetris.getCritter();
+            if (critter.isBounded()) {
+                if (critter.getAir() < 50) {
+                    st = "Задыхаюсь!!!";
+                } else {
+                    st = "Тут мало воздуха...";
+                }
+            }
+            g.drawString("Воздух: " + (int) critter.getAir() + "%", lpos, 70);
+            g.drawString(st, lpos, 90);
+
+            //рисуем фигуру
+            Figure figure = tetris.getFigure();
+            for (Coordinate coordinate : figure.getCoordinates()) {
+                int k = figure.getGhostTop();
+                g.setColor(new Color(config.colors[figure.getColor()].getRed() / 7, config.colors[figure.getColor()].getGreen() / 7, config.colors[figure.getColor()].getBlue() / 4));
+                if ((coordinate.getY() + k) >= 2)
+                    g.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            }
+
+            int kx = 0;
+            int ky = 0;
+            Figure nextFigure = tetris.getNextFigure();
+            for (Coordinate coordinate : nextFigure.getCoordinates()) {
+                if (coordinate.getX() < kx) {
+                    kx = coordinate.getX();
+                }
+                if (coordinate.getY() < ky) {
+                    ky = coordinate.getY();
+                }
+            }
+
+            for (Coordinate coordinate : nextFigure.getCoordinates()) {
+                g.setColor(new Color(config.colors[figure.getColor()].getRed() / 4, config.colors[figure.getColor()].getGreen() / 4, config.colors[figure.getColor()].getBlue() / 3));
+                g.fillRoundRect((coordinate.getX() - kx) * tileWidth + lpos + 1, (coordinate.getY() - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+
+                g.setColor(config.colors[nextFigure.getColor()]);
+                g.fillRoundRect((coordinate.getX() - kx) * tileWidth + lpos, (coordinate.getY() - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+
+            }
+
+            for (Coordinate coordinate : figure.getCoordinates()) {
+                g.setColor(config.colors[figure.getColor()]);
+                if ((coordinate.getY() + figure.getTop()) >= 2)
+                    g.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+            }
+
+            //рисую персонажа
+            if (critter.getStatus() != CritterState.DEAD) {
+                g.setColor(Color.WHITE);
+                g.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
+                kx = critter.getHorizontalDirection() * 2;
+                ky = 0;
+                if (critter.getStatus() == CritterState.FALLING) ky = 1;
+                if (critter.getStatus() == CritterState.JUMPING) ky = -1;
+                if (critter.getStatus() == CritterState.STAYING) kx = 0;
+                //глаза
+                g.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+                g.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+                //глаза
+                if (critter.getAir() < 50) {
+                    g.drawRect(critter.getX() * tileWidth + 7 + kx + 1, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
+                    g.drawRect(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
+                }
+                //рот
+                int wx;
+                if (critter.isBounded()) wx = 2;
+                else wx = 6;
+                if ((critter.getAir() > 75) && (!critter.isBounded())) {
+                    g.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
+                } else
+                    g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
+
+            }
         }
     }
 
@@ -182,11 +302,10 @@ public class GameFrame extends JFrame {
                     ic = bg;
                     musicChannel.stop();
                     startPanel.setVisible(false);
-                    tetris = new Tetris(isDebug);
+                    tetris = new Tetris(config);
                     tetris.setCrazy(crazy);
                     tetris.panel = myPanel;
                     tetris.monitor = this;
-                    tetris.frameBuffer = frameBuffer;
                     tetris.start();
                     myPanel.addKeyListener(tetris);
                     myPanel.addKeyListener(this);
