@@ -44,6 +44,7 @@ class GameFrame extends JFrame {
     private GamePanel gamePanel;
 
     private DefaultTableModel model;
+
     private Image backgroundImage, titleImage, currentBackgroundImage;
 
     private StorageInterface storage;
@@ -55,18 +56,10 @@ class GameFrame extends JFrame {
 
     private Config config;
 
-    private int width, height;
-    private int tileWidth, tileHeight;
-
     private boolean crazy = false;
 
     GameFrame(String title, boolean isDebug) {                            // конструктор
         config = new Config();
-
-        this.width = config.windowWidth;
-        this.height = config.windowHeight;
-        this.tileWidth = config.tileWidth;
-        this.tileHeight = config.tileHeight;
 
         storage = new FileSystemStorage();
 
@@ -94,6 +87,7 @@ class GameFrame extends JFrame {
 
         EventsMonitor eventsMonitor = new EventsMonitor();
 
+        setSize(config.windowWidth, config.windowHeight);                        // габариты
         createGUI(title, eventsMonitor);
 
         musicChannel.play();
@@ -103,8 +97,6 @@ class GameFrame extends JFrame {
     private void createGUI(String title, EventsMonitor eventsMonitor) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // при закрытии закрывается окно
         setTitle(title);
-
-        setSize(width, height);                        // габариты
 
         setLocationRelativeTo(null);
 
@@ -136,11 +128,11 @@ class GameFrame extends JFrame {
         startPanel.add(closeButton);                    // вторая кнопка, будет справа от первой, обе отцентрованы
 
         // Pause
-        JPanel continuePanel = new JPanel();
         continueButton = new JButton("Тык");
         continueButton.addActionListener(eventsMonitor);
         continueButton.addKeyListener(eventsMonitor);
         continueButton.setActionCommand("continue");
+        JPanel continuePanel = new JPanel();
         continuePanel.add(continueButton);
 
         pausePanel = new JPanel();
@@ -185,7 +177,7 @@ class GameFrame extends JFrame {
         gamePanel.add(startPanel);
         gamePanel.add(pausePanel);
         gamePanel.add(recordPanel);
-        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
+        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
 
         this.add(gamePanel);
 
@@ -200,12 +192,10 @@ class GameFrame extends JFrame {
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            BufferedImage frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage frameBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 
             Graphics2D g2d = (Graphics2D) frameBuffer.getGraphics();
             g2d.drawImage(currentBackgroundImage, 0, 0, null);
-
-            g2d.dispose();
 
             if (tetris != null && tetris.isInitialized()) {
                 drawPlayField(frameBuffer.createGraphics());
@@ -213,6 +203,7 @@ class GameFrame extends JFrame {
                 drawCopyright(g2d);
             }
 
+            g2d.dispose();
             g.drawImage(frameBuffer, 0, 0, this);
         }
 
@@ -221,7 +212,7 @@ class GameFrame extends JFrame {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setColor(Color.black);
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 11));
-            g2d.drawString("© Leonis, 2015-" + LocalDate.now().getYear(), width - 117, height - 50);
+            g2d.drawString("© Leonis, 2015-" + LocalDate.now().getYear(), getWidth() - 117, getHeight() - 50);
         }
 
         void drawPlayField(Graphics2D g2d) {
@@ -234,6 +225,8 @@ class GameFrame extends JFrame {
 
             int width = tetris.getWidth();
             int height = tetris.getHeight();
+            int tileWidth = config.tileWidth;
+            int tileHeight = config.tileHeight;
 
             g2d.fillRect(0, 0, width * tileWidth, (height - 2) * tileHeight);
             g2d.setColor(new Color(100, 100, 100));
@@ -413,7 +406,7 @@ class GameFrame extends JFrame {
                         saveButton.setText("Тык");
                         saveLabel.setText("Набрано " + tetris.getScore() + " очков. Маловато для рекорда!");
                     }
-                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 5));    // выравнивание по горизонтали - по середине
+                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 5));    // выравнивание по горизонтали - по середине
 
                     recordPanel.setVisible(true);
                     if (place < 30) {
@@ -431,7 +424,7 @@ class GameFrame extends JFrame {
                     }
                     gameRecords.verifyAndAddScore(str, tetris.getScore());
                     storage.saveRecord(gameRecords.getRecords());
-                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
+                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
 
                     startPanel.setVisible(true);
                     startButton.requestFocus();
@@ -475,7 +468,7 @@ class GameFrame extends JFrame {
                 case KeyEvent.VK_P:
                     if (tetris.getState() == RUNNING) {
                         tetris.pause(true);
-                        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
+                        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
                         pausePanel.setVisible(true);
                         continueButton.requestFocus();
                     } else if (tetris.getState() == PAUSED) {
