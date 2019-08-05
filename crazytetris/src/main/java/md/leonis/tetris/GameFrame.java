@@ -9,7 +9,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -67,7 +69,7 @@ class GameFrame extends JFrame {
         myPanel = new GamePanel();                    // основная панель
         myPanel.setFocusable(true);
 
-        Monitor monitor = new GameMonitor();
+        Monitor monitor = new Monitor();
 
         musicChannel = new MusicChannel(getResourceAsStream("audio/music.mp3", isDebug));
 
@@ -297,13 +299,13 @@ class GameFrame extends JFrame {
                     g.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
                 } else
                     g.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
-
             }
         }
     }
 
-    class GameMonitor extends Monitor implements EventListener, GameEventListener {
+    class Monitor implements ActionListener, EventListener, KeyListener, GameEventListener {
 
+        @Override
         public void actionPerformed(ActionEvent e) { // Swing events
             processAction(e.getActionCommand());
         }
@@ -406,9 +408,8 @@ class GameFrame extends JFrame {
             myPanel.repaint();                        // вызываем перерисовку панели
         }
 
-        /*
-        "Слушатель". Отвечает за интерфейс
-        */
+        // "Слушатель". Отвечает за интерфейс
+        @Override
         public void keyPressed(KeyEvent e) {
             if (e.isConsumed()) {
                 return;
@@ -436,6 +437,14 @@ class GameFrame extends JFrame {
                     tetris.keyPressed(e.getKeyCode());
             }
             e.consume();
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
         }
 
         private void fillModel(Records records, DefaultTableModel model) {
