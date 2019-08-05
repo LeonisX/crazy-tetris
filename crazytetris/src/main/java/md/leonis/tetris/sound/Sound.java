@@ -1,4 +1,4 @@
-package md.leonis.tetris;
+package md.leonis.tetris.sound;
 
 /*
  * http://habrahabr.ru/post/191422/
@@ -26,20 +26,18 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.AudioFormat;
 
-public class Sound {
+class Sound {
+
     private boolean released;
     private Clip clip = null;
     private FloatControl volumeC = null;
-    private FloatControl pan = null;
     private boolean playing = false;
-    private AudioInputStream stream;
-    private AudioFormat format;
 
-    public Sound(File f) {
+    Sound(File file) {
         released = false;
         try {
-            stream = AudioSystem.getAudioInputStream(f);
-            format = stream.getFormat();
+            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            AudioFormat format = stream.getFormat();
             DataLine.Info info = new DataLine.Info(
                     Clip.class,
                     stream.getFormat(),
@@ -56,12 +54,11 @@ public class Sound {
         }
     }
 
-    //TOO optimize
-    public Sound(InputStream inputStream) {
+    Sound(InputStream inputStream) {
         released = false;
         try {
-            stream = AudioSystem.getAudioInputStream(inputStream);
-            format = stream.getFormat();
+            AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
+            AudioFormat format = stream.getFormat();
             DataLine.Info info = new DataLine.Info(
                     Clip.class,
                     stream.getFormat(),
@@ -79,12 +76,12 @@ public class Sound {
     }
 
     //true если звук успешно загружен, false если произошла ошибка
-    public boolean isReleased() {
+    boolean isReleased() {
         return released;
     }
 
     //проигрывается ли звук в данный момент
-    public boolean isPlaying() {
+    boolean isPlaying() {
         return playing;
     }
 
@@ -110,12 +107,12 @@ public class Sound {
     }
 
     //То же самое, что и play(true)
-    public void play() {
+    void play() {
         play(true);
     }
 
     //Останавливает воспроизведение
-    public void stop() {
+    void stop() {
         if (playing) {
             clip.stop();
         }
@@ -125,16 +122,20 @@ public class Sound {
     /*
       x долже быть в пределах от 0 до 1 (от самого тихого к самому громкому)
     */
-    public void setVolume(float x) {
-        if (x < 0) x = 0;
-        if (x > 1) x = 1;
+    void setVolume(float x) {
+        if (x < 0) {
+            x = 0;
+        }
+        if (x > 1) {
+            x = 1;
+        }
         float min = volumeC.getMinimum();
         float max = volumeC.getMaximum();
         volumeC.setValue((max - min) * x + min);
     }
 
     //Возвращает текущую громкость (число от 0 до 1)
-    public float getVolume() {
+    float getVolume() {
         float v = volumeC.getValue();
         float min = volumeC.getMinimum();
         float max = volumeC.getMaximum();
@@ -145,11 +146,10 @@ public class Sound {
      * Позиционирование звука: по центру (0), слева (-1.0) или справа (1.0)
      * Если данная функция не поддерживается - просто ничего не произойдёт
      */
-    public void setBalance(float value) {
+    void setBalance(float value) {
         if (clip.isControlSupported(FloatControl.Type.PAN)) //необходим стерео звук, ИНАЧЕ НЕ РАБОТАЕТ!!!
             try {
-                FloatControl panControl =
-                        (FloatControl) clip.getControl(FloatControl.Type.PAN);
+                FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
                 panControl.setValue(value);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -157,11 +157,13 @@ public class Sound {
     }
 
     //Дожидается окончания проигрывания звука
-    public void join() {
+    void join() {
         if (!released) return;
         synchronized (clip) {
             try {
-                while (playing) clip.wait();
+                while (playing) {
+                    clip.wait();
+                }
             } catch (InterruptedException exc) {
                 //TODO
             }
@@ -169,7 +171,7 @@ public class Sound {
     }
 
     //Статический метод, для удобства
-    public static Sound playSound(String s) {
+    static Sound playSound(String s) {
         File f = new File(s);
         Sound snd = new Sound(f);
         snd.play();

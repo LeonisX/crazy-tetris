@@ -12,12 +12,12 @@ public class FileSystemStorage implements StorageInterface {
     private String fileName;
 
     @Override
-    public void setFileName(String fileName) {
+    public void setRecordsFileName(String fileName) {
         this.fileName = fileName;
     }
 
     @Override
-    public void save(List<Records.Rec> records) {
+    public void saveRecord(List<Records.Rec> records) {
         try {
             FileOutputStream fos = new FileOutputStream(fileName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -31,7 +31,7 @@ public class FileSystemStorage implements StorageInterface {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Records.Rec> load() {
+    public List<Records.Rec> loadRecords() {
         List<Records.Rec> records = null;
         try {
             FileInputStream fis = new FileInputStream(fileName);
@@ -45,5 +45,17 @@ public class FileSystemStorage implements StorageInterface {
             e.printStackTrace();
         }
         return records;
+    }
+
+    static InputStream getResourceAsStream(String path, boolean isDebug) {
+        if (isDebug) {
+            try {
+                return new BufferedInputStream(new FileInputStream(FileSystemStorage.class.getProtectionDomain().getCodeSource().getLocation().getPath() + path));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return new BufferedInputStream(FileSystemStorage.class.getClassLoader().getResourceAsStream(path));
+        }
     }
 }

@@ -1,11 +1,13 @@
 package md.leonis.tetris.engine;
 
 import md.leonis.tetris.engine.event.EventManager;
+import md.leonis.tetris.engine.model.CritterState;
+import md.leonis.tetris.engine.model.GameState;
 
 import java.awt.event.KeyEvent;
 
 import static md.leonis.tetris.engine.event.Event.*;
-import static md.leonis.tetris.engine.GameState.*;
+import static md.leonis.tetris.engine.model.GameState.*;
 
 public class Tetris extends EventManager implements PropertiesHolder {
 

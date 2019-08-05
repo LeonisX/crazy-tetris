@@ -1,5 +1,8 @@
 package md.leonis.tetris.engine;
 
+import md.leonis.tetris.engine.model.Coordinate;
+import md.leonis.tetris.engine.model.Coordinates;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

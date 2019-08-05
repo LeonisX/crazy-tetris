@@ -12,7 +12,7 @@ public class Records {
 
     @SuppressWarnings("unchecked")
     public Records(StorageInterface storage) {
-        records = storage.load();
+        records = storage.loadRecords();
         Collections.sort(records);
     }
 

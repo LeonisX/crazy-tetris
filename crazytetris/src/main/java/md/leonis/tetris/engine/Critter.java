@@ -1,8 +1,12 @@
 package md.leonis.tetris.engine;
 
+import md.leonis.tetris.engine.model.Coordinate;
+import md.leonis.tetris.engine.model.Coordinates;
+import md.leonis.tetris.engine.model.CritterState;
+
 import java.util.List;
 
-import static md.leonis.tetris.engine.CritterState.*;
+import static md.leonis.tetris.engine.model.CritterState.*;
 
 public class Critter extends Thread {
 

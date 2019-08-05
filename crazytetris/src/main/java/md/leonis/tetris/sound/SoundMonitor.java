@@ -1,9 +1,8 @@
-package md.leonis.tetris;
+package md.leonis.tetris.sound;
 
 /*
  * WAV звуковые эффекты отрабатываются "родными" средствами Java
  */
-
 import md.leonis.tetris.engine.event.Event;
 import md.leonis.tetris.engine.event.GameEventListener;
 
@@ -13,94 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- * Класс, отвечающий за звуковой канал
- * использует "родную" технологию воспроизведения звука
- * отлично работает с wav файлами.
- */
-class AudioChannel {
-    private Sound snd;
-    private float gain = 0.85f, tmpGain;
-    private float pan = 0.0f;
-    private boolean loop;
-    private boolean fade;
-    private int fadeCount = 5;
-    private float fadeGrade;
-
-    AudioChannel(File file) {
-        snd = new Sound(file);
-        loop = false;
-        fade = false;
-    }
-
-    public AudioChannel(InputStream inputStream) {
-        snd = new Sound(inputStream);
-        loop = false;
-        fade = false;
-    }
-
-    public void play() {
-        if (fade) {
-            gain -= fadeGrade;
-            if (gain < 0) {
-                fade = false;
-                gain = 0;
-                loop = false;
-                gain = tmpGain;
-                return;
-            }
-        }
-        snd.setVolume(gain);
-        snd.setBalance(pan);
-        snd.play();
-    }
-
-    public void setGain(float g) {
-        gain = g;
-    }
-
-    public void setPan(float p) {
-        pan = p;
-        if (pan > 1) {
-            pan = 1;
-        }
-        if (pan < 1) {
-            pan = -1;
-        }
-    }
-
-    public void stop() {
-        loop = false;
-        snd.stop();
-    }
-
-    public void fade() {
-        fade = true;
-        tmpGain = gain;
-        fadeGrade = gain / fadeCount;
-        snd.stop();
-    }
-
-    public boolean isPlaying() {
-        return snd.isPlaying();
-    }
-
-    public boolean isLoop() {
-        return loop;
-    }
-
-    public void setLoop(boolean loop) {
-        this.loop = loop;
-    }
-
-    public boolean isFade() {
-        return fade;
-    }
-}
-
-/*
  * Монитор звуковых каналов
  */
 public class SoundMonitor implements GameEventListener {
+
     private List<AudioChannel> channels = new ArrayList<>();
 
     public void addSound(File file) {

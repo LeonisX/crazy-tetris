@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface StorageInterface {
 
-    void setFileName(String fileName);
+    void setRecordsFileName(String fileName);
 
-    void save(List<Records.Rec> records);
+    void saveRecord(List<Records.Rec> records);
 
-    List<Records.Rec> load();
+    List<Records.Rec> loadRecords();
 }

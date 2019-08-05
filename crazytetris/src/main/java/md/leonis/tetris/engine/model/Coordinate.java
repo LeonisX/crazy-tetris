@@ -1,4 +1,4 @@
-package md.leonis.tetris.engine;
+package md.leonis.tetris.engine.model;
 
 import java.util.Objects;
 

@@ -6,8 +6,6 @@ import java.util.List;
 
 public class Config {
 
-    public boolean isDebug;
-
     public Color[] colors = {
             Color.BLACK, // == transparent
             Color.WHITE,
@@ -21,6 +19,9 @@ public class Config {
     };
 
     public int transparentColor = 0;
+
+    public int windowWidth = 380;
+    public int windowHeight = 480;
 
     public int tileWidth = 20;
     public int tileHeight = 20;
@@ -42,4 +43,5 @@ public class Config {
 
     //                                                      0   1    2    3    4
     public List<Integer> completedRowsBonus = Arrays.asList(0, 100, 250, 400, 600);
+
 }

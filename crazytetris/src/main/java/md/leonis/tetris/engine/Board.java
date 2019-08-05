@@ -1,5 +1,7 @@
 package md.leonis.tetris.engine;
 
+import md.leonis.tetris.engine.model.Coordinate;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
