@@ -34,7 +34,7 @@ public class Critter extends Thread {
 
     private PropertiesHolder properties;
 
-    public Critter(PropertiesHolder properties) {
+    Critter(PropertiesHolder properties) {
         this.properties = properties;
         x = 0;
         y = 0;
@@ -166,7 +166,7 @@ public class Critter extends Thread {
         }
     }
 
-    public boolean isDead() {
+    boolean isDead() {
         return isOccupiedCoordinate(x, y);
     }
 
@@ -211,11 +211,11 @@ public class Critter extends Thread {
         }
     }
 
-    public void correctYPosition(List<Integer> deletedRows) { // After deleting rows
+    void correctYPosition(List<Integer> deletedRows) { // After deleting rows
         y += deletedRows.stream().filter(dy -> dy > y).count();
     }
 
-    public void setPaused(boolean isPaused) {
+    void setPaused(boolean isPaused) {
         this.isPaused = isPaused;
     }
 
@@ -223,7 +223,7 @@ public class Critter extends Thread {
         return status;
     }
 
-    public void setStatus(CritterState status) {
+    void setStatus(CritterState status) {
         this.status = status;
     }
 

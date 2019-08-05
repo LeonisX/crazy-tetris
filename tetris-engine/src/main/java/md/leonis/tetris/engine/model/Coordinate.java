@@ -12,7 +12,7 @@ public class Coordinate {
         this.y = y;
     }
 
-    public Coordinate(Coordinate coordinate) {
+    Coordinate(Coordinate coordinate) {
         this.x = coordinate.x;
         this.y = coordinate.y;
     }

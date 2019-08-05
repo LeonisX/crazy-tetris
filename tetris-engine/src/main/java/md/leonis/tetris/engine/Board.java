@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Board {
+class Board {
 
     private final int width;
     private final int height;
@@ -17,20 +17,20 @@ public class Board {
 
     private List<Integer> completedRows = new ArrayList<>();
 
-    public Board(PropertiesHolder properties) {
+    Board(PropertiesHolder properties) {
         this.width = properties.getWidth();
         this.height = properties.getHeight();
         this.transparentColor = properties.getTransparentColor();
         glass = new Glass();
     }
 
-    public void mergeFigure(Figure figure) {
+    void mergeFigure(Figure figure) {
         for (Coordinate coordinate: figure.getCoordinates()) {
             glass.set(coordinate.getX() + figure.getLeft(), coordinate.getY() + figure.getTop(), figure.getColor());
         }
     }
 
-    public void deleteCompletedRows() {
+    void deleteCompletedRows() {
         completedRows = glass.getCompletedRows();
         glass.removeCompletedRowsAndAddEmpty(completedRows);
     }
@@ -47,11 +47,11 @@ public class Board {
         return glass.get(x, y) != transparentColor;
     }
 
-    public Board.Glass getGlass() {
+    Board.Glass getGlass() {
         return glass;
     }
 
-    public List<Integer> getCompletedRows() {
+    List<Integer> getCompletedRows() {
         return completedRows;
     }
 

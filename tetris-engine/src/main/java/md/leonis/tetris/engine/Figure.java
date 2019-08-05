@@ -33,7 +33,7 @@ public class Figure {
 
     private final PropertiesHolder properties;
 
-    public Figure(PropertiesHolder properties) {
+    Figure(PropertiesHolder properties) {
         this.properties = properties;
         initFigure();
     }
@@ -117,7 +117,7 @@ public class Figure {
         coordinates = coordinatesCopy;
     }
 
-    public boolean moveLeft() {
+    boolean moveLeft() {
         backup();
         left--;
         if (!isAllowedNewPosition()) {
@@ -127,7 +127,7 @@ public class Figure {
         return true;
     }
 
-    public boolean moveRight() {
+    boolean moveRight() {
         backup();
         left++;
         if (!isAllowedNewPosition()) {
@@ -137,7 +137,7 @@ public class Figure {
         return true;
     }
 
-    public boolean rotateRight() {
+    boolean rotateRight() {
         backup();
         coordinates.forEach(c -> {
             int k = c.getX();
@@ -165,7 +165,7 @@ public class Figure {
         //return true;
     }
 
-    public boolean moveDown() {
+    boolean moveDown() {
         backup();
         top++;
         if (!isAllowedNewPosition()) {
@@ -176,7 +176,7 @@ public class Figure {
         return true;
     }
 
-    public void fallDown() {
+    void fallDown() {
         do {
             backup();
             top++;
@@ -200,7 +200,7 @@ public class Figure {
         return --ghostTop;
     }
 
-    public boolean isAllowedNewPosition() {
+    boolean isAllowedNewPosition() {
         for (Coordinate coordinate : coordinates) {
             if (properties.getBoard().isCoordinateNotAllowed(coordinate.getX() + left, coordinate.getY() + top)) {
                 return false;
@@ -222,7 +222,7 @@ public class Figure {
         return color;
     }
 
-    public int getType() {
+    int getType() {
         return type;
     }
 
@@ -238,7 +238,7 @@ public class Figure {
         return top;
     }
 
-    public boolean isFallen() {
+    boolean isFallen() {
         return fallen;
     }
 }
