@@ -173,7 +173,7 @@ public class Figure {
         return true;
     }
 
-    public void fall() {
+    public void fallDown() {
         do {
             backup();
             top++;

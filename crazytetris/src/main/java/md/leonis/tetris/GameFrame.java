@@ -1,6 +1,8 @@
 package md.leonis.tetris;
 
 import md.leonis.tetris.engine.*;
+import md.leonis.tetris.engine.event.Event;
+import md.leonis.tetris.engine.event.GameEventListener;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,15 +12,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.EventListener;
 import java.util.List;
 
+import static md.leonis.tetris.engine.event.Event.*;
 import static md.leonis.tetris.ResourceUtils.getResourceAsStream;
 import static md.leonis.tetris.engine.GameState.PAUSED;
 import static md.leonis.tetris.engine.GameState.RUNNING;
 
-public class GameFrame extends JFrame {
+class GameFrame extends JFrame {
 
-    private JPanel startPanel, pausePanel, recordPanel, recordPanel2;            // будем менять эти три панели
+    private JPanel startPanel;
+    private JPanel pausePanel;
+    private JPanel recordPanel;
     private JButton saveButton;
     private JButton continueButton;
     private JButton startButton;
@@ -26,23 +33,21 @@ public class GameFrame extends JFrame {
     private GamePanel myPanel;
     private final JTextField myTextField;                        // поле для ввода текста
     private Tetris tetris;
-    private Monitor monitor;
     private Records gameRecords;
     private StorageInterface storage;
     private DefaultTableModel model;
-    private JTable table;
-    private BufferedImage frameBuffer;
     private Image bg, title, ic;
     private int height = 480;
     private int width = 380;
     private MusicChannel musicChannel;
+    private SoundMonitor soundMonitor;                    // монитор для звуковых эффектов
     private boolean crazy = false;
 
     private int tileWidth, tileHeight;
 
     private Config config;
 
-    GameFrame(String s, boolean isDebug) {                            // конструктор
+    GameFrame(String title, boolean isDebug) {                            // конструктор
         config = new Config();
         config.isDebug = isDebug;
 
@@ -53,7 +58,7 @@ public class GameFrame extends JFrame {
         storage = new FileSystemStorage();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // при закрытии закрывается окно
-        setTitle(s);
+        setTitle(title);
 
         setSize(width, height);                        // габариты
 
@@ -62,17 +67,29 @@ public class GameFrame extends JFrame {
         myPanel = new GamePanel();                    // основная панель
         myPanel.setFocusable(true);
 
-        monitor = new GameMonitor();
+        Monitor monitor = new GameMonitor();
 
         musicChannel = new MusicChannel(getResourceAsStream("audio/music.mp3", isDebug));
 
+        soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
+        soundMonitor.addSound(getResourceAsStream("audio/falled.wav", config.isDebug));        // 1 звук
+        soundMonitor.addSound(getResourceAsStream("audio/rotate.wav", config.isDebug));        // 2 звук
+        soundMonitor.addSound(getResourceAsStream("audio/click.wav", config.isDebug));         // 3 звук
+        soundMonitor.addSound(getResourceAsStream("audio/heartbeat-a.wav", config.isDebug));   // 4 звук
+        soundMonitor.addSound(getResourceAsStream("audio/heartbeat-b.wav", config.isDebug));   // 5 звук
+        soundMonitor.setGain(0, 0.9f);               // громкость (от 0 до 1.0f)
+        soundMonitor.setGain(1, 0.9f);
+        soundMonitor.setGain(2, 1.0f);
+        soundMonitor.setGain(3, 0.8f);
+        soundMonitor.setGain(4, 0.9f);
+
         try {
             bg = ImageIO.read(getResourceAsStream("bg.jpg", isDebug));
-            title = ImageIO.read(getResourceAsStream("title.jpg", isDebug));
+            this.title = ImageIO.read(getResourceAsStream("title.jpg", isDebug));
         } catch (IOException e) {
             //TODO
         }
-        ic = title;
+        ic = this.title;
         // отступы сверху и снизу по 170
         // так виртуально компоную содержимое панели в середине окна
         /*
@@ -114,7 +131,8 @@ public class GameFrame extends JFrame {
         recordPanel.setBorder(BorderFactory.createRaisedBevelBorder());
 //    recordPanel.setLayout(new GridLayout(4,1,0,0));
         recordPanel.setLayout(new BoxLayout(recordPanel, BoxLayout.Y_AXIS));
-        recordPanel2 = new JPanel();
+        // будем менять эти три панели
+        JPanel recordPanel2 = new JPanel();
         saveLabel = new JLabel();
         recordPanel2.add(saveLabel);      //"Новый рекорд! Ваше имя: "
         myTextField = new JTextField("", 16);
@@ -126,7 +144,7 @@ public class GameFrame extends JFrame {
         saveButton.addActionListener(monitor);
 
         model = new DefaultTableModel();
-        table = new JTable(model);
+        JTable table = new JTable(model);
         model.addColumn("N");
         model.addColumn("Имя");
         model.addColumn("Рекорд");
@@ -153,7 +171,7 @@ public class GameFrame extends JFrame {
     class GamePanel extends JPanel {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
             Graphics2D g2d = (Graphics2D) frameBuffer.getGraphics();
             g2d.drawImage(ic, 0, 0, null);
@@ -169,7 +187,7 @@ public class GameFrame extends JFrame {
             g.drawImage(frameBuffer, 0, 0, this);
         }
 
-        public void draw(Graphics gx) {
+        void draw(Graphics gx) {
 //        g=frameBuffer.getGraphics();
             //рисуем стакан
             Graphics2D g = (Graphics2D) gx;
@@ -284,33 +302,48 @@ public class GameFrame extends JFrame {
         }
     }
 
-    class GameMonitor extends Monitor {
-        public void actionPerformed(ActionEvent e) {
-            String s = e.getActionCommand();                // получаем команду
-            //TODO enum
-            if (s.equals("starta")) {
-                crazy = false;
-                s = "start";
+    class GameMonitor extends Monitor implements EventListener, GameEventListener {
 
-            } else if (s.equals("startb")) {
+        public void actionPerformed(ActionEvent e) { // Swing events
+            processAction(e.getActionCommand());
+        }
+
+        @Override
+        public void notify(Event event, String message) { // internal events, GAME_OVER only
+            switch (event) {
+                case REPAINT:
+                    myPanel.repaint();
+                    break;
+                case GAME_OVER:
+                    processAction("gameover");
+                    break;
+            }
+        }
+
+        private void processAction(String action) {
+            //TODO enum
+            if (action.equals("starta")) {
+                crazy = false;
+                action = "start";
+
+            } else if (action.equals("startb")) {
                 crazy = true;
-                s = "start";
+                action = "start";
 
             }
-            switch (s) {
+            switch (action) {
                 case "start":
                     ic = bg;
                     musicChannel.stop();
                     startPanel.setVisible(false);
-                    tetris = new Tetris(config);
-                    tetris.setCrazy(crazy);
-                    tetris.panel = myPanel;
-                    tetris.monitor = this;
+                    tetris = new Tetris(config, crazy);
+                    Arrays.asList(REPAINT, GAME_OVER).forEach(event -> tetris.addListener(event, this));
+
+                    Arrays.asList(PLAY_SOUND, START_LOOPING_SOUND, STOP_LOOPING_SOUND, FADE_LOOPING_SOUND, SUPPORT_LOOPING_SOUNDS)
+                            .forEach(event -> tetris.addListener(event, soundMonitor));
+
                     tetris.start();
-                    myPanel.addKeyListener(tetris);
                     myPanel.addKeyListener(this);
-                    //GamePanel.removeKeyListener(tetris);
-                    //GamePanel.removeKeyListener(this);
                     break;
 
                 case "continue":
@@ -319,10 +352,11 @@ public class GameFrame extends JFrame {
                     break;
 
                 case "gameover":
+                    myPanel.removeKeyListener(this);
                     String fileName = crazy ? "crazy.res" : "tet.res";
                     storage.setFileName(fileName);
                     gameRecords = new Records(storage);
-                    int place = gameRecords.getPlace(tetris.score);
+                    int place = gameRecords.getPlace(tetris.getScore());
                     if (gameRecords.canAddNewRecord(place)) {
                         fillModel(gameRecords, model);
                         myTextField.setVisible(true);
@@ -338,12 +372,12 @@ public class GameFrame extends JFrame {
                                 saveLabel.setText("Третье место! Ваше имя: ");
                                 break;
                             default:
-                                saveLabel.setText(tetris.score + " очков! Ваше имя: ");
+                                saveLabel.setText(tetris.getScore() + " очков! Ваше имя: ");
                         }
                     } else {
                         myTextField.setVisible(false);
                         saveButton.setText("Тык");
-                        saveLabel.setText("Набрано " + tetris.score + " очков. Маловато для рекорда!");
+                        saveLabel.setText("Набрано " + tetris.getScore() + " очков. Маловато для рекорда!");
                     }
                     myPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 5));    // выравнивание по горизонтали - по середине
 
@@ -356,7 +390,7 @@ public class GameFrame extends JFrame {
                     recordPanel.setVisible(false);
                     String str = myTextField.getText();
                     if (str.length() == 0) str = "Капитан Немо";
-                    gameRecords.verifyAndAddScore(str, tetris.score);
+                    gameRecords.verifyAndAddScore(str, tetris.getScore());
                     storage.save(gameRecords.getRecords());
                     myPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, height / 3));    // выравнивание по горизонтали - по середине
 
@@ -376,6 +410,9 @@ public class GameFrame extends JFrame {
         "Слушатель". Отвечает за интерфейс
         */
         public void keyPressed(KeyEvent e) {
+            if (e.isConsumed()) {
+                return;
+            }
             int keyCode = e.getKeyCode();
             switch (keyCode) {
                 case KeyEvent.VK_ESCAPE:
@@ -395,7 +432,10 @@ public class GameFrame extends JFrame {
                     }
                     myPanel.repaint();                        // вызываем перерисовку панели
                     break;
+                default:
+                    tetris.keyPressed(e.getKeyCode());
             }
+            e.consume();
         }
 
         private void fillModel(Records records, DefaultTableModel model) {

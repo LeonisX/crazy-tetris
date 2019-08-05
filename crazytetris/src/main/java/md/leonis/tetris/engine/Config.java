@@ -1,4 +1,4 @@
-package md.leonis.tetris;
+package md.leonis.tetris.engine;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -40,6 +40,6 @@ public class Config {
     //                                           O,  J,  L,  T,  Z,  S,  I
     public List<Integer> scores = Arrays.asList(10, 15, 15, 15, 20, 20, 10);
 
-    //                                                       1    2    3    4
-    public List<Integer> completedRowsBonus = Arrays.asList(100, 250, 400, 600);
+    //                                                      0   1    2    3    4
+    public List<Integer> completedRowsBonus = Arrays.asList(0, 100, 250, 400, 600);
 }
