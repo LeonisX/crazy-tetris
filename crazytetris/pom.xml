@@ -7,7 +7,7 @@
     <artifactId>crazytetris</artifactId>
     <name>Crazy Tetris for Swing</name>
     <description>Crazy Tetris: Swing implementation</description>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <parent>

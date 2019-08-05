@@ -69,7 +69,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         switch (keyCode) {
             case KeyEvent.VK_LEFT:
                 if (figure.moveLeft()) {
-                    notify(PLAY_SOUND, "2");
+                    notify(PLAY_SOUND, "2"); // click
                 }
                 break;
             case KeyEvent.VK_RIGHT:
@@ -84,7 +84,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
                 break;
             case KeyEvent.VK_UP:
                 if (figure.rotateRight()) {
-                    notify(PLAY_SOUND, "1");
+                    notify(PLAY_SOUND, "1"); // rotate
                 }
                 break;
             case KeyEvent.VK_SPACE:
@@ -104,7 +104,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
         if (state != VOID) {
             critter.setPaused(true);
-            notify(PLAY_SOUND, "0");
+            notify(PLAY_SOUND, "0"); // falled
             board.mergeFigure(figure);
             board.deleteCompletedRows();
             critter.correctYPosition(board.getCompletedRows());
@@ -123,7 +123,9 @@ public class Tetris extends EventManager implements PropertiesHolder {
     }
 
     private void createNextFigure() {
-        nextFigure = new Figure(this);
+        do {
+            nextFigure = new Figure(this);
+        } while (figure != null && nextFigure.getColor() == figure.getColor());
     }
 
     private void updateStatistics() {
@@ -198,8 +200,8 @@ public class Tetris extends EventManager implements PropertiesHolder {
             }
             switch (critterSound) {
                 case 0:                //всё хорошо
-                    Tetris.this.notify(FADE_LOOPING_SOUND, "3");
-                    Tetris.this.notify(STOP_LOOPING_SOUND, "4");
+                    Tetris.this.notify(FADE_LOOPING_SOUND, "3"); // heartbeat-a
+                    Tetris.this.notify(STOP_LOOPING_SOUND, "4"); // heartbeat-b
                 case 1:                 //задыхаюсь
                     Tetris.this.notify(STOP_LOOPING_SOUND, "4");
                     Tetris.this.notify(START_LOOPING_SOUND, "3");
