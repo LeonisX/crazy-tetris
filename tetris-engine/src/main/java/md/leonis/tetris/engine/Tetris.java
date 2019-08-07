@@ -1,12 +1,11 @@
 package md.leonis.tetris.engine;
 
+import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.EventManager;
 import md.leonis.tetris.engine.model.CritterState;
 import md.leonis.tetris.engine.model.GameState;
 
-import java.awt.event.KeyEvent;
-
-import static md.leonis.tetris.engine.event.Event.*;
+import static md.leonis.tetris.engine.event.GameEvent.*;
 import static md.leonis.tetris.engine.model.GameState.*;
 
 public class Tetris extends EventManager implements PropertiesHolder {
@@ -62,38 +61,52 @@ public class Tetris extends EventManager implements PropertiesHolder {
         initialized = true;
     }
 
-    public void keyPressed(int keyCode) {
-        if (state == PAUSED || state == FINISHED) {
+    public void processEvent(GameEvent event) {
+        if ((state == PAUSED || state == FINISHED) && event != CONTINUE) {
             return;
         }
-        switch (keyCode) {
-            case KeyEvent.VK_LEFT:
+        switch (event) {
+            case MOVE_LEFT:
                 if (figure.moveLeft()) {
                     notify(PLAY_SOUND, "2"); // click
                 }
                 break;
-            case KeyEvent.VK_RIGHT:
+            case MOVE_RIGHT:
                 if (figure.moveRight()) {
                     notify(PLAY_SOUND, "2");
                 }
                 break;
-            case KeyEvent.VK_DOWN:
+            case STEP_DOWN:
                 if (figure.moveDown()) {
                     notify(PLAY_SOUND, "2");
                 }
                 break;
-            case KeyEvent.VK_UP:
+            case ROTATE_RIGHT:
                 if (figure.rotateRight()) {
                     notify(PLAY_SOUND, "1"); // rotate
                 }
                 break;
-            case KeyEvent.VK_SPACE:
+            case ROTATE_LEFT:
+                if (figure.rotateLeft()) {
+                    notify(PLAY_SOUND, "1"); // rotate
+                }
+                break;
+            case FALL_DOWN:
                 figure.fallDown();
                 generateNextFigure();
                 break;
-            case KeyEvent.VK_F12: // Cheat
+            case NEXT_LEVEL: // Cheat
                 score += 10000;
                 updateStatistics();
+                break;
+            case PAUSE:
+                pause(true);
+                break;
+            case CONTINUE:
+                pause(false);
+                break;
+            case GAME_OVER:
+                state = FINISHED;
                 break;
         }
     }
@@ -135,6 +148,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         score += config.completedRowsBonus.get(board.getCompletedRows().size());
 
         level = score / config.nextLevel;
+        notify(UPDATE_SCORE, Integer.toString(score));
     }
 
 
@@ -158,7 +172,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
     }
 
-    public void pause(boolean isPaused) {
+    private void pause(boolean isPaused) {
         if (isPaused) {
             state = PAUSED;
         } else {
@@ -167,7 +181,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         critter.setPaused(isPaused);
     }
 
-    public void finish() {
+    private void finish() {
         critter.setStatus(CritterState.DEAD);
         notify(GAME_OVER, null);
         state = FINISHED;
@@ -230,10 +244,6 @@ public class Tetris extends EventManager implements PropertiesHolder {
         return level;
     }
 
-    public Critter getCritter() {
-        return critter;
-    }
-
     public Figure getNextFigure() {
         return nextFigure;
     }
@@ -280,5 +290,10 @@ public class Tetris extends EventManager implements PropertiesHolder {
     @Override
     public Figure getFigure() {
         return figure;
+    }
+
+    @Override
+    public Critter getCritter() {
+        return critter;
     }
 }

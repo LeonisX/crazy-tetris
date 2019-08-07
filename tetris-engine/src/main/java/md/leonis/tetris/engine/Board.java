@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class Board {
+public class Board {
 
     private final int width;
     private final int height;

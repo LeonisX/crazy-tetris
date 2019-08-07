@@ -37,10 +37,20 @@ public class Records {
         return records;
     }
 
+    @Override
+    public String toString() {
+        return records.toString();
+    }
+
     public static class Rec implements Serializable, Comparable {
+
+        private static final long serialVersionUID = 4085619111165046704L;
 
         String name;
         Integer score;
+
+        public Rec() {
+        }
 
         Rec(String name, Integer score) {
             this.name = name;
@@ -58,6 +68,11 @@ public class Records {
         @Override
         public int compareTo(Object rec) {
             return (((Rec) rec).score).compareTo(score);
+        }
+
+        @Override
+        public String toString() {
+            return " {" + name + ": " + score + "}";
         }
     }
 }

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="gwt" url="file://$PROJECT_DIR$/vaadin-tetris" />
+    <file type="web" url="file://$PROJECT_DIR$/vaadin-tetris" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>

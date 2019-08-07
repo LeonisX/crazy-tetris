@@ -12,8 +12,8 @@ public class FileSystemStorage implements StorageInterface {
     private String fileName;
 
     @Override
-    public void setRecordsFileName(String fileName) {
-        this.fileName = fileName;
+    public void setRecordsStorageName(String storageName) {
+        this.fileName = storageName;
     }
 
     @Override

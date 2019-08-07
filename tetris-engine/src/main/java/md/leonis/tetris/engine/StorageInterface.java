@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface StorageInterface {
 
-    void setRecordsFileName(String fileName);
+    void setRecordsStorageName(String storageName);
 
     void saveRecord(List<Records.Rec> records);
 

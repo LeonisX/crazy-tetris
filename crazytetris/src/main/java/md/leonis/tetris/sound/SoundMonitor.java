@@ -3,7 +3,7 @@ package md.leonis.tetris.sound;
 /*
  * WAV звуковые эффекты отрабатываются "родными" средствами Java
  */
-import md.leonis.tetris.engine.event.Event;
+import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
 
 import java.io.File;
@@ -72,7 +72,7 @@ public class SoundMonitor implements GameEventListener {
     }
 
     @Override
-    public void notify(Event event, String message) {
+    public void notify(GameEvent event, String message) {
 
         int channel = (message == null) ? -1 : Integer.parseInt(message);
 

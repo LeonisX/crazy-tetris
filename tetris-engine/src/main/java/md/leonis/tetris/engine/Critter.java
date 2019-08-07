@@ -123,7 +123,7 @@ public class Critter extends Thread {
         }
     }
 
-    private boolean isStandingOnTheGround() {
+    boolean isStandingOnTheGround() {
         return isOccupiedCoordinate(x, y + 1);
     }
 
@@ -166,7 +166,11 @@ public class Critter extends Thread {
         }
     }
 
-    boolean isDead() {
+    public boolean isDead() {
+        return status == DEAD || isCrushed();
+    }
+
+    public boolean isCrushed() {
         return isOccupiedCoordinate(x, y);
     }
 
@@ -175,7 +179,7 @@ public class Critter extends Thread {
     }
 
     private boolean isFreeCoordinate(int newX, int newY) {
-        if (status == DEAD || properties.getBoard().isCoordinateNotAllowed(newX, newY)) {
+        if (properties.getBoard().isCoordinateNotAllowed(newX, newY)) {
             return false;
         }
         Figure figure = properties.getFigure();
@@ -211,6 +215,26 @@ public class Critter extends Thread {
         }
     }
 
+    public String getStringStatus() {
+        if (isCrushed()) {
+            return "Раздавлен :(";
+        }
+        if (air <= 0) {
+            return "Задохнулся :(";
+        }
+        if (air < 75) {
+            return "Надо отдышаться...";
+        }
+        if (isBounded()) {
+            if (air < 50) {
+                return "Задыхаюсь!!!";
+            } else {
+                return "Тут мало воздуха...";
+            }
+        }
+        return "Жизнь прекрасна :)";
+    }
+
     void correctYPosition(List<Integer> deletedRows) { // After deleting rows
         y += deletedRows.stream().filter(dy -> dy > y).count();
     }
@@ -242,4 +266,5 @@ public class Critter extends Thread {
     public int getHorizontalDirection() {
         return horizontalDirection;
     }
+
 }

@@ -17,4 +17,6 @@ public interface PropertiesHolder {
     Board.Glass getGlass();
 
     Figure getFigure();
+
+    Critter getCritter();
 }

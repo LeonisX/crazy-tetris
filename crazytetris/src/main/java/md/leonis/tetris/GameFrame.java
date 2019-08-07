@@ -1,7 +1,7 @@
 package md.leonis.tetris;
 
 import md.leonis.tetris.engine.*;
-import md.leonis.tetris.engine.event.Event;
+import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.CritterState;
@@ -24,7 +24,7 @@ import java.util.EventListener;
 import java.util.List;
 
 import static md.leonis.tetris.FileSystemStorage.getResourceAsStream;
-import static md.leonis.tetris.engine.event.Event.*;
+import static md.leonis.tetris.engine.event.GameEvent.*;
 import static md.leonis.tetris.engine.model.GameState.PAUSED;
 import static md.leonis.tetris.engine.model.GameState.RUNNING;
 
@@ -47,6 +47,7 @@ class GameFrame extends JFrame {
 
     private Image backgroundImage, titleImage, currentBackgroundImage;
 
+    private EventMapper eventMapper;
     private StorageInterface storage;
     private MusicChannel musicChannel;
     private SoundMonitor soundMonitor;                    // монитор для звуковых эффектов
@@ -60,6 +61,8 @@ class GameFrame extends JFrame {
 
     GameFrame(String title, boolean isDebug) {                            // конструктор
         config = new Config();
+
+        eventMapper = new EventMapper();
 
         storage = new FileSystemStorage();
 
@@ -110,14 +113,14 @@ class GameFrame extends JFrame {
         // Start Game
         startButton = new JButton("Обычная игра");                // создаём кнопку
         startButton.addActionListener(eventsMonitor);                // слушатель событий кнопки
-        startButton.setActionCommand("starta");                // команда, которая передаётся слушателю
+        startButton.setActionCommand(START_GAME_A.name());                // команда, которая передаётся слушателю
 
         JButton startButton2 = new JButton("Сумасшедшая игра");                // создаём кнопку
         startButton2.addActionListener(eventsMonitor);                // слушатель событий кнопки
-        startButton2.setActionCommand("startb");                // команда, которая передаётся слушателю
+        startButton2.setActionCommand(START_GAME_B.name());                // команда, которая передаётся слушателю
 
         JButton closeButton = new JButton("Выход");
-        closeButton.setActionCommand("close");
+        closeButton.setActionCommand(EXIT.name());
         closeButton.addActionListener(eventsMonitor);
 
         startPanel = new JPanel();
@@ -131,7 +134,7 @@ class GameFrame extends JFrame {
         continueButton = new JButton("Тык");
         continueButton.addActionListener(eventsMonitor);
         continueButton.addKeyListener(eventsMonitor);
-        continueButton.setActionCommand("continue");
+        continueButton.setActionCommand(CONTINUE.name());
         JPanel continuePanel = new JPanel();
         continuePanel.add(continueButton);
 
@@ -150,7 +153,7 @@ class GameFrame extends JFrame {
         newRecordPanel.add(nameTextField);
 
         saveButton = new JButton("Записать");
-        saveButton.setActionCommand("save");
+        saveButton.setActionCommand(SAVE.name());
         saveButton.addActionListener(eventsMonitor);
 
         JPanel savePanel = new JPanel();
@@ -221,7 +224,7 @@ class GameFrame extends JFrame {
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.translate(10, 10);
-            g2d.setColor(Color.BLACK);
+            g2d.setColor(config.getColor(config.transparentColor));
 
             int width = tetris.getWidth();
             int height = tetris.getHeight();
@@ -229,7 +232,7 @@ class GameFrame extends JFrame {
             int tileHeight = config.tileHeight;
 
             g2d.fillRect(0, 0, width * tileWidth, (height - 2) * tileHeight);
-            g2d.setColor(new Color(100, 100, 100));
+            g2d.setColor(config.getColor(config.grayColor));
             for (int i = 1; i < width; i++) {
                 for (int j = 3; j < height; j++) {
                     g2d.drawRect(i * tileWidth, (j - 2) * tileHeight, 0, 0);
@@ -238,71 +241,52 @@ class GameFrame extends JFrame {
 
             for (int i = 0; i < width; i++) {
                 for (int j = 2; j < height; j++) {
-                    g2d.setColor(config.colors[tetris.getGlass().get(i, j)]);
+                    g2d.setColor(config.getColor(tetris.getGlass().get(i, j)));
                     g2d.fillRoundRect(i * tileWidth, (j - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
                 }
             }
 
             //выводим счёт, линии.
             int leftPos = width * tileWidth + 7;
-            g2d.setColor(Color.BLACK);
+            g2d.setColor(config.getColor(config.transparentColor));
             g2d.drawString("Счёт: " + tetris.getScore(), leftPos, 10);
             g2d.drawString("Линий: " + tetris.getLines(), leftPos, 30);
             g2d.drawString("Уровень: " + tetris.getLevel(), leftPos, 50);
-            String st = "Жизнь прекрасна :)";
-            if (tetris.getCritter().getAir() < 75) {
-                st = "Надо отдышаться...";
-            }
             Critter critter = tetris.getCritter();
-            if (critter.isBounded()) {
-                if (critter.getAir() < 50) {
-                    st = "Задыхаюсь!!!";
-                } else {
-                    st = "Тут мало воздуха...";
-                }
-            }
             g2d.drawString("Воздух: " + (int) critter.getAir() + "%", leftPos, 70);
-            g2d.drawString(st, leftPos, 90);
+            g2d.drawString(critter.getStringStatus(), leftPos, 90);
 
             //рисуем фигуру
             Figure figure = tetris.getFigure();
             for (Coordinate coordinate : figure.getCoordinates()) {
                 int k = figure.getGhostTop();
-                g2d.setColor(new Color(config.colors[figure.getColor()].getRed() / 7, config.colors[figure.getColor()].getGreen() / 7, config.colors[figure.getColor()].getBlue() / 4));
-                if ((coordinate.getY() + k) >= 2)
+                g2d.setColor(config.getColor(figure.getColor(), 4));
+                if (coordinate.getY() + k >= 2) {
                     g2d.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + k - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
+                }
             }
 
-            int kx = 0;
-            int ky = 0;
             Figure nextFigure = tetris.getNextFigure();
-            for (Coordinate coordinate : nextFigure.getCoordinates()) {
-                if (coordinate.getX() < kx) {
-                    kx = coordinate.getX();
-                }
-                if (coordinate.getY() < ky) {
-                    ky = coordinate.getY();
-                }
-            }
+            int kx = nextFigure.getCoordinates().stream().map(Coordinate::getX).min(Integer::compare).orElse(0);
+            int ky = nextFigure.getCoordinates().stream().map(Coordinate::getY).min(Integer::compare).orElse(0);
 
             for (Coordinate coordinate : nextFigure.getCoordinates()) {
-                g2d.setColor(new Color(config.colors[figure.getColor()].getRed() / 4, config.colors[figure.getColor()].getGreen() / 4, config.colors[figure.getColor()].getBlue() / 3));
+                g2d.setColor(config.getColor(figure.getColor(), 4));
                 g2d.fillRoundRect((coordinate.getX() - kx) * tileWidth + leftPos + 1, (coordinate.getY() - ky) * tileHeight + 100 + 1, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
 
-                g2d.setColor(config.colors[nextFigure.getColor()]);
+                g2d.setColor(config.getColor(nextFigure.getColor()));
                 g2d.fillRoundRect((coordinate.getX() - kx) * tileWidth + leftPos, (coordinate.getY() - ky) * tileHeight + 100, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
-
             }
 
             for (Coordinate coordinate : figure.getCoordinates()) {
-                g2d.setColor(config.colors[figure.getColor()]);
+                g2d.setColor(config.getColor(figure.getColor()));
                 if ((coordinate.getY() + figure.getTop()) >= 2)
                     g2d.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
             }
 
             //рисую персонажа
             if (critter.getStatus() != CritterState.DEAD) {
-                g2d.setColor(Color.WHITE);
+                g2d.setColor(config.getColor(config.critterColor));
                 g2d.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
                 kx = critter.getHorizontalDirection() * 2;
                 ky = 0;
@@ -330,113 +314,151 @@ class GameFrame extends JFrame {
 
     class EventsMonitor implements ActionListener, EventListener, KeyListener, GameEventListener {
 
-        @Override
-        public void actionPerformed(ActionEvent e) { // Swing events
-            processAction(e.getActionCommand());
+        @Override // Swing actions
+        public void actionPerformed(ActionEvent e) {
+            processEvent(GameEvent.valueOf(e.getActionCommand()));
         }
 
-        @Override
-        public void notify(Event event, String message) { // internal events
+        @Override // Swing key actions
+        public void keyPressed(KeyEvent e) {
+            if (e.isConsumed()) {
+                return;
+            }
+
+            GameEvent event = eventMapper.map(e.getKeyCode());
+            tetris.processEvent(event);
+            this.processEvent(event);
+
+            e.consume();
+        }
+
+        @Override // Unused
+        public void keyReleased(KeyEvent e) {
+        }
+
+        @Override // Unused
+        public void keyTyped(KeyEvent e) {
+        }
+
+        @Override // Internal "native" events
+        public void notify(GameEvent event, String message) {
+            processEvent(event);
+        }
+
+        private void processEvent(GameEvent event) {
             switch (event) {
+                case START_GAME:
+                    startGame();
+                    break;
+
+                case START_GAME_A:
+                    crazy = false;
+                    startGame();
+                    break;
+
+                case START_GAME_B:
+                    crazy = true;
+                    startGame();
+                    break;
+
                 case REPAINT:
                     gamePanel.repaint();
                     break;
+
+                case PAUSE:
+                    pauseGame();
+                    break;
+
+                case CONTINUE:
+                    continueGame();
+                    break;
+
                 case GAME_OVER:
-                    processAction("gameover");
-                    break;
-            }
-        }
-
-        private void processAction(String action) {
-            if (action.equals("starta")) {
-                crazy = false;
-                action = "start";
-
-            } else if (action.equals("startb")) {
-                crazy = true;
-                action = "start";
-
-            }
-            switch (action) {
-                case "start":
-                    currentBackgroundImage = backgroundImage;
-                    musicChannel.stop();
-                    startPanel.setVisible(false);
-                    tetris = new Tetris(config, crazy);
-                    Arrays.asList(REPAINT, GAME_OVER).forEach(event -> tetris.addListener(event, this));
-
-                    Arrays.asList(PLAY_SOUND, START_LOOPING_SOUND, STOP_LOOPING_SOUND, FADE_LOOPING_SOUND, SUPPORT_LOOPING_SOUNDS)
-                            .forEach(event -> tetris.addListener(event, soundMonitor));
-
-                    tetris.start();
-                    gamePanel.addKeyListener(this);
+                    gameOver();
                     break;
 
-                case "continue":
-                    pausePanel.setVisible(false);
-                    tetris.pause(false);
+                case SAVE:
+                    saveGame();
                     break;
 
-                case "gameover":
-                    gamePanel.removeKeyListener(this);
-                    String fileName = crazy ? "crazy.res" : "tet.res";
-                    storage.setRecordsFileName(fileName);
-                    gameRecords = new Records(storage);
-                    int place = gameRecords.getPlace(tetris.getScore());
-
-                    if (gameRecords.canAddNewRecord(place)) {
-                        fillModel(gameRecords, model);
-                        nameTextField.setVisible(true);
-                        saveButton.setText("Записать");
-                        switch (place) {
-                            case 1:
-                                saveLabel.setText("Первое место!!! Ваше имя: ");
-                                break;
-                            case 2:
-                                saveLabel.setText("Второе место!! Ваше имя: ");
-                                break;
-                            case 3:
-                                saveLabel.setText("Третье место! Ваше имя: ");
-                                break;
-                            default:
-                                saveLabel.setText(tetris.getScore() + " очков! Ваше имя: ");
-                        }
-                    } else {
-                        nameTextField.setVisible(false);
-                        saveButton.setText("Тык");
-                        saveLabel.setText("Набрано " + tetris.getScore() + " очков. Маловато для рекорда!");
-                    }
-                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 5));    // выравнивание по горизонтали - по середине
-
-                    recordPanel.setVisible(true);
-                    if (place < 30) {
-                        nameTextField.requestFocus();
-                    } else {
-                        saveButton.requestFocus();
-                    }
-                    break;
-
-                case "save":
-                    recordPanel.setVisible(false);
-                    String str = nameTextField.getText();
-                    if (str.length() == 0) {
-                        str = "Капитан Немо";
-                    }
-                    gameRecords.verifyAndAddScore(str, tetris.getScore());
-                    storage.saveRecord(gameRecords.getRecords());
-                    gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
-
-                    startPanel.setVisible(true);
-                    startButton.requestFocus();
-                    break;
-
-                case "close":
+                case EXIT:
                     if (tetris != null) {
-                        tetris.finish();
+                        tetris.processEvent(GAME_OVER);
                     }
                     System.exit(0);                        // закрываем программу
             }
             gamePanel.repaint();                        // вызываем перерисовку панели
+        }
+
+        private void startGame() {
+            currentBackgroundImage = backgroundImage;
+            musicChannel.stop();
+            startPanel.setVisible(false);
+            tetris = new Tetris(config, crazy);
+            Arrays.asList(REPAINT, GAME_OVER).forEach(e -> tetris.addListener(e, this));
+
+            Arrays.asList(PLAY_SOUND, START_LOOPING_SOUND, STOP_LOOPING_SOUND, FADE_LOOPING_SOUND, SUPPORT_LOOPING_SOUNDS)
+                    .forEach(e -> tetris.addListener(e, soundMonitor));
+
+            tetris.start();
+            gamePanel.addKeyListener(this);
+        }
+
+        private void pauseGame() {
+            if (tetris.getState() == RUNNING) {
+                tetris.processEvent(PAUSE);
+                gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
+                pausePanel.setVisible(true);
+                continueButton.requestFocus();
+                gamePanel.repaint();
+            } else if (tetris.getState() == PAUSED) {
+                continueGame();
+            }
+        }
+
+        private void continueGame() {
+            pausePanel.setVisible(false);
+            tetris.processEvent(CONTINUE);
+            gamePanel.repaint();
+        }
+
+        private void gameOver() {
+            gamePanel.removeKeyListener(this);
+            String fileName = crazy ? "crazy.res" : "tet.res";
+            storage.setRecordsStorageName(fileName);
+            gameRecords = new Records(storage);
+            int place = gameRecords.getPlace(tetris.getScore());
+
+            if (gameRecords.canAddNewRecord(place)) {
+                fillModel(gameRecords, model);
+                nameTextField.setVisible(true);
+                saveButton.setText("Записать");
+                switch (place) {
+                    case 1:
+                        saveLabel.setText("Первое место!!! Ваше имя: ");
+                        break;
+                    case 2:
+                        saveLabel.setText("Второе место!! Ваше имя: ");
+                        break;
+                    case 3:
+                        saveLabel.setText("Третье место! Ваше имя: ");
+                        break;
+                    default:
+                        saveLabel.setText(tetris.getScore() + " очков! Ваше имя: ");
+                }
+            } else {
+                nameTextField.setVisible(false);
+                saveButton.setText("Тык");
+                saveLabel.setText("Набрано " + tetris.getScore() + " очков. Маловато для рекорда!");
+            }
+            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 5));    // выравнивание по горизонтали - по середине
+
+            recordPanel.setVisible(true);
+            if (place < 30) {
+                nameTextField.requestFocus();
+            } else {
+                saveButton.requestFocus();
+            }
         }
 
         private void fillModel(Records records, DefaultTableModel defaultTableModel) {
@@ -448,48 +470,18 @@ class GameFrame extends JFrame {
             }
         }
 
-        // "Слушатель". Отвечает за интерфейс
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.isConsumed()) {
-                return;
+        private void saveGame() {
+            recordPanel.setVisible(false);
+            String str = nameTextField.getText();
+            if (str.length() == 0) {
+                str = "Капитан Немо";
             }
+            gameRecords.verifyAndAddScore(str, tetris.getScore());
+            storage.saveRecord(gameRecords.getRecords());
+            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
 
-            int keyCode = e.getKeyCode();
-
-            switch (keyCode) {
-
-                case KeyEvent.VK_ESCAPE:
-                    tetris.finish();
-                    storage.saveRecord(gameRecords.getRecords());
-                    System.exit(0);
-                    break;
-
-                case KeyEvent.VK_P:
-                    if (tetris.getState() == RUNNING) {
-                        tetris.pause(true);
-                        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
-                        pausePanel.setVisible(true);
-                        continueButton.requestFocus();
-                    } else if (tetris.getState() == PAUSED) {
-                        pausePanel.setVisible(false);
-                        tetris.pause(false);
-                    }
-                    gamePanel.repaint();                        // вызываем перерисовку панели
-                    break;
-
-                default:
-                    tetris.keyPressed(keyCode);
-            }
-            e.consume();
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-        }
-
-        @Override
-        public void keyTyped(KeyEvent e) {
+            startPanel.setVisible(true);
+            startButton.requestFocus();
         }
     }
 }

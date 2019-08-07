@@ -3,9 +3,7 @@ package md.leonis.tetris.engine;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.Coordinates;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Figure {
 
@@ -151,7 +149,7 @@ public class Figure {
         return true;
     }
 
-    private void rotateLeft() {
+    boolean rotateLeft() {
         backup();
         coordinates.forEach(c -> {
             int k = c.getY();
@@ -160,9 +158,9 @@ public class Figure {
         });
         if (!isAllowedNewPosition()) {
             restore();
-            //return false;
+            return false;
         }
-        //return true;
+        return true;
     }
 
     boolean moveDown() {
@@ -180,6 +178,9 @@ public class Figure {
         do {
             backup();
             top++;
+            if (properties.getCritter().isCrushed() && !properties.getCritter().isStandingOnTheGround()) {
+                properties.getCritter().correctYPosition(Collections.singletonList(300));
+            }
         } while (isAllowedNewPosition());
         restore();
         fallen = true;

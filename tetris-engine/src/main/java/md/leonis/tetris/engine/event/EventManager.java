@@ -4,23 +4,23 @@ import java.util.*;
 
 public abstract class EventManager {
 
-    private Map<Event, List<GameEventListener>> listeners = new EnumMap<>(Event.class);
+    private Map<GameEvent, List<GameEventListener>> listeners = new EnumMap<>(GameEvent.class);
 
     public void initializeEvents() {
-        Arrays.stream(Event.values()).forEach(event -> listeners.put(event, new ArrayList<>()));
+        Arrays.stream(GameEvent.values()).forEach(event -> listeners.put(event, new ArrayList<>()));
     }
 
-    public void addListener(Event event, GameEventListener listener) {
+    public void addListener(GameEvent event, GameEventListener listener) {
         List<GameEventListener> eventListeners = listeners.get(event);
         eventListeners.add(listener);
     }
 
-    public void removeListener(Event event, GameEventListener listener) {
+    public void removeListener(GameEvent event, GameEventListener listener) {
         List<GameEventListener> eventListeners = listeners.get(event);
         eventListeners.remove(listener);
     }
 
-    public void notify(Event event, String message) {
+    public void notify(GameEvent event, String message) {
         List<GameEventListener> eventListeners = listeners.get(event);
         for (GameEventListener listener : eventListeners) {
             listener.notify(event, message);
