@@ -47,6 +47,8 @@ CrazyTetris для Java
 
 Смайлики сделаны по образцу с сайта [freepik.com](https://www.freepik.com/free-vector/funny-smileys-collection-flat-design_837327.htm).
 
+Версия для Vaadin сделана по мотивам игры [Vaadin Tetris](https://github.com/samie/VaadinTetris) от Sami Ekblad
+
 Список изменений
 ----------------
 
