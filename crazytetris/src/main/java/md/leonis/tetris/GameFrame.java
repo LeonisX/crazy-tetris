@@ -69,16 +69,11 @@ class GameFrame extends JFrame {
         musicChannel = new MusicChannel(getResourceAsStream("audio/music.mp3", isDebug));
 
         soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
-        soundMonitor.addSound(getResourceAsStream("audio/falled.wav", isDebug));        // 0 звук
-        soundMonitor.addSound(getResourceAsStream("audio/rotate.wav", isDebug));        // 1 звук
-        soundMonitor.addSound(getResourceAsStream("audio/click.wav", isDebug));         // 2 звук
-        soundMonitor.addSound(getResourceAsStream("audio/heartbeat-a.wav", isDebug));   // 3 звук
-        soundMonitor.addSound(getResourceAsStream("audio/heartbeat-b.wav", isDebug));   // 4 звук
-        soundMonitor.setGain(0, 0.9f);               // громкость (от 0 до 1.0f)
-        soundMonitor.setGain(1, 0.9f);
-        soundMonitor.setGain(2, 1.0f);
-        soundMonitor.setGain(3, 0.8f);
-        soundMonitor.setGain(4, 0.9f);
+        soundMonitor.addSoundWithGain(getResourceAsStream("audio/falled.wav", isDebug), 0.9f);        // 0 звук; громкость (от 0 до 1.0f)
+        soundMonitor.addSoundWithGain(getResourceAsStream("audio/rotate.wav", isDebug), 0.9f);        // 1 звук
+        soundMonitor.addSoundWithGain(getResourceAsStream("audio/click.wav", isDebug), 1.0f);         // 2 звук
+        soundMonitor.addSoundWithGain(getResourceAsStream("audio/heartbeat-a.wav", isDebug), 0.8f);   // 3 звук
+        soundMonitor.addSoundWithGain(getResourceAsStream("audio/heartbeat-b.wav", isDebug), 0.9f);   // 4 звук
 
         try {
             backgroundImage = ImageIO.read(getResourceAsStream("bg.jpg", isDebug));

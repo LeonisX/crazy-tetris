@@ -16,14 +16,19 @@ import java.util.List;
  */
 public class SoundMonitor implements GameEventListener {
 
-    private List<AudioChannel> channels = new ArrayList<>();
+    private List<SoundChannel> channels = new ArrayList<>();
 
     public void addSound(File file) {
-        channels.add(new AudioChannel(file));
+        channels.add(new SoundChannel(file));
     }
 
     public void addSound(InputStream inputStream) {
-        channels.add(new AudioChannel(inputStream));
+        channels.add(new SoundChannel(inputStream));
+    }
+
+    public void addSoundWithGain(InputStream inputStream, float gain) {
+        addSound(inputStream);
+        setGain(channels.size() - 1, gain);
     }
 
     public void play(int channel) {

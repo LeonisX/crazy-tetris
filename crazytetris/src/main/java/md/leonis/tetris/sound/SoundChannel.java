@@ -8,7 +8,7 @@ import java.io.InputStream;
  * Отлично работает с wav файлами.
  * All Sound FX.
  */
-class AudioChannel {
+class SoundChannel {
 
     private static final int FADE_COUNT = 5;
 
@@ -20,13 +20,13 @@ class AudioChannel {
 
     private float fadeGrade;
 
-    AudioChannel(File file) {
+    SoundChannel(File file) {
         sound = new Sound(file);
         loop = false;
         fade = false;
     }
 
-    AudioChannel(InputStream inputStream) {
+    SoundChannel(InputStream inputStream) {
         sound = new Sound(inputStream);
         loop = false;
         fade = false;
