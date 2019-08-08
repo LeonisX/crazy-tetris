@@ -894,6 +894,106 @@
 
 /**
  *
+ * @group table
+ */
+
+@-webkit-keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@-moz-keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@-webkit-keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+@-moz-keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+@keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+/**
+ *
+ * @group table
+ */
+
+@-webkit-keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@-moz-keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@keyframes valo-grid-editor-footer-animate-in {
+		0% {
+		margin-top: -37px;
+	}
+	}
+
+@-webkit-keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+@-moz-keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+@keyframes valo-grid-editor-footer-animate-in-alt {
+		0% {
+		margin-bottom: -38px;
+	}
+		100% {
+		margin-bottom: -1px;
+	}
+	}
+
+/**
+ *
  *
  * @param {string} $primary-stylename (v-treetable) - 
  *
@@ -914,10 +1014,6 @@
  * @param {string} $primary-stylename (v-upload) -
  *
  * @group upload
- */
-
-/**
- *
  */
 
 /**
@@ -981,7 +1077,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "8.0.5";
+	content: "8.8.5";
 }
 
 .v-widget {
@@ -1072,7 +1168,7 @@
 	overflow: auto;
 }
 
-.v-assistive-device-only {
+.v-assistive-device-only, .v-assistive-device-only-label label {
 	position: absolute;
 	top: -2000px;
 	left: -2000px;
@@ -1651,6 +1747,61 @@ div.v-layout.v-horizontal.v-widget {
 	content: "!";
 }
 
+.valo .v-errorindicator-info {
+	color: #00a7f5;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+}
+
+.valo .v-errorindicator-info:before {
+	content: "!";
+}
+
+.valo .v-errorindicator-warning {
+	color: #fc9c00;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+}
+
+.valo .v-errorindicator-warning:before {
+	content: "!";
+}
+
+.valo .v-errorindicator-error {
+	color: #ed473b;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+}
+
+.valo .v-errorindicator-error:before {
+	content: "!";
+}
+
+.valo .v-errorindicator-critical {
+	color: #fa007d;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+}
+
+.valo .v-errorindicator-critical:before {
+	content: "!";
+}
+
+.valo .v-errorindicator-system {
+	color: #bb00ff;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+}
+
+.valo .v-errorindicator-system:before {
+	content: "!";
+}
+
 .valo .v-required-field-indicator {
 	color: #ed473b;
 	padding: 0 0.2em;
@@ -1676,31 +1827,6 @@ div.v-layout.v-horizontal.v-widget {
 	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
 }
 
-.valo button {
-	font: inherit;
-	font-weight: 400;
-	line-height: 1.55;
-}
-
-.valo a {
-	cursor: pointer;
-	color: #197de1;
-	text-decoration: underline;
-	font-weight: inherit;
-	-webkit-transition: color 140ms;
-	-moz-transition: color 140ms;
-	transition: color 140ms;
-}
-
-.valo a:hover {
-	color: #4396ea;
-}
-
-.valo a.v-disabled {
-	opacity: 0.5;
-	filter: alpha(opacity=50) ;
-}
-
 .valo .v-disabled {
 	cursor: default !important;
 }
@@ -1714,6 +1840,13 @@ div.v-layout.v-horizontal.v-widget {
 	overflow: hidden;
 	opacity: 0.5;
 	filter: alpha(opacity=50) ;
+}
+
+.valo .v-draggable {
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	-webkit-user-select: none !important;
+	user-select: none !important;
 }
 
 .valo .v-tooltip {
@@ -1748,6 +1881,26 @@ div.v-layout.v-horizontal.v-widget {
 	line-height: inherit;
 }
 
+.valo .v-tooltip .v-errormessage-info {
+	color: #00a7f5;
+}
+
+.valo .v-tooltip .v-errormessage-warning {
+	color: #fc9c00;
+}
+
+.valo .v-tooltip .v-errormessage-error {
+	color: #ed473b;
+}
+
+.valo .v-tooltip .v-errormessage-critical {
+	color: #fa007d;
+}
+
+.valo .v-tooltip .v-errormessage-system {
+	color: #bb00ff;
+}
+
 .valo .v-tooltip .v-tooltip-text {
 	max-height: 10em;
 	overflow: auto;
@@ -1764,6 +1917,11 @@ div.v-layout.v-horizontal.v-widget {
 
 .valo .v-tooltip h1, .valo .v-tooltip h2, .valo .v-tooltip h3, .valo .v-tooltip h4 {
 	color: inherit;
+}
+
+.valo .v-tooltip pre.v-tooltip-pre {
+	font: inherit;
+	white-space: pre-wrap;
 }
 
 .valo .v-contextmenu {
@@ -2895,6 +3053,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 37px;
 	line-height: 1;
 	padding-top: 0.12em;
+	margin-left: 9px;
 }
 
 .valo .v-filterselect[class*="prompt"] > [class*="input"] {
@@ -2984,6 +3143,10 @@ div.v-layout.v-horizontal.v-widget {
 	pointer-events: none;
 }
 
+.valo .v-filterselect .v-icon.FontAwesome {
+	margin-left: 0px;
+}
+
 .valo .v-filterselect-error .v-filterselect-input {
 	border-color: #ed473b !important;
 	background: #fffbfb;
@@ -2993,6 +3156,61 @@ div.v-layout.v-horizontal.v-widget {
 .valo .v-filterselect-error .v-filterselect-button {
 	color: #ed473b;
 	border-color: #ed473b;
+}
+
+.valo .v-filterselect-error-info .v-filterselect-input {
+	border-color: #00a7f5 !important;
+	background: #fafdff;
+	color: #195774;
+}
+
+.valo .v-filterselect-error-info .v-filterselect-button {
+	color: #00a7f5;
+	border-color: #00a7f5;
+}
+
+.valo .v-filterselect-error-warning .v-filterselect-input {
+	border-color: #fc9c00 !important;
+	background: #fffdfa;
+	color: #745119;
+}
+
+.valo .v-filterselect-error-warning .v-filterselect-button {
+	color: #fc9c00;
+	border-color: #fc9c00;
+}
+
+.valo .v-filterselect-error-error .v-filterselect-input {
+	border-color: #ed473b !important;
+	background: #fffbfb;
+	color: #6c2621;
+}
+
+.valo .v-filterselect-error-error .v-filterselect-button {
+	color: #ed473b;
+	border-color: #ed473b;
+}
+
+.valo .v-filterselect-error-critical .v-filterselect-input {
+	border-color: #fa007d !important;
+	background: #fffafc;
+	color: #741947;
+}
+
+.valo .v-filterselect-error-critical .v-filterselect-button {
+	color: #fa007d;
+	border-color: #fa007d;
+}
+
+.valo .v-filterselect-error-system .v-filterselect-input {
+	border-color: #bb00ff !important;
+	background: #fefaff;
+	color: #5c1974;
+}
+
+.valo .v-filterselect-error-system .v-filterselect-button {
+	color: #bb00ff;
+	border-color: #bb00ff;
 }
 
 .valo .v-filterselect-suggestpopup {
@@ -3318,6 +3536,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 28px;
 	line-height: 1;
 	padding-top: 0.12em;
+	margin-left: 5px;
 }
 
 .valo .v-filterselect-tiny [class$="button"] {
@@ -3437,6 +3656,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 31px;
 	line-height: 1;
 	padding-top: 0.12em;
+	margin-left: 6px;
 }
 
 .valo .v-filterselect-compact [class$="button"], .valo .v-filterselect-small [class$="button"] {
@@ -3561,6 +3781,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 44px;
 	line-height: 1;
 	padding-top: 0.12em;
+	margin-left: 8px;
 }
 
 .valo .v-filterselect-large [class$="button"] {
@@ -3681,6 +3902,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 59px;
 	line-height: 1;
 	padding-top: 0.12em;
+	margin-left: 10px;
 }
 
 .valo .v-filterselect-huge [class$="button"] {
@@ -4154,6 +4376,10 @@ div.v-layout.v-horizontal.v-widget {
 	left: 0;
 }
 
+.valo .v-grid-body .v-grid-header > .v-grid-row {
+	position: relative;
+}
+
 .valo .v-grid-row {
 	display: block;
 }
@@ -4329,10 +4555,16 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
 	border-right: 1px solid #d4d4d4;
+	position: relative;
+	z-index: 11;
 }
 
 .valo .v-grid-cell.frozen  + th, .valo .v-grid-cell.frozen  + td {
 	border-left: none;
+}
+
+.valo .v-grid-cell div.component-wrap {
+	width: 100%;
 }
 
 .valo .v-grid-row > td, .valo .v-grid-editor-cells > div {
@@ -4879,6 +5111,76 @@ div.v-layout.v-horizontal.v-widget {
 	min-width: 30px;
 }
 
+.valo .v-grid-row-drag-badge {
+	background-color: red;
+	color: white;
+	display: block;
+	width: 30px;
+	height: 30px;
+	border-radius: 10px;
+	line-height: 30px;
+	text-align: center;
+	float: left;
+}
+
+.valo .v-grid-row-drag-top, .valo .v-grid-row-drag-bottom {
+	z-index: 100;
+}
+
+.valo .v-grid-row-drag-top:before, .valo .v-grid-row-drag-bottom:after {
+	content: "";
+	display: block;
+	position: absolute;
+	height: 2px;
+	width: 100%;
+	background: #197de1;
+	pointer-events: none;
+	border: none;
+}
+
+.valo .v-grid-row-drag-bottom:after {
+	bottom: -1px;
+}
+
+.valo .v-grid-row-drag-top:before {
+	top: -1px;
+}
+
+.valo .v-grid-row-drag-top:first-child:before {
+	top: 0;
+}
+
+.valo .v-grid-row-drag-center:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 2px;
+	border: 2px solid #197de1;
+	pointer-events: none;
+}
+
+.valo .v-grid-row-selected.v-grid-row-drag-center:after {
+	border-color: #1463b3;
+}
+
+.valo .v-grid-row-selected.v-grid-row-drag-top:before, .valo .v-grid-row-selected.v-grid-row-drag-bottom:after {
+	background: #1463b3;
+}
+
+.valo .v-grid-body-drag-top:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	border: 2px solid #197de1;
+	z-index: 100;
+}
+
 .valo .v-textfield {
 	-webkit-appearance: none;
 	-moz-appearance: none;
@@ -4945,6 +5247,36 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: #ed473b !important;
 	background: #fffbfb;
 	color: #6c2621;
+}
+
+.valo .v-textfield-error-info {
+	border-color: #00a7f5 !important;
+	background: #fafdff;
+	color: #195774;
+}
+
+.valo .v-textfield-error-warning {
+	border-color: #fc9c00 !important;
+	background: #fffdfa;
+	color: #745119;
+}
+
+.valo .v-textfield-error-error {
+	border-color: #ed473b !important;
+	background: #fffbfb;
+	color: #6c2621;
+}
+
+.valo .v-textfield-error-critical {
+	border-color: #fa007d !important;
+	background: #fffafc;
+	color: #741947;
+}
+
+.valo .v-textfield-error-system {
+	border-color: #bb00ff !important;
+	background: #fefaff;
+	color: #5c1974;
 }
 
 .valo .v-textfield-borderless {
@@ -5693,6 +6025,61 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: #ed473b;
 }
 
+.valo .v-datefield-error-info .v-datefield-textfield {
+	border-color: #00a7f5 !important;
+	background: #fafdff;
+	color: #195774;
+}
+
+.valo .v-datefield-error-info .v-datefield-button {
+	color: #00a7f5;
+	border-color: #00a7f5;
+}
+
+.valo .v-datefield-error-warning .v-datefield-textfield {
+	border-color: #fc9c00 !important;
+	background: #fffdfa;
+	color: #745119;
+}
+
+.valo .v-datefield-error-warning .v-datefield-button {
+	color: #fc9c00;
+	border-color: #fc9c00;
+}
+
+.valo .v-datefield-error-error .v-datefield-textfield {
+	border-color: #ed473b !important;
+	background: #fffbfb;
+	color: #6c2621;
+}
+
+.valo .v-datefield-error-error .v-datefield-button {
+	color: #ed473b;
+	border-color: #ed473b;
+}
+
+.valo .v-datefield-error-critical .v-datefield-textfield {
+	border-color: #fa007d !important;
+	background: #fffafc;
+	color: #741947;
+}
+
+.valo .v-datefield-error-critical .v-datefield-button {
+	color: #fa007d;
+	border-color: #fa007d;
+}
+
+.valo .v-datefield-error-system .v-datefield-textfield {
+	border-color: #bb00ff !important;
+	background: #fefaff;
+	color: #5c1974;
+}
+
+.valo .v-datefield-error-system .v-datefield-button {
+	color: #bb00ff;
+	border-color: #bb00ff;
+}
+
 .valo .v-datefield-full {
 	width: 240px;
 }
@@ -5890,7 +6277,12 @@ div.v-layout.v-horizontal.v-widget {
 
 .valo .v-datefield-popup td.v-datefield-calendarpanel-month {
 	width: 148px;
+	cursor: default;
 	color: #197de1;
+}
+
+.valo .v-datefield-popup td.v-datefield-calendarpanel-month.header-month-year {
+	cursor: pointer;
 }
 
 .valo .v-datefield-popup .v-datefield-calendarpanel-year td.v-datefield-calendarpanel-month {
@@ -6075,7 +6467,12 @@ div.v-layout.v-horizontal.v-widget {
 
 .valo td.v-datefield-calendarpanel-month {
 	width: 148px;
+	cursor: default;
 	color: #197de1;
+}
+
+.valo td.v-datefield-calendarpanel-month.header-month-year {
+	cursor: pointer;
 }
 
 .valo .v-datefield-calendarpanel-year td.v-datefield-calendarpanel-month {
@@ -6730,7 +7127,12 @@ div.v-layout.v-horizontal.v-widget {
 
 .valo td.v-inline-datefield-calendarpanel-month {
 	width: 148px;
+	cursor: default;
 	color: #197de1;
+}
+
+.valo td.v-inline-datefield-calendarpanel-month.header-month-year {
+	cursor: pointer;
 }
 
 .valo .v-inline-datefield-calendarpanel-year td.v-inline-datefield-calendarpanel-month {
@@ -8004,12 +8406,28 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .valo .v-link a {
+	cursor: pointer;
+	color: #197de1;
+	text-decoration: underline;
+	font-weight: inherit;
+	-webkit-transition: color 140ms;
+	-moz-transition: color 140ms;
+	transition: color 140ms;
 	cursor: inherit;
 	color: inherit;
 	text-decoration: inherit;
 	-webkit-transition: inherit;
 	-moz-transition: inherit;
 	transition: inherit;
+}
+
+.valo .v-link a:hover {
+	color: #4396ea;
+}
+
+.valo .v-link a.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
 }
 
 .valo .v-link .v-icon {
@@ -8173,6 +8591,30 @@ div.v-layout.v-horizontal.v-widget {
 	color: inherit;
 }
 
+.valo .v-window-closebox:focus::after {
+	content: "";
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	bottom: 6px;
+	left: 2px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+}
+
+.valo .v-window-maximizebox:focus::after, .valo .v-window-restorebox:focus::after {
+	content: "";
+	position: absolute;
+	top: 6px;
+	right: 2px;
+	bottom: 6px;
+	left: 6px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+}
+
 .valo .v-window-closebox {
 	padding-right: 4px;
 	border-radius: 0 4px 0 4px;
@@ -8200,6 +8642,10 @@ div.v-layout.v-horizontal.v-widget {
 	width: 37px;
 	padding-right: 0;
 	border-bottom-left-radius: 4px;
+}
+
+.valo .v-window-closebox-disabled  + .v-window-closebox:focus::after, .valo .v-window-resizebox-disabled  + .v-window-closebox:focus::after, .valo .v-window-restorebox-disabled  + .v-window-closebox:focus::after, .valo .v-window-maximizebox-disabled  + .v-window-closebox:focus::after {
+	left: 6px;
 }
 
 .valo .v-window-maximizebox:before {
@@ -8513,6 +8959,2232 @@ div.v-layout.v-horizontal.v-widget {
 
 .v-ff .valo .v-tree-node-drag-top:before, .v-ff .valo .v-tree-node-drag-bottom:after {
 	line-height: 1px;
+}
+
+.valo .v-tree8 {
+	position: relative;
+}
+
+.valo .v-tree8-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.valo .v-tree8-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.valo .v-tree8-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.valo .v-tree8-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.valo .v-tree8-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.valo .v-tree8-header-deco, .valo .v-tree8-footer-deco {
+	position: absolute;
+	right: 0;
+	box-sizing: border-box;
+}
+
+.valo .v-tree8-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	box-sizing: border-box;
+}
+
+.valo .v-tree8-header, .valo .v-tree8-body, .valo .v-tree8-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.valo .v-tree8-header, .valo .v-tree8-header-deco {
+	top: 0;
+}
+
+.valo .v-tree8-footer, .valo .v-tree8-footer-deco {
+	bottom: 0;
+}
+
+.valo .v-tree8-body {
+	-ms-touch-action: none;
+	touch-action: none;
+	z-index: 0;
+	top: 0;
+}
+
+.valo .v-tree8-body .v-tree8-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.valo .v-tree8-body .v-tree8-header > .v-tree8-row {
+	position: relative;
+}
+
+.valo .v-tree8-row {
+	display: block;
+}
+
+.valo .v-tree8-row  > td, .valo .v-tree8-row  > th {
+	background-color: white;
+}
+
+.valo .v-tree8-row {
+	width: inherit;
+}
+
+.valo .v-tree8-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.valo .v-tree8-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
+.valo .v-tree8-spacer {
+	position: absolute;
+	display: block;
+	background-color: white;
+}
+
+.valo .v-tree8-spacer  > td {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.valo .v-tree8 {
+	outline: none;
+}
+
+.valo .v-tree8-scroller-vertical, .valo .v-tree8-scroller-horizontal {
+	border: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8-scroller-vertical {
+	border-left: none;
+}
+
+.valo .v-tree8-scroller-horizontal {
+	border-top: none;
+}
+
+.valo .v-tree8-tablewrapper {
+	border: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8 .header-drag-table {
+	border-spacing: 0;
+	position: relative;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.valo .v-tree8 .header-drag-table .v-tree8-header {
+	position: absolute;
+}
+
+.valo .v-tree8 .header-drag-table .v-tree8-header  > .v-tree8-cell {
+	border: 1px solid #d4d4d4;
+	margin-top: -10px;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	z-index: 30000;
+}
+
+.valo .v-tree8 .header-drag-table .v-tree8-header  > .v-tree8-drop-marker {
+	background-color: #197de1;
+	position: absolute;
+	width: 3px;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border-radius: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #fafafa;
+	border: 1px solid #d4d4d4;
+	padding: 0;
+	z-index: 5;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.v-tree8-sidebar-popup {
+	right: auto;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-button {
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	padding: 0 4px;
+	text-align: right;
+	line-height: 1;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-button[disabled] {
+	cursor: default;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-button::-moz-focus-inner {
+	border: 0;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-button:after {
+	content: "\f0c9";
+	display: block;
+	font-family: ThemeIcons, sans-serif;
+	font-size: 14px;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.closed {
+	border-radius: 0;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.open .v-tree8-sidebar-button {
+	width: 100%;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.open .v-tree8-sidebar-button:after {
+	content: "\f0c9";
+	font-size: 14px;
+	line-height: 1;
+}
+
+.v-ie .valo .v-tree8-sidebar.v-contextmenu.open .v-tree8-sidebar-button {
+	vertical-align: middle;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-content {
+	padding: 4px 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu .v-tree8-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
+	text-shadow: none;
+}
+
+.valo .v-tree8-cell {
+	background-color: white;
+	padding: 0 18px;
+	line-height: 37px;
+	text-overflow: ellipsis;
+}
+
+.valo .v-tree8-cell  > * {
+	line-height: 1.55;
+	vertical-align: middle;
+}
+
+.valo .v-tree8-cell  > div {
+	display: inline-block;
+}
+
+.valo .v-tree8-cell.frozen {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #d4d4d4;
+	position: relative;
+	z-index: 11;
+}
+
+.valo .v-tree8-cell.frozen  + th, .valo .v-tree8-cell.frozen  + td {
+	border-left: none;
+}
+
+.valo .v-tree8-cell div.component-wrap {
+	width: 100%;
+}
+
+.valo .v-tree8-row > td, .valo .v-tree8-editor-cells > div {
+	border-left: 1px solid #d4d4d4;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8-row > td:first-child, .valo .v-tree8-editor-cells > div:first-child {
+	border-left: none;
+}
+
+.valo .v-tree8-editor-cells.frozen > div {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #d4d4d4;
+	border-left: none;
+}
+
+.valo .v-tree8-row-stripe > td {
+	background-color: #f5f5f5;
+}
+
+.valo .v-tree8-row-selected > td {
+	background: #197de1;
+}
+
+.valo .v-tree8-row-focused > td {
+	
+}
+
+.valo .v-tree8-header th {
+	position: relative;
+	background-color: #fafafa;
+	font-size: 14px;
+	font-weight: inherit;
+	border-left: 1px solid #d4d4d4;
+	border-bottom: 1px solid #d4d4d4;
+	
+	text-align: left;
+}
+
+.valo .v-tree8-header th:first-child {
+	border-left: none;
+}
+
+.valo .v-tree8-header .sort-asc, .valo .v-tree8-header .sort-desc {
+	padding-right: 35px;
+}
+
+.valo .v-tree8-header .sort-asc:after, .valo .v-tree8-header .sort-desc:after {
+	font-family: ThemeIcons, sans-serif;
+	content: "\f0de" " " attr(sort-order);
+	position: absolute;
+	right: 18px;
+	font-size: 12px;
+}
+
+.valo .v-tree8-header .sort-desc:after {
+	content: "\f0dd" " " attr(sort-order);
+}
+
+.valo .v-tree8-column-resize-handle {
+	position: absolute;
+	width: 36px;
+	right: -18px;
+	top: 0px;
+	bottom: 0px;
+	cursor: col-resize;
+	z-index: 10;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.valo .v-tree8-column-resize-simple-indicator {
+	position: absolute;
+	width: 3px;
+	top: 0px;
+	left: 18px;
+	z-index: 9001;
+	background: #fff;
+	box-shadow: 0px 0px 5px #000;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.valo .v-tree8-footer td {
+	background-color: #fafafa;
+	font-size: 14px;
+	font-weight: inherit;
+	border-left: 1px solid #d4d4d4;
+	border-top: 1px solid #d4d4d4;
+	border-bottom: none;
+	
+}
+
+.valo .v-tree8-footer td:first-child {
+	border-left: none;
+}
+
+.valo .v-tree8-header .v-tree8-cell, .valo .v-tree8-footer .v-tree8-cell {
+	overflow: visible;
+}
+
+.valo .v-tree8-column-header-content, .valo .v-tree8-column-footer-content {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 37px;
+	vertical-align: baseline;
+}
+
+.valo .v-tree8-header-deco {
+	border-top: 1px solid #d4d4d4;
+	border-right: 1px solid #d4d4d4;
+	background-color: #fafafa;
+}
+
+.valo .v-tree8-footer-deco {
+	border-bottom: 1px solid #d4d4d4;
+	border-right: 1px solid #d4d4d4;
+	background-color: #fafafa;
+}
+
+.valo .v-tree8-horizontal-scrollbar-deco {
+	background-color: #fafafa;
+	border: 1px solid #d4d4d4;
+	border-top: none;
+}
+
+.valo .v-tree8-cell-focused {
+	position: relative;
+}
+
+.valo .v-tree8-cell-focused:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 2px solid #197de1;
+	display: none;
+	pointer-events: none;
+}
+
+.valo .v-tree8:focus .v-tree8-cell-focused:before {
+	display: block;
+}
+
+.valo .v-tree8.v-disabled:focus .v-tree8-cell-focused:before {
+	display: none;
+}
+
+.valo .v-tree8-editor {
+	position: absolute;
+	z-index: 20;
+	overflow: hidden;
+	left: 0;
+	right: 0;
+	border: 1px solid #d4d4d4;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin-top: -1px;
+	-webkit-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+}
+
+.valo .v-tree8-editor.unbuffered .v-tree8-editor-footer {
+	width: 100%;
+}
+
+.valo .v-tree8-editor-cells {
+	position: relative;
+	white-space: nowrap;
+}
+
+.valo .v-tree8-editor-cells.frozen {
+	z-index: 2;
+}
+
+.valo .v-tree8-editor-cells  > div {
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: middle;
+	background: white;
+}
+
+.valo .v-tree8-editor-cells  > div:first-child {
+	border-left: none;
+}
+
+.valo .v-tree8-editor-cells  > div  > * {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.valo .v-tree8-editor-cells  > div .v-filterselect {
+	padding-left: 0;
+}
+
+.valo .v-tree8-editor-cells  > div input[type="text"], .valo .v-tree8-editor-cells  > div input[type="text"].v-filterselect-input, .valo .v-tree8-editor-cells  > div input[type="password"] {
+	padding-left: 18px;
+}
+
+.valo .v-tree8-editor-cells  > div input[type="text"]:not(.v-filterselect-input), .valo .v-tree8-editor-cells  > div input[type="password"] {
+	padding-right: 9px;
+}
+
+.valo .v-tree8-editor-cells  > div input[type="checkbox"] {
+	margin-left: 18px;
+}
+
+.valo .v-tree8-editor-cells  > div .v-textfield, .valo .v-tree8-editor-cells  > div .v-datefield, .valo .v-tree8-editor-cells  > div .v-filterselect {
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+}
+
+.valo .v-tree8-editor-cells  > div .v-select, .valo .v-tree8-editor-cells  > div .v-select-select {
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.valo .v-tree8-editor-cells  > div.not-editable.v-tree8-cell {
+	float: none;
+}
+
+.valo .v-tree8-editor-cells .error::before {
+	position: absolute;
+	display: block;
+	height: 0;
+	width: 0;
+	content: "";
+	border-top: 5px solid red;
+	border-right: 5px solid transparent;
+}
+
+.valo .v-tree8-editor-cells .error, .valo .v-tree8-editor-cells .error > input {
+	background-color: #fee;
+}
+
+.valo .v-tree8-editor-footer {
+	display: table;
+	height: 37px;
+	border-top: 1px solid #d4d4d4;
+	margin-top: -1px;
+	background: white;
+	padding: 0 5px;
+}
+
+.valo .v-tree8-editor-footer  + .v-tree8-editor-cells > div {
+	border-bottom: none;
+	border-top: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8-editor-footer:first-child {
+	border-top: none;
+	margin-top: 0;
+	border-bottom: 1px solid #d4d4d4;
+	margin-bottom: -1px;
+}
+
+.valo .v-tree8-editor-message, .valo .v-tree8-editor-buttons {
+	display: table-cell;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.valo .v-tree8-editor-message {
+	width: 100%;
+	position: relative;
+}
+
+.valo .v-tree8-editor-message  > div {
+	position: absolute;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 37px;
+	top: 0;
+}
+
+.valo .v-tree8-editor-save {
+	margin-right: 4px;
+}
+
+.valo .v-tree8-spacer {
+	padding-left: 1px;
+}
+
+.valo .v-tree8-spacer > td {
+	display: block;
+	padding: 0;
+	background-color: white;
+	border-top: 1px solid #eeeeee;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8-spacer.stripe > td {
+	background-color: #f5f5f5;
+	border-top: 1px solid #e5e5e5;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-tree8-spacer-deco-container {
+	border-top: 1px solid transparent;
+	position: relative;
+	top: 0;
+	z-index: 5;
+}
+
+.valo .v-tree8-spacer-deco {
+	top: 0;
+	left: 0;
+	width: 2px;
+	background-color: #197de1;
+	position: absolute;
+	height: 100%;
+	pointer-events: none;
+}
+
+.valo .v-tree8-cell > .v-progressbar {
+	width: 100%;
+}
+
+.valo .v-tree8 {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	background-color: #fafafa;
+}
+
+.valo .v-tree8.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
+.valo .v-tree8-header .v-tree8-cell {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.valo .v-tree8-header .v-tree8-cell.dragged {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+	-webkit-transition: opacity 0.3s ease-in-out;
+	-moz-transition: opacity 0.3s ease-in-out;
+	transition: opacity 0.3s ease-in-out;
+}
+
+.valo .v-tree8-header .v-tree8-cell.dragged-column-header {
+	margin-top: -19px;
+}
+
+.valo .v-tree8-footer .v-tree8-cell {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.valo .v-tree8-header-deco {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-tree8-footer-deco, .valo .v-tree8-horizontal-scrollbar-deco {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-tree8-row-selected  > .v-tree8-cell {
+	background-color: #197de1;
+	background-image: -webkit-linear-gradient(top, #1b87e3 2%, #166ed5 98%);
+	background-image: linear-gradient(to bottom,#1b87e3 2%, #166ed5 98%);
+	color: #c8dbed;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
+	border-color: #1d69b4;
+}
+
+.valo .v-tree8-row-selected  > .v-tree8-cell-focused:before {
+	border-color: #71b0ef;
+}
+
+.valo .v-tree8-editor {
+	-webkit-box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	border-color: #197de1;
+}
+
+.valo .v-tree8-editor-footer {
+	font-size: 14px;
+	padding: 0 6px;
+	background: #fafafa;
+	-webkit-animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+	-moz-animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+	animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+}
+
+.valo .v-tree8-editor-footer:first-child {
+	-webkit-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+	-moz-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+	animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+}
+
+.valo .v-tree8-editor-cells {
+	z-index: 1;
+}
+
+.valo .v-tree8-editor-cells > div:before {
+	content: "";
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.valo .v-tree8-editor-cells > div.not-editable.v-tree8-cell {
+	float: none;
+}
+
+.valo .v-tree8-editor-cells > div .error::before {
+	border-top: 9px solid #ed473b;
+	border-right: 9px solid transparent;
+}
+
+.valo .v-tree8-editor-cells > div .error, .valo .v-tree8-editor-cells > div .error > input {
+	background-color: #fffbfb;
+}
+
+.valo .v-tree8-editor-cells > div .v-textfield, .valo .v-tree8-editor-cells > div .v-textfield-focus, .valo .v-tree8-editor-cells > div .v-datefield, .valo .v-tree8-editor-cells > div .v-datefield .v-textfield-focus, .valo .v-tree8-editor-cells > div .v-filterselect-input, .valo .v-tree8-editor-cells > div .v-filterselect-input:focus {
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	-webkit-box-shadow: inset 0 1px 0 #f2f2f2;
+	box-shadow: inset 0 1px 0 #f2f2f2;
+}
+
+.valo .v-tree8-editor-cells > div input[type="text"].v-datefield-textfield {
+	padding-left: 44.4px;
+}
+
+.valo .v-tree8-editor-cells > div .v-textfield-focus, .valo .v-tree8-editor-cells > div .v-datefield .v-textfield-focus, .valo .v-tree8-editor-cells > div .v-filterselect-input:focus {
+	position: relative;
+}
+
+.valo .v-tree8-editor-cells > div .v-select {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+
+.valo .v-tree8-editor-cells > div .v-checkbox {
+	margin: 0 9px 0 18px;
+}
+
+.valo .v-tree8-editor-cells > div .v-checkbox  > input[type="checkbox"] {
+	margin-left: 0;
+}
+
+.valo .v-tree8-editor-cells > div .v-checkbox  > label {
+	white-space: nowrap;
+}
+
+.valo .v-tree8-editor-message > div:before {
+	display: inline-block;
+	color: #ed473b;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+	content: "!";
+}
+
+.valo .v-tree8-editor-save, .valo .v-tree8-editor-cancel {
+	cursor: pointer;
+	color: #197de1;
+	text-decoration: underline;
+	font-weight: inherit;
+	-webkit-transition: color 140ms;
+	-moz-transition: color 140ms;
+	transition: color 140ms;
+	font-weight: 400;
+	text-decoration: none;
+	border: none;
+	background: transparent;
+	padding: 6px 6px;
+	margin: 0;
+	outline: none;
+}
+
+.valo .v-tree8-editor-save:hover, .valo .v-tree8-editor-cancel:hover {
+	color: #4396ea;
+}
+
+.valo .v-tree8-editor-save.v-disabled, .valo .v-tree8-editor-cancel.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
+.valo .v-tree8-spacer {
+	margin-top: -1px;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.open .v-tree8-sidebar-content {
+	margin: 0 0 2px;
+	padding: 4px 4px 2px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.valo .v-tree8-sidebar.v-contextmenu.closed {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-tree8-scroller::-webkit-scrollbar {
+	border: none;
+}
+
+.valo .v-tree8-scroller::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	border: 4px solid transparent;
+	background: rgba(0, 0, 0, 0.3);
+	-webkit-background-clip: content-box;
+	background-clip: content-box;
+}
+
+.valo .v-tree8-scroller-vertical::-webkit-scrollbar-thumb {
+	min-height: 30px;
+}
+
+.valo .v-tree8-scroller-horizontal::-webkit-scrollbar-thumb {
+	min-width: 30px;
+}
+
+.valo .v-tree8-row-drag-badge {
+	background-color: red;
+	color: white;
+	display: block;
+	width: 30px;
+	height: 30px;
+	border-radius: 10px;
+	line-height: 30px;
+	text-align: center;
+	float: left;
+}
+
+.valo .v-tree8-row-drag-top, .valo .v-tree8-row-drag-bottom {
+	z-index: 100;
+}
+
+.valo .v-tree8-row-drag-top:before, .valo .v-tree8-row-drag-bottom:after {
+	content: "";
+	display: block;
+	position: absolute;
+	height: 2px;
+	width: 100%;
+	background: #197de1;
+	pointer-events: none;
+	border: none;
+}
+
+.valo .v-tree8-row-drag-bottom:after {
+	bottom: -1px;
+}
+
+.valo .v-tree8-row-drag-top:before {
+	top: -1px;
+}
+
+.valo .v-tree8-row-drag-top:first-child:before {
+	top: 0;
+}
+
+.valo .v-tree8-row-drag-center:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 2px;
+	border: 2px solid #197de1;
+	pointer-events: none;
+}
+
+.valo .v-tree8-row-selected.v-tree8-row-drag-center:after {
+	border-color: #1463b3;
+}
+
+.valo .v-tree8-row-selected.v-tree8-row-drag-top:before, .valo .v-tree8-row-selected.v-tree8-row-drag-bottom:after {
+	background: #1463b3;
+}
+
+.valo .v-tree8-body-drag-top:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	border: 2px solid #197de1;
+	z-index: 100;
+}
+
+.valo .v-tree8-expander {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.valo .v-tree8-expander::before {
+	display: inline-block;
+	width: 1.5em;
+	text-align: center;
+	content: "";
+}
+
+.valo .v-tree8-expander.expanded::before {
+	content: "\f0d7";
+	font-family: ThemeIcons;
+}
+
+.valo .v-tree8-expander.collapsed::before {
+	content: "\f0da";
+	font-family: ThemeIcons;
+}
+
+.valo .v-tree8-expander.collapse-disabled::before {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+	cursor: default;
+}
+
+.valo .v-tree8-node.depth-0 {
+	padding-left: 0em;
+}
+
+.valo .v-tree8-node.depth-1 {
+	padding-left: 1em;
+}
+
+.valo .v-tree8-node.depth-2 {
+	padding-left: 2em;
+}
+
+.valo .v-tree8-node.depth-3 {
+	padding-left: 3em;
+}
+
+.valo .v-tree8-node.depth-4 {
+	padding-left: 4em;
+}
+
+.valo .v-tree8-node.depth-5 {
+	padding-left: 5em;
+}
+
+.valo .v-tree8-node.depth-6 {
+	padding-left: 6em;
+}
+
+.valo .v-tree8-node.depth-7 {
+	padding-left: 7em;
+}
+
+.valo .v-tree8-node.depth-8 {
+	padding-left: 8em;
+}
+
+.valo .v-tree8-node.depth-9 {
+	padding-left: 9em;
+}
+
+.valo .v-tree8-node.depth-10 {
+	padding-left: 10em;
+}
+
+.valo .v-tree8-node.depth-11 {
+	padding-left: 11em;
+}
+
+.valo .v-tree8-node.depth-12 {
+	padding-left: 12em;
+}
+
+.valo .v-tree8-node.depth-13 {
+	padding-left: 13em;
+}
+
+.valo .v-tree8-node.depth-14 {
+	padding-left: 14em;
+}
+
+.valo .v-tree8-node.depth-15 {
+	padding-left: 15em;
+}
+
+.valo .v-tree8-node.depth-16 {
+	padding-left: 16em;
+}
+
+.valo .v-tree8-node.depth-17 {
+	padding-left: 17em;
+}
+
+.valo .v-tree8-node.depth-18 {
+	padding-left: 18em;
+}
+
+.valo .v-tree8-node.depth-19 {
+	padding-left: 19em;
+}
+
+.valo .v-tree8-node.depth-20 {
+	padding-left: 20em;
+}
+
+.valo .v-tree8-node.depth-21 {
+	padding-left: 21em;
+}
+
+.valo .v-tree8-node.depth-22 {
+	padding-left: 22em;
+}
+
+.valo .v-tree8-node.depth-23 {
+	padding-left: 23em;
+}
+
+.valo .v-tree8-node.depth-24 {
+	padding-left: 24em;
+}
+
+.valo .v-tree8-node.depth-25 {
+	padding-left: 25em;
+}
+
+.valo .v-tree8-node.depth-26 {
+	padding-left: 26em;
+}
+
+.valo .v-tree8-node.depth-27 {
+	padding-left: 27em;
+}
+
+.valo .v-tree8-node.depth-28 {
+	padding-left: 28em;
+}
+
+.valo .v-tree8-node.depth-29 {
+	padding-left: 29em;
+}
+
+.valo .v-tree8-node.depth-30 {
+	padding-left: 30em;
+}
+
+.valo .v-tree8-node.depth-31 {
+	padding-left: 31em;
+}
+
+.valo .v-tree8-cell-content {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.valo .v-tree8-row-focused::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 2px solid #197de1;
+	display: none;
+	pointer-events: none;
+}
+
+.valo .v-tree8-cell-focused {
+	position: static;
+}
+
+.valo .v-tree8-cell-focused::before {
+	display: none;
+}
+
+.valo .v-tree8:focus .v-tree8-row-focused::before {
+	display: block;
+}
+
+.valo .v-tree8.v-disabled:focus .v-tree8-row-focused::before {
+	display: none;
+}
+
+.valo .v-tree8:focus .v-tree8-cell-focused::before {
+	display: none;
+}
+
+.valo .v-tree8 {
+	background-color: transparent;
+}
+
+.valo .v-tree8-row > td {
+	background-color: transparent;
+	border: 0;
+	line-height: 28px;
+}
+
+.valo .v-tree8-row > td  > * {
+	vertical-align: baseline;
+}
+
+.valo .v-tree8-tablewrapper {
+	background-color: transparent;
+	border: none;
+}
+
+.valo .v-tree8-row::before {
+	content: "";
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border-radius: 4px;
+	pointer-events: none;
+	border-width: 1px;
+}
+
+.valo .v-tree8-cell {
+	position: relative;
+}
+
+.valo .v-tree8-row-selected  > .v-tree8-cell {
+	background: transparent;
+}
+
+.valo .v-tree8-row-selected::before {
+	display: block;
+	background-color: #197de1;
+	background-image: -webkit-linear-gradient(top, #1b87e3 2%, #166ed5 98%);
+	background-image: linear-gradient(to bottom,#1b87e3 2%, #166ed5 98%);
+}
+
+.valo .v-tree8:focus .v-tree8-row-selected.v-tree8-row-focused::before {
+	border-color: transparent;
+	box-shadow: inset 0 0 0 1px #c8dbed;
+}
+
+.valo .v-tree8-scroller-vertical {
+	border: none;
+}
+
+.valo .v-tree8-scroller-horizontal {
+	border: none;
+}
+
+.valo .v-tree8-header-deco, .valo .v-tree8-footer-deco, .valo .v-tree8-horizontal-scrollbar-deco {
+	border: none;
+	background: transparent;
+}
+
+.valo .v-treegrid {
+	position: relative;
+}
+
+.valo .v-treegrid-scroller {
+	position: absolute;
+	z-index: 1;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.valo .v-treegrid-scroller-horizontal {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow-y: hidden;
+	-ms-overflow-y: hidden;
+}
+
+.valo .v-treegrid-scroller-vertical {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-x: hidden;
+	-ms-overflow-x: hidden;
+}
+
+.valo .v-treegrid-tablewrapper {
+	position: absolute;
+	overflow: hidden;
+	box-sizing: border-box;
+	z-index: 5;
+}
+
+.valo .v-treegrid-tablewrapper > table {
+	border-spacing: 0;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.valo .v-treegrid-header-deco, .valo .v-treegrid-footer-deco {
+	position: absolute;
+	right: 0;
+	box-sizing: border-box;
+}
+
+.valo .v-treegrid-horizontal-scrollbar-deco {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	box-sizing: border-box;
+}
+
+.valo .v-treegrid-header, .valo .v-treegrid-body, .valo .v-treegrid-footer {
+	position: absolute;
+	left: 0;
+	width: inherit;
+	z-index: 10;
+}
+
+.valo .v-treegrid-header, .valo .v-treegrid-header-deco {
+	top: 0;
+}
+
+.valo .v-treegrid-footer, .valo .v-treegrid-footer-deco {
+	bottom: 0;
+}
+
+.valo .v-treegrid-body {
+	-ms-touch-action: none;
+	touch-action: none;
+	z-index: 0;
+	top: 0;
+}
+
+.valo .v-treegrid-body .v-treegrid-row {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.valo .v-treegrid-body .v-treegrid-header > .v-treegrid-row {
+	position: relative;
+}
+
+.valo .v-treegrid-row {
+	display: block;
+}
+
+.valo .v-treegrid-row  > td, .valo .v-treegrid-row  > th {
+	background-color: white;
+}
+
+.valo .v-treegrid-row {
+	width: inherit;
+}
+
+.valo .v-treegrid-cell {
+	display: block;
+	float: left;
+	padding: 2px;
+	white-space: nowrap;
+	box-sizing: border-box;
+	overflow: hidden;
+	font-size: 16px;
+}
+
+.valo .v-treegrid-cell.frozen {
+	position: relative;
+	z-index: 1;
+}
+
+.valo .v-treegrid-spacer {
+	position: absolute;
+	display: block;
+	background-color: white;
+}
+
+.valo .v-treegrid-spacer  > td {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.valo .v-treegrid {
+	outline: none;
+}
+
+.valo .v-treegrid-scroller-vertical, .valo .v-treegrid-scroller-horizontal {
+	border: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid-scroller-vertical {
+	border-left: none;
+}
+
+.valo .v-treegrid-scroller-horizontal {
+	border-top: none;
+}
+
+.valo .v-treegrid-tablewrapper {
+	border: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid .header-drag-table {
+	border-spacing: 0;
+	position: relative;
+	table-layout: fixed;
+	width: inherit;
+}
+
+.valo .v-treegrid .header-drag-table .v-treegrid-header {
+	position: absolute;
+}
+
+.valo .v-treegrid .header-drag-table .v-treegrid-header  > .v-treegrid-cell {
+	border: 1px solid #d4d4d4;
+	margin-top: -10px;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	z-index: 30000;
+}
+
+.valo .v-treegrid .header-drag-table .v-treegrid-header  > .v-treegrid-drop-marker {
+	background-color: #197de1;
+	position: absolute;
+	width: 3px;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border-radius: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #fafafa;
+	border: 1px solid #d4d4d4;
+	padding: 0;
+	z-index: 5;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.v-treegrid-sidebar-popup {
+	right: auto;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-button {
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	padding: 0 4px;
+	text-align: right;
+	line-height: 1;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-button[disabled] {
+	cursor: default;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-button::-moz-focus-inner {
+	border: 0;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-button:after {
+	content: "\f0c9";
+	display: block;
+	font-family: ThemeIcons, sans-serif;
+	font-size: 14px;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.closed {
+	border-radius: 0;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.open .v-treegrid-sidebar-button {
+	width: 100%;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.open .v-treegrid-sidebar-button:after {
+	content: "\f0c9";
+	font-size: 14px;
+	line-height: 1;
+}
+
+.v-ie .valo .v-treegrid-sidebar.v-contextmenu.open .v-treegrid-sidebar-button {
+	vertical-align: middle;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-content {
+	padding: 4px 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
+	text-shadow: none;
+}
+
+.valo .v-treegrid-cell {
+	background-color: white;
+	padding: 0 18px;
+	line-height: 37px;
+	text-overflow: ellipsis;
+}
+
+.valo .v-treegrid-cell  > * {
+	line-height: 1.55;
+	vertical-align: middle;
+}
+
+.valo .v-treegrid-cell  > div {
+	display: inline-block;
+}
+
+.valo .v-treegrid-cell.frozen {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #d4d4d4;
+	position: relative;
+	z-index: 11;
+}
+
+.valo .v-treegrid-cell.frozen  + th, .valo .v-treegrid-cell.frozen  + td {
+	border-left: none;
+}
+
+.valo .v-treegrid-cell div.component-wrap {
+	width: 100%;
+}
+
+.valo .v-treegrid-row > td, .valo .v-treegrid-editor-cells > div {
+	border-left: 1px solid #d4d4d4;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid-row > td:first-child, .valo .v-treegrid-editor-cells > div:first-child {
+	border-left: none;
+}
+
+.valo .v-treegrid-editor-cells.frozen > div {
+	-webkit-box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+	border-right: 1px solid #d4d4d4;
+	border-left: none;
+}
+
+.valo .v-treegrid-row-stripe > td {
+	background-color: #f5f5f5;
+}
+
+.valo .v-treegrid-row-selected > td {
+	background: #197de1;
+}
+
+.valo .v-treegrid-row-focused > td {
+	
+}
+
+.valo .v-treegrid-header th {
+	position: relative;
+	background-color: #fafafa;
+	font-size: 14px;
+	font-weight: inherit;
+	border-left: 1px solid #d4d4d4;
+	border-bottom: 1px solid #d4d4d4;
+	
+	text-align: left;
+}
+
+.valo .v-treegrid-header th:first-child {
+	border-left: none;
+}
+
+.valo .v-treegrid-header .sort-asc, .valo .v-treegrid-header .sort-desc {
+	padding-right: 35px;
+}
+
+.valo .v-treegrid-header .sort-asc:after, .valo .v-treegrid-header .sort-desc:after {
+	font-family: ThemeIcons, sans-serif;
+	content: "\f0de" " " attr(sort-order);
+	position: absolute;
+	right: 18px;
+	font-size: 12px;
+}
+
+.valo .v-treegrid-header .sort-desc:after {
+	content: "\f0dd" " " attr(sort-order);
+}
+
+.valo .v-treegrid-column-resize-handle {
+	position: absolute;
+	width: 36px;
+	right: -18px;
+	top: 0px;
+	bottom: 0px;
+	cursor: col-resize;
+	z-index: 10;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.valo .v-treegrid-column-resize-simple-indicator {
+	position: absolute;
+	width: 3px;
+	top: 0px;
+	left: 18px;
+	z-index: 9001;
+	background: #fff;
+	box-shadow: 0px 0px 5px #000;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.valo .v-treegrid-footer td {
+	background-color: #fafafa;
+	font-size: 14px;
+	font-weight: inherit;
+	border-left: 1px solid #d4d4d4;
+	border-top: 1px solid #d4d4d4;
+	border-bottom: none;
+	
+}
+
+.valo .v-treegrid-footer td:first-child {
+	border-left: none;
+}
+
+.valo .v-treegrid-header .v-treegrid-cell, .valo .v-treegrid-footer .v-treegrid-cell {
+	overflow: visible;
+}
+
+.valo .v-treegrid-column-header-content, .valo .v-treegrid-column-footer-content {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 37px;
+	vertical-align: baseline;
+}
+
+.valo .v-treegrid-header-deco {
+	border-top: 1px solid #d4d4d4;
+	border-right: 1px solid #d4d4d4;
+	background-color: #fafafa;
+}
+
+.valo .v-treegrid-footer-deco {
+	border-bottom: 1px solid #d4d4d4;
+	border-right: 1px solid #d4d4d4;
+	background-color: #fafafa;
+}
+
+.valo .v-treegrid-horizontal-scrollbar-deco {
+	background-color: #fafafa;
+	border: 1px solid #d4d4d4;
+	border-top: none;
+}
+
+.valo .v-treegrid-cell-focused {
+	position: relative;
+}
+
+.valo .v-treegrid-cell-focused:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 2px solid #197de1;
+	display: none;
+	pointer-events: none;
+}
+
+.valo .v-treegrid:focus .v-treegrid-cell-focused:before {
+	display: block;
+}
+
+.valo .v-treegrid.v-disabled:focus .v-treegrid-cell-focused:before {
+	display: none;
+}
+
+.valo .v-treegrid-editor {
+	position: absolute;
+	z-index: 20;
+	overflow: hidden;
+	left: 0;
+	right: 0;
+	border: 1px solid #d4d4d4;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	margin-top: -1px;
+	-webkit-box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 9px rgba(0, 0, 0, 0.2);
+}
+
+.valo .v-treegrid-editor.unbuffered .v-treegrid-editor-footer {
+	width: 100%;
+}
+
+.valo .v-treegrid-editor-cells {
+	position: relative;
+	white-space: nowrap;
+}
+
+.valo .v-treegrid-editor-cells.frozen {
+	z-index: 2;
+}
+
+.valo .v-treegrid-editor-cells  > div {
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: middle;
+	background: white;
+}
+
+.valo .v-treegrid-editor-cells  > div:first-child {
+	border-left: none;
+}
+
+.valo .v-treegrid-editor-cells  > div  > * {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.valo .v-treegrid-editor-cells  > div .v-filterselect {
+	padding-left: 0;
+}
+
+.valo .v-treegrid-editor-cells  > div input[type="text"], .valo .v-treegrid-editor-cells  > div input[type="text"].v-filterselect-input, .valo .v-treegrid-editor-cells  > div input[type="password"] {
+	padding-left: 18px;
+}
+
+.valo .v-treegrid-editor-cells  > div input[type="text"]:not(.v-filterselect-input), .valo .v-treegrid-editor-cells  > div input[type="password"] {
+	padding-right: 9px;
+}
+
+.valo .v-treegrid-editor-cells  > div input[type="checkbox"] {
+	margin-left: 18px;
+}
+
+.valo .v-treegrid-editor-cells  > div .v-textfield, .valo .v-treegrid-editor-cells  > div .v-datefield, .valo .v-treegrid-editor-cells  > div .v-filterselect {
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+}
+
+.valo .v-treegrid-editor-cells  > div .v-select, .valo .v-treegrid-editor-cells  > div .v-select-select {
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.valo .v-treegrid-editor-cells  > div.not-editable.v-treegrid-cell {
+	float: none;
+}
+
+.valo .v-treegrid-editor-cells .error::before {
+	position: absolute;
+	display: block;
+	height: 0;
+	width: 0;
+	content: "";
+	border-top: 5px solid red;
+	border-right: 5px solid transparent;
+}
+
+.valo .v-treegrid-editor-cells .error, .valo .v-treegrid-editor-cells .error > input {
+	background-color: #fee;
+}
+
+.valo .v-treegrid-editor-footer {
+	display: table;
+	height: 37px;
+	border-top: 1px solid #d4d4d4;
+	margin-top: -1px;
+	background: white;
+	padding: 0 5px;
+}
+
+.valo .v-treegrid-editor-footer  + .v-treegrid-editor-cells > div {
+	border-bottom: none;
+	border-top: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid-editor-footer:first-child {
+	border-top: none;
+	margin-top: 0;
+	border-bottom: 1px solid #d4d4d4;
+	margin-bottom: -1px;
+}
+
+.valo .v-treegrid-editor-message, .valo .v-treegrid-editor-buttons {
+	display: table-cell;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.valo .v-treegrid-editor-message {
+	width: 100%;
+	position: relative;
+}
+
+.valo .v-treegrid-editor-message  > div {
+	position: absolute;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 37px;
+	top: 0;
+}
+
+.valo .v-treegrid-editor-save {
+	margin-right: 4px;
+}
+
+.valo .v-treegrid-spacer {
+	padding-left: 1px;
+}
+
+.valo .v-treegrid-spacer > td {
+	display: block;
+	padding: 0;
+	background-color: white;
+	border-top: 1px solid #eeeeee;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid-spacer.stripe > td {
+	background-color: #f5f5f5;
+	border-top: 1px solid #e5e5e5;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+.valo .v-treegrid-spacer-deco-container {
+	border-top: 1px solid transparent;
+	position: relative;
+	top: 0;
+	z-index: 5;
+}
+
+.valo .v-treegrid-spacer-deco {
+	top: 0;
+	left: 0;
+	width: 2px;
+	background-color: #197de1;
+	position: absolute;
+	height: 100%;
+	pointer-events: none;
+}
+
+.valo .v-treegrid-cell > .v-progressbar {
+	width: 100%;
+}
+
+.valo .v-treegrid {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	background-color: #fafafa;
+}
+
+.valo .v-treegrid.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
+.valo .v-treegrid-header .v-treegrid-cell {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.valo .v-treegrid-header .v-treegrid-cell.dragged {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+	-webkit-transition: opacity 0.3s ease-in-out;
+	-moz-transition: opacity 0.3s ease-in-out;
+	transition: opacity 0.3s ease-in-out;
+}
+
+.valo .v-treegrid-header .v-treegrid-cell.dragged-column-header {
+	margin-top: -19px;
+}
+
+.valo .v-treegrid-footer .v-treegrid-cell {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.valo .v-treegrid-header-deco {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-treegrid-footer-deco, .valo .v-treegrid-horizontal-scrollbar-deco {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-treegrid-row-selected  > .v-treegrid-cell {
+	background-color: #197de1;
+	background-image: -webkit-linear-gradient(top, #1b87e3 2%, #166ed5 98%);
+	background-image: linear-gradient(to bottom,#1b87e3 2%, #166ed5 98%);
+	color: #c8dbed;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
+	border-color: #1d69b4;
+}
+
+.valo .v-treegrid-row-selected  > .v-treegrid-cell-focused:before {
+	border-color: #71b0ef;
+}
+
+.valo .v-treegrid-editor {
+	-webkit-box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	box-shadow: 0 0 0 2px rgba(25, 125, 225, 0.5);
+	border-color: #197de1;
+}
+
+.valo .v-treegrid-editor-footer {
+	font-size: 14px;
+	padding: 0 6px;
+	background: #fafafa;
+	-webkit-animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+	-moz-animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+	animation: valo-grid-editor-footer-animate-in 200ms 120ms backwards;
+}
+
+.valo .v-treegrid-editor-footer:first-child {
+	-webkit-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+	-moz-animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+	animation: valo-grid-editor-footer-animate-in-alt 200ms 120ms backwards;
+}
+
+.valo .v-treegrid-editor-cells {
+	z-index: 1;
+}
+
+.valo .v-treegrid-editor-cells > div:before {
+	content: "";
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.valo .v-treegrid-editor-cells > div.not-editable.v-treegrid-cell {
+	float: none;
+}
+
+.valo .v-treegrid-editor-cells > div .error::before {
+	border-top: 9px solid #ed473b;
+	border-right: 9px solid transparent;
+}
+
+.valo .v-treegrid-editor-cells > div .error, .valo .v-treegrid-editor-cells > div .error > input {
+	background-color: #fffbfb;
+}
+
+.valo .v-treegrid-editor-cells > div .v-textfield, .valo .v-treegrid-editor-cells > div .v-textfield-focus, .valo .v-treegrid-editor-cells > div .v-datefield, .valo .v-treegrid-editor-cells > div .v-datefield .v-textfield-focus, .valo .v-treegrid-editor-cells > div .v-filterselect-input, .valo .v-treegrid-editor-cells > div .v-filterselect-input:focus {
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	-webkit-box-shadow: inset 0 1px 0 #f2f2f2;
+	box-shadow: inset 0 1px 0 #f2f2f2;
+}
+
+.valo .v-treegrid-editor-cells > div input[type="text"].v-datefield-textfield {
+	padding-left: 44.4px;
+}
+
+.valo .v-treegrid-editor-cells > div .v-textfield-focus, .valo .v-treegrid-editor-cells > div .v-datefield .v-textfield-focus, .valo .v-treegrid-editor-cells > div .v-filterselect-input:focus {
+	position: relative;
+}
+
+.valo .v-treegrid-editor-cells > div .v-select {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+
+.valo .v-treegrid-editor-cells > div .v-checkbox {
+	margin: 0 9px 0 18px;
+}
+
+.valo .v-treegrid-editor-cells > div .v-checkbox  > input[type="checkbox"] {
+	margin-left: 0;
+}
+
+.valo .v-treegrid-editor-cells > div .v-checkbox  > label {
+	white-space: nowrap;
+}
+
+.valo .v-treegrid-editor-message > div:before {
+	display: inline-block;
+	color: #ed473b;
+	font-weight: 600;
+	width: 19px;
+	text-align: center;
+	content: "!";
+}
+
+.valo .v-treegrid-editor-save, .valo .v-treegrid-editor-cancel {
+	cursor: pointer;
+	color: #197de1;
+	text-decoration: underline;
+	font-weight: inherit;
+	-webkit-transition: color 140ms;
+	-moz-transition: color 140ms;
+	transition: color 140ms;
+	font-weight: 400;
+	text-decoration: none;
+	border: none;
+	background: transparent;
+	padding: 6px 6px;
+	margin: 0;
+	outline: none;
+}
+
+.valo .v-treegrid-editor-save:hover, .valo .v-treegrid-editor-cancel:hover {
+	color: #4396ea;
+}
+
+.valo .v-treegrid-editor-save.v-disabled, .valo .v-treegrid-editor-cancel.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
+.valo .v-treegrid-spacer {
+	margin-top: -1px;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.open .v-treegrid-sidebar-content {
+	margin: 0 0 2px;
+	padding: 4px 4px 2px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.valo .v-treegrid-sidebar.v-contextmenu.closed {
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #efefef 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);
+}
+
+.valo .v-treegrid-scroller::-webkit-scrollbar {
+	border: none;
+}
+
+.valo .v-treegrid-scroller::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	border: 4px solid transparent;
+	background: rgba(0, 0, 0, 0.3);
+	-webkit-background-clip: content-box;
+	background-clip: content-box;
+}
+
+.valo .v-treegrid-scroller-vertical::-webkit-scrollbar-thumb {
+	min-height: 30px;
+}
+
+.valo .v-treegrid-scroller-horizontal::-webkit-scrollbar-thumb {
+	min-width: 30px;
+}
+
+.valo .v-treegrid-row-drag-badge {
+	background-color: red;
+	color: white;
+	display: block;
+	width: 30px;
+	height: 30px;
+	border-radius: 10px;
+	line-height: 30px;
+	text-align: center;
+	float: left;
+}
+
+.valo .v-treegrid-row-drag-top, .valo .v-treegrid-row-drag-bottom {
+	z-index: 100;
+}
+
+.valo .v-treegrid-row-drag-top:before, .valo .v-treegrid-row-drag-bottom:after {
+	content: "";
+	display: block;
+	position: absolute;
+	height: 2px;
+	width: 100%;
+	background: #197de1;
+	pointer-events: none;
+	border: none;
+}
+
+.valo .v-treegrid-row-drag-bottom:after {
+	bottom: -1px;
+}
+
+.valo .v-treegrid-row-drag-top:before {
+	top: -1px;
+}
+
+.valo .v-treegrid-row-drag-top:first-child:before {
+	top: 0;
+}
+
+.valo .v-treegrid-row-drag-center:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 2px;
+	border: 2px solid #197de1;
+	pointer-events: none;
+}
+
+.valo .v-treegrid-row-selected.v-treegrid-row-drag-center:after {
+	border-color: #1463b3;
+}
+
+.valo .v-treegrid-row-selected.v-treegrid-row-drag-top:before, .valo .v-treegrid-row-selected.v-treegrid-row-drag-bottom:after {
+	background: #1463b3;
+}
+
+.valo .v-treegrid-body-drag-top:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	border: 2px solid #197de1;
+	z-index: 100;
+}
+
+.valo .v-treegrid-expander {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.valo .v-treegrid-expander::before {
+	display: inline-block;
+	width: 1.5em;
+	text-align: center;
+	content: "";
+}
+
+.valo .v-treegrid-expander.expanded::before {
+	content: "\f0d7";
+	font-family: ThemeIcons;
+}
+
+.valo .v-treegrid-expander.collapsed::before {
+	content: "\f0da";
+	font-family: ThemeIcons;
+}
+
+.valo .v-treegrid-expander.collapse-disabled::before {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+	cursor: default;
+}
+
+.valo .v-treegrid-node.depth-0 {
+	padding-left: 0em;
+}
+
+.valo .v-treegrid-node.depth-1 {
+	padding-left: 1em;
+}
+
+.valo .v-treegrid-node.depth-2 {
+	padding-left: 2em;
+}
+
+.valo .v-treegrid-node.depth-3 {
+	padding-left: 3em;
+}
+
+.valo .v-treegrid-node.depth-4 {
+	padding-left: 4em;
+}
+
+.valo .v-treegrid-node.depth-5 {
+	padding-left: 5em;
+}
+
+.valo .v-treegrid-node.depth-6 {
+	padding-left: 6em;
+}
+
+.valo .v-treegrid-node.depth-7 {
+	padding-left: 7em;
+}
+
+.valo .v-treegrid-node.depth-8 {
+	padding-left: 8em;
+}
+
+.valo .v-treegrid-node.depth-9 {
+	padding-left: 9em;
+}
+
+.valo .v-treegrid-node.depth-10 {
+	padding-left: 10em;
+}
+
+.valo .v-treegrid-node.depth-11 {
+	padding-left: 11em;
+}
+
+.valo .v-treegrid-node.depth-12 {
+	padding-left: 12em;
+}
+
+.valo .v-treegrid-node.depth-13 {
+	padding-left: 13em;
+}
+
+.valo .v-treegrid-node.depth-14 {
+	padding-left: 14em;
+}
+
+.valo .v-treegrid-node.depth-15 {
+	padding-left: 15em;
+}
+
+.valo .v-treegrid-node.depth-16 {
+	padding-left: 16em;
+}
+
+.valo .v-treegrid-node.depth-17 {
+	padding-left: 17em;
+}
+
+.valo .v-treegrid-node.depth-18 {
+	padding-left: 18em;
+}
+
+.valo .v-treegrid-node.depth-19 {
+	padding-left: 19em;
+}
+
+.valo .v-treegrid-node.depth-20 {
+	padding-left: 20em;
+}
+
+.valo .v-treegrid-node.depth-21 {
+	padding-left: 21em;
+}
+
+.valo .v-treegrid-node.depth-22 {
+	padding-left: 22em;
+}
+
+.valo .v-treegrid-node.depth-23 {
+	padding-left: 23em;
+}
+
+.valo .v-treegrid-node.depth-24 {
+	padding-left: 24em;
+}
+
+.valo .v-treegrid-node.depth-25 {
+	padding-left: 25em;
+}
+
+.valo .v-treegrid-node.depth-26 {
+	padding-left: 26em;
+}
+
+.valo .v-treegrid-node.depth-27 {
+	padding-left: 27em;
+}
+
+.valo .v-treegrid-node.depth-28 {
+	padding-left: 28em;
+}
+
+.valo .v-treegrid-node.depth-29 {
+	padding-left: 29em;
+}
+
+.valo .v-treegrid-node.depth-30 {
+	padding-left: 30em;
+}
+
+.valo .v-treegrid-node.depth-31 {
+	padding-left: 31em;
+}
+
+.valo .v-treegrid-cell-content {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.valo .v-treegrid-row-focused::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 2px solid #197de1;
+	display: none;
+	pointer-events: none;
+}
+
+.valo .v-treegrid-cell-focused {
+	position: static;
+}
+
+.valo .v-treegrid-cell-focused::before {
+	display: none;
+}
+
+.valo .v-treegrid:focus .v-treegrid-row-focused::before {
+	display: block;
+}
+
+.valo .v-treegrid.v-disabled:focus .v-treegrid-row-focused::before {
+	display: none;
+}
+
+.valo .v-treegrid:focus .v-treegrid-cell-focused::before {
+	display: none;
 }
 
 .valo .v-table {
@@ -9963,6 +12635,14 @@ div.v-layout.v-horizontal.v-widget {
 	text-align: right;
 }
 
+.valo .v-tabsheet-right-aligned-tabs .v-tabsheet-spacertd {
+	display: inline-block !important;
+}
+
+.valo .v-tabsheet-right-aligned-tabs .v-tabsheet-scroller {
+	padding-left: 9px;
+}
+
 .valo .v-tabsheet-padded-tabbar  > .v-tabsheet-tabcontainer .v-tabsheet-tabs {
 	padding: 0 9px;
 }
@@ -10099,6 +12779,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 100% !important;
 	height: auto !important;
 	padding: 9px;
+	display: inline-flex;
 }
 
 .valo .v-colorpicker-preview-textfield {
@@ -10462,6 +13143,36 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: #ed473b !important;
 	background: #fffbfb;
 	color: #6c2621;
+}
+
+.valo .v-select-twincol-error-info .v-select-twincol-options, .valo .v-select-twincol-error-info .v-select-twincol-selections {
+	border-color: #00a7f5 !important;
+	background: #fafdff;
+	color: #195774;
+}
+
+.valo .v-select-twincol-error-warning .v-select-twincol-options, .valo .v-select-twincol-error-warning .v-select-twincol-selections {
+	border-color: #fc9c00 !important;
+	background: #fffdfa;
+	color: #745119;
+}
+
+.valo .v-select-twincol-error-error .v-select-twincol-options, .valo .v-select-twincol-error-error .v-select-twincol-selections {
+	border-color: #ed473b !important;
+	background: #fffbfb;
+	color: #6c2621;
+}
+
+.valo .v-select-twincol-error-critical .v-select-twincol-options, .valo .v-select-twincol-error-critical .v-select-twincol-selections {
+	border-color: #fa007d !important;
+	background: #fffafc;
+	color: #741947;
+}
+
+.valo .v-select-twincol-error-system .v-select-twincol-options, .valo .v-select-twincol-error-system .v-select-twincol-selections {
+	border-color: #bb00ff !important;
+	background: #fefaff;
+	color: #5c1974;
 }
 
 .valo .v-select select {
@@ -11171,6 +13882,12 @@ div.v-layout.v-horizontal.v-widget {
 .valo .no-box-drag-hints.v-ddwrapper:after, .valo .no-box-drag-hints .v-ddwrapper:after {
 	display: none !important;
 	content: none;
+}
+
+.valo button {
+	font: inherit;
+	font-weight: 400;
+	line-height: 1.55;
 }
 
 .valo .v-nativebutton {

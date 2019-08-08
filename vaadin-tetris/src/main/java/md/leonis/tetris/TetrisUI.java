@@ -6,9 +6,12 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
+import md.leonis.tetris.audio.GameAudio;
+import md.leonis.tetris.audio.SoundMonitor;
 import md.leonis.tetris.engine.*;
 import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
@@ -23,6 +26,7 @@ import javax.servlet.annotation.WebServlet;
 import java.util.Arrays;
 
 import static md.leonis.tetris.engine.event.GameEvent.*;
+import static md.leonis.tetris.engine.model.SoundId.*;
 
 @Push
 @Theme("valo")
@@ -33,6 +37,8 @@ public class TetrisUI extends UI implements GameEventListener {
     @VaadinServletConfiguration(productionMode = false, ui = TetrisUI.class)
     public static class Servlet extends VaadinServlet {
     }
+
+    private static final double MUSIC_VOLUME = 0.1;
 
     private static final int PAUSE_TIME_MS = 500;
 
@@ -68,73 +74,32 @@ public class TetrisUI extends UI implements GameEventListener {
 
     private Button dropBtn;
 
+    private GameAudio music;
+    private SoundMonitor soundMonitor;
+
+    private double musicVolume;
+
     // TODO audio
+    // TODO separate services (AudioService, GameService, ...)
     // https://vaadin.com/forum/thread/3355253/audio
     // https://vaadin.com/components/vaadin-icons/java-examples
     //TODO docs
     //TODO tile size
 
-    private Window getWindow(String caption) {
-        Window window = new Window(caption);
-        window.setClosable(false);
-        window.setDraggable(false);
-        window.setResizable(false);
-        window.setModal(true);
-        window.center();
-        return window;
-    }
-
-    //TODO down
-    private void generatePauseWindow() {
-        pauseWindow = getWindow("Game paused");
-        VerticalLayout content = new VerticalLayout();
-        pauseWindow.setContent(content);
-        content.addComponent(new Label("Press button to continue"));
-
-        Button continueBtn = new Button(VaadinIcons.CLOSE);
-        continueBtn.addClickListener(e -> {
-            //continueBtn.setEnabled(false);
-            tetris.processEvent(CONTINUE);
-            pauseWindow.close();
-            dropBtn.focus();
-        });
-        continueBtn.setClickShortcut(KeyCode.SPACEBAR);
-        content.addComponent(continueBtn);
-        content.setComponentAlignment(continueBtn, Alignment.TOP_CENTER);
-    }
-
-    private void generateRecordsWindow() {
-        recordsWindow = getWindow("Game Over");
-        VerticalLayout content = new VerticalLayout();
-        recordsWindow.setContent(content);
-
-        recordsButton = new Button();
-        recordsButton.addClickListener(e -> {
-            if (gameRecords.canAddNewRecord(place)) {
-                saveGame();
-            }
-            recordsWindow.close();
-            dropBtn.focus();
-        });
-        recordsButton.setClickShortcut(KeyCode.SPACEBAR);
-
-        recordsGrid = new Grid<>(Records.Rec.class);
-        recordsGrid.setColumns("name", "score");
-
-        recordsLabel = new Label();
-        nameTextField = new TextField();
-        enterNameInnerContainer = new HorizontalLayout();
-
-        enterNameInnerContainer.addComponents(recordsLabel, nameTextField);
-
-        content.addComponents(recordsGrid, enterNameInnerContainer, recordsButton);
-        content.setComponentAlignment(recordsButton, Alignment.TOP_CENTER);
-    }
-
     @Override
     protected void init(VaadinRequest request) {
 
+        musicVolume = MUSIC_VOLUME;
+
         config = new Config();
+
+        // sorry, the sound slows down the gameplay
+        soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
+        soundMonitor.addSoundWithGain(FALLED, new GameAudio(new ThemeResource("audio/falled.wav")), 0.9, false);
+        soundMonitor.addSoundWithGain(ROTATE, new GameAudio(new ThemeResource("audio/rotate.wav")), 0.9, false);
+        soundMonitor.addSoundWithGain(CLICK, new GameAudio(new ThemeResource("audio/click.wav")), 1.0, false);
+        soundMonitor.addSoundWithGain(HEARTBEAT_A, new GameAudio(new ThemeResource("audio/heartbeat-a.wav")), 0.8, true);
+        soundMonitor.addSoundWithGain(HEARTBEAT_B, new GameAudio(new ThemeResource("audio/heartbeat-b.wav")), 0.9, true);
 
         storage = new InMemoryStorage();
 
@@ -148,7 +113,7 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button for moving left
         final Button leftBtn = new Button(VaadinIcons.ARROW_LEFT);
         leftBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.MOVE_LEFT);
+            tetris.processEvent(MOVE_LEFT);
             drawGameState();
         });
         leftBtn.setClickShortcut(KeyCode.ARROW_LEFT);
@@ -156,7 +121,7 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button for moving right
         final Button rightBtn = new Button(VaadinIcons.ARROW_RIGHT);
         rightBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.MOVE_RIGHT);
+            tetris.processEvent(MOVE_RIGHT);
             drawGameState();
         });
         rightBtn.setClickShortcut(KeyCode.ARROW_RIGHT);
@@ -164,7 +129,7 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button for rotating clockwise
         final Button rotateCWBtn = new Button("[key ???]", VaadinIcons.ROTATE_RIGHT);
         rotateCWBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.ROTATE_LEFT);
+            tetris.processEvent(ROTATE_LEFT);
             drawGameState();
         });
         //rotateCWBtn.setClickShortcut(KeyCode.ARROW_DOWN);
@@ -172,7 +137,7 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button for rotating counter clockwise
         final Button rotateCCWBtn = new Button("[key up]", VaadinIcons.ROTATE_LEFT);
         rotateCCWBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.ROTATE_RIGHT);
+            tetris.processEvent(ROTATE_RIGHT);
             drawGameState();
         });
         rotateCCWBtn.setClickShortcut(KeyCode.ARROW_UP);
@@ -180,7 +145,7 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button to accelerate lowering
         final Button stepBtn = new Button("[key down]", VaadinIcons.ARROW_LONG_DOWN);
         stepBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.STEP_DOWN);
+            tetris.processEvent(STEP_DOWN);
             drawGameState();
         });
         stepBtn.setClickShortcut(KeyCode.ARROW_DOWN);
@@ -188,10 +153,23 @@ public class TetrisUI extends UI implements GameEventListener {
         // Button for dropping the piece
         dropBtn = new Button("[space]", VaadinIcons.ARROW_DOWN);
         dropBtn.addClickListener(e -> {
-            tetris.processEvent(GameEvent.FALL_DOWN);
+            tetris.processEvent(FALL_DOWN);
             drawGameState();
         });
         dropBtn.setClickShortcut(KeyCode.SPACEBAR);
+
+        // Sound control button
+        final Button soundControlBtn = new Button(VaadinIcons.SOUND_DISABLE);
+        soundControlBtn.addClickListener(e -> {
+            dropBtn.focus();
+            if (music.isPlaying()) {
+                music.stop();
+                muteSound();
+            } else {
+                enableSound();
+            }
+        });
+        soundControlBtn.setClickShortcut(KeyCode.S);
 
         gameTypeCB = new ComboBox<>();
         gameTypeCB.setItems("Game A", "Game B");
@@ -202,6 +180,8 @@ public class TetrisUI extends UI implements GameEventListener {
         startGameBtn = new PrimaryButton().withIcon(VaadinIcons.PLAY);
         startGameBtn.addClickListener(e -> {
             if (null == tetris || tetris.getState() == GameState.FINISHED) {
+                music.setShowControls(true);
+                enableSound();
                 crazy = gameTypeCB.getSelectedItem().orElse("").endsWith("B");
                 int nextCanvasWidth = crazy ? 5 : 4;
 
@@ -217,6 +197,8 @@ public class TetrisUI extends UI implements GameEventListener {
 
                 tetris = new Tetris(config, crazy);
                 Arrays.asList(REPAINT, UPDATE_SCORE, GAME_OVER).forEach(event -> tetris.addListener(event, this));
+                Arrays.asList(PLAY_SOUND, START_LOOPING_SOUND, STOP_LOOPING_SOUND, FADE_LOOPING_SOUND, SUPPORT_LOOPING_SOUNDS)
+                        .forEach(event -> tetris.addListener(event, soundMonitor));
 
                 tetris.start();
                 startGameThread();
@@ -224,15 +206,23 @@ public class TetrisUI extends UI implements GameEventListener {
                 startGameBtn.setIcon(VaadinIcons.PAUSE);
                 dropBtn.focus();
             } else {
+                musicVolume = music.getVolume();
+                music.fade();
                 startGameBtn.setIcon(VaadinIcons.PLAY);
-                tetris.processEvent(GameEvent.PAUSE);
+                muteSound();
+                tetris.processEvent(PAUSE);
                 addWindow(pauseWindow);
             }
         });
         startGameBtn.setClickShortcut(KeyCode.P);
 
+        music = new GameAudio(new ThemeResource("audio/music.mp3"));
+        music.setShowControls(false);
+        music.setVolume(musicVolume);
+        music.setLoop(true);
+
         layout.addComponent(new MHorizontalLayout(
-                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn
+                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn, soundControlBtn
         ));
 
         // Label for score
@@ -246,14 +236,31 @@ public class TetrisUI extends UI implements GameEventListener {
         nextCanvas = new Canvas();
 
         VerticalLayout verticalLayout =
-                new VerticalLayout(nextFigureLabel, nextCanvas, scoreLabel, linesLabel, levelLabel, airLabel, statusLabel);
+                new VerticalLayout(nextFigureLabel, nextCanvas, scoreLabel, linesLabel, levelLabel, airLabel, statusLabel, music);
 
         canvas = new Canvas();
 
         layout.addComponent(new MHorizontalLayout(canvas, verticalLayout));
 
+        soundMonitor.getChannels().values().forEach(layout::addComponents);
+
         generatePauseWindow();
         generateRecordsWindow();
+    }
+
+    private void enableSound() {
+        music.setVolume(musicVolume);
+        music.play();
+        if (tetris != null) {
+            tetris.processEvent(ENABLE_SOUND);
+        }
+    }
+
+    private void muteSound() {
+        if (tetris != null) {
+            tetris.processEvent(MUTE_SOUND);
+        }
+        soundMonitor.getChannels().values().forEach(GameAudio::stop);
     }
 
     /**
@@ -295,8 +302,10 @@ public class TetrisUI extends UI implements GameEventListener {
             scoreLabel.setValue("Score: " + tetris.getScore());
             linesLabel.setValue("Lines: " + tetris.getLines());
             levelLabel.setValue("Level: " + tetris.getLevel());
-            airLabel.setValue("Air: " + (int) tetris.getCritter().getAir() + "%");
-            statusLabel.setValue(tetris.getCritter().getStringStatus());
+            if (tetris.getCritter() != null) {
+                airLabel.setValue("Air: " + (int) tetris.getCritter().getAir() + "%");
+                statusLabel.setValue(tetris.getCritter().getStringStatus());
+            }
         });
     }
 
@@ -372,7 +381,9 @@ public class TetrisUI extends UI implements GameEventListener {
                     int tileColor = tetris.getGlass().get(x, y);
                     if (tileColor != config.transparentColor) {
                         canvas.setFillStyle(config.getWebColor(tileColor));
-                        roundRect(canvas, x * tileWidth + 1, y * tileHeight + 1, tileHeight - 1, tileWidth - 1, tileWidth / 4.0, true);
+                        canvas.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 2, tileHeight - 2);
+                        // Sorry, very CPU consuming operation :(
+                        //roundRect(canvas, x * tileWidth + 1, y * tileHeight + 1, tileHeight - 1, tileWidth - 1, tileWidth / 4.0, true);
                     } else {
                         canvas.setFillStyle(config.getWebColor(config.grayColor));
                         canvas.fillRect(x * tileWidth, y * tileHeight, 1, 1);
@@ -414,7 +425,7 @@ public class TetrisUI extends UI implements GameEventListener {
 
             // Draw critter
             Critter critter = tetris.getCritter();
-            if (!critter.isDead()) {
+            if (critter != null && !critter.isDead()) {
                 kx = (critter.getStatus() == CritterState.STAYING) || (critter.getAir() < 50) ? 0 : critter.getHorizontalDirection();
 
                 String imageName = "happy";
@@ -429,6 +440,8 @@ public class TetrisUI extends UI implements GameEventListener {
                     }
                 }
 
+                canvas.setFillStyle(config.getWebColor(config.critterColor));
+                //canvas.fillRect(critter.getX() * tileWidth + 2, critter.getY() * tileHeight + 2, tileWidth - 3, tileHeight - 3);
                 canvas.drawImage1(String.format("/VAADIN/themes/valo/img/%s.png", imageName), critter.getX() * tileWidth, critter.getY() * tileHeight);
             }
         });
@@ -462,5 +475,62 @@ public class TetrisUI extends UI implements GameEventListener {
             default:
                 return imageName;
         }
+    }
+
+    private void generatePauseWindow() {
+        pauseWindow = getWindow("Game paused");
+        VerticalLayout content = new VerticalLayout();
+        pauseWindow.setContent(content);
+        content.addComponent(new Label("Press button to continue"));
+
+        Button continueBtn = new Button(VaadinIcons.CLOSE);
+        continueBtn.addClickListener(e -> {
+            enableSound();
+            tetris.processEvent(CONTINUE);
+            startGameBtn.setIcon(VaadinIcons.PAUSE);
+            pauseWindow.close();
+            dropBtn.focus();
+        });
+        continueBtn.setClickShortcut(KeyCode.SPACEBAR);
+        content.addComponent(continueBtn);
+        content.setComponentAlignment(continueBtn, Alignment.TOP_CENTER);
+    }
+
+    private void generateRecordsWindow() {
+        recordsWindow = getWindow("Game Over");
+        VerticalLayout content = new VerticalLayout();
+        recordsWindow.setContent(content);
+
+        recordsButton = new Button();
+        recordsButton.addClickListener(e -> {
+            if (gameRecords.canAddNewRecord(place)) {
+                saveGame();
+            }
+            recordsWindow.close();
+            dropBtn.focus();
+        });
+        recordsButton.setClickShortcut(KeyCode.SPACEBAR);
+
+        recordsGrid = new Grid<>(Records.Rec.class);
+        recordsGrid.setColumns("name", "score");
+
+        recordsLabel = new Label();
+        nameTextField = new TextField();
+        enterNameInnerContainer = new HorizontalLayout();
+
+        enterNameInnerContainer.addComponents(recordsLabel, nameTextField);
+
+        content.addComponents(recordsGrid, enterNameInnerContainer, recordsButton);
+        content.setComponentAlignment(recordsButton, Alignment.TOP_CENTER);
+    }
+
+    private Window getWindow(String caption) {
+        Window window = new Window(caption);
+        window.setClosable(false);
+        window.setDraggable(false);
+        window.setResizable(false);
+        window.setModal(true);
+        window.center();
+        return window;
     }
 }

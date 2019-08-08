@@ -16,10 +16,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <!--//TODO update-->
     <properties>
-        <vaadin.version>8.0.5</vaadin.version>
+        <vaadin.version>8.8.5</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+        <!--//TODO update-->
         <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -85,7 +85,12 @@
             <groupId>org.vaadin</groupId>
             <artifactId>viritin</artifactId>
             <version>2.9</version>
-            <type>jar</type>
+            <!--<type>jar</type>-->
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin</groupId>
+            <artifactId>gwtav</artifactId>
+            <version>1.2.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
         <dependency>
