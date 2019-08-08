@@ -14,6 +14,8 @@ public enum GameEvent {
     FADE_LOOPING_SOUND,
     SUPPORT_LOOPING_SOUNDS,
 
+    MUTE_SOUND, ENABLE_SOUND,
+
     ZZZ_UNKNOWN
 
 }

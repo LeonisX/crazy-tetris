@@ -5,99 +5,100 @@ package md.leonis.tetris.sound;
  */
 import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
+import md.leonis.tetris.engine.model.SoundId;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * Монитор звуковых каналов
  */
 public class SoundMonitor implements GameEventListener {
 
-    private List<SoundChannel> channels = new ArrayList<>();
+    private Map<SoundId, SoundChannel> channels = new HashMap<>();
 
-    public void addSound(File file) {
-        channels.add(new SoundChannel(file));
+    public void addSound(SoundId soundId, File file) {
+        channels.put(soundId, new SoundChannel(file));
     }
 
-    public void addSound(InputStream inputStream) {
-        channels.add(new SoundChannel(inputStream));
+    public void addSound(SoundId soundId, InputStream inputStream) {
+        channels.put(soundId, new SoundChannel(inputStream));
     }
 
-    public void addSoundWithGain(InputStream inputStream, float gain) {
-        addSound(inputStream);
-        setGain(channels.size() - 1, gain);
+    public void addSoundWithGain(SoundId soundId, InputStream inputStream, float gain) {
+        addSound(soundId, inputStream);
+        setGain(soundId, gain);
     }
 
-    public void play(int channel) {
-        channels.get(channel).play();
+    public void play(SoundId soundId) {
+        channels.get(soundId).play();
     }
 
-    public void loop(int channel) {
-        channels.get(channel).setLoop(true);
-        channels.get(channel).play();
+    public void loop(SoundId soundId) {
+        channels.get(soundId).setLoop(true);
+        channels.get(soundId).play();
     }
 
-    public void stop(int channel) {
-        channels.get(channel).stop();
+    public void stop(SoundId soundId) {
+        channels.get(soundId).stop();
     }
 
-    public void fade(int channel) {
-        channels.get(channel).fade();
+    public void fade(SoundId soundId) {
+        channels.get(soundId).fade();
+        channels.get(soundId).stop();
     }
 
-    public void setGain(int channel, float gain) {
-        channels.get(channel).setGain(gain);
+    public void setGain(SoundId soundId, float gain) {
+        channels.get(soundId).setGain(gain);
     }
 
-    public void setPan(int channel, float pan) {
-        channels.get(channel).setPan(pan);
+    public void setPan(SoundId soundId, float pan) {
+        channels.get(soundId).setPan(pan);
     }
 
-    public boolean isPlaying(int channel) {
-        return channels.get(channel).isPlaying();
+    public boolean isPlaying(SoundId soundId) {
+        return channels.get(soundId).isPlaying();
     }
 
-    public boolean isLooping(int channel) {
-        return channels.get(channel).isLoop();
+    public boolean isLooping(SoundId soundId) {
+        return channels.get(soundId).isLoop();
     }
 
-    public boolean isFading(int channel) {
-        return channels.get(channel).isFade();
+    public boolean isFading(SoundId soundId) {
+        return channels.get(soundId).isFade();
     }
 
     public void supportLoopingSounds() {
-        channels.forEach(channel -> {
-            if (channel.isLoop() && !channel.isPlaying()) {
-                channel.play();
+        channels.forEach((key, value) -> {
+            if (value.isLoop() && !value.isPlaying()) {
+                value.play();
             }
         });
     }
 
     @Override
     public void notify(GameEvent event, String message) {
-
-        int channel = (message == null) ? -1 : Integer.parseInt(message);
+        SoundId soundId = message == null ? null : SoundId.valueOf(message);
 
         switch (event) {
             case PLAY_SOUND:
-                play(channel);
+                play(soundId);
                 break;
             case START_LOOPING_SOUND:
-                if (!isLooping(channel)) {
-                    loop(channel);
+                if (!isLooping(soundId)) {
+                    loop(soundId);
                 }
                 break;
             case STOP_LOOPING_SOUND:
-                if (isLooping(channel)) {
-                    stop(channel);
+                if (isLooping(soundId)) {
+                    stop(soundId);
                 }
                 break;
             case FADE_LOOPING_SOUND:
-                if (isLooping(channel) && !isFading(channel)) {
-                    fade(channel);
+                if (isLooping(soundId) && !isFading(soundId)) {
+                    fade(soundId);
                 }
                 break;
             case SUPPORT_LOOPING_SOUNDS:

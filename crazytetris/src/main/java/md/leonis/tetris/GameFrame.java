@@ -27,6 +27,7 @@ import static md.leonis.tetris.FileSystemStorage.getResourceAsStream;
 import static md.leonis.tetris.engine.event.GameEvent.*;
 import static md.leonis.tetris.engine.model.GameState.PAUSED;
 import static md.leonis.tetris.engine.model.GameState.RUNNING;
+import static md.leonis.tetris.engine.model.SoundId.*;
 
 class GameFrame extends JFrame {
 
@@ -69,11 +70,11 @@ class GameFrame extends JFrame {
         musicChannel = new MusicChannel(getResourceAsStream("audio/music.mp3", isDebug));
 
         soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
-        soundMonitor.addSoundWithGain(getResourceAsStream("audio/falled.wav", isDebug), 0.9f);        // 0 звук; громкость (от 0 до 1.0f)
-        soundMonitor.addSoundWithGain(getResourceAsStream("audio/rotate.wav", isDebug), 0.9f);        // 1 звук
-        soundMonitor.addSoundWithGain(getResourceAsStream("audio/click.wav", isDebug), 1.0f);         // 2 звук
-        soundMonitor.addSoundWithGain(getResourceAsStream("audio/heartbeat-a.wav", isDebug), 0.8f);   // 3 звук
-        soundMonitor.addSoundWithGain(getResourceAsStream("audio/heartbeat-b.wav", isDebug), 0.9f);   // 4 звук
+        soundMonitor.addSoundWithGain(FALLED, getResourceAsStream("audio/falled.wav", isDebug), 0.9f);        // 0 звук; громкость (от 0 до 1.0f)
+        soundMonitor.addSoundWithGain(ROTATE, getResourceAsStream("audio/rotate.wav", isDebug), 0.9f);        // 1 звук
+        soundMonitor.addSoundWithGain(CLICK, getResourceAsStream("audio/click.wav", isDebug), 1.0f);         // 2 звук
+        soundMonitor.addSoundWithGain(HEARTBEAT_A, getResourceAsStream("audio/heartbeat-a.wav", isDebug), 0.8f);   // 3 звук
+        soundMonitor.addSoundWithGain(HEARTBEAT_B, getResourceAsStream("audio/heartbeat-b.wav", isDebug), 0.9f);   // 4 звук
 
         try {
             backgroundImage = ImageIO.read(getResourceAsStream("bg.jpg", isDebug));
@@ -88,7 +89,9 @@ class GameFrame extends JFrame {
         setSize(config.windowWidth, config.windowHeight);                        // габариты
         createGUI(title, eventsMonitor);
 
-        musicChannel.play();
+        if (tetris.isSoundOn()) {
+            musicChannel.play();
+        }
         startButton.requestFocus();
     }
 
@@ -248,8 +251,10 @@ class GameFrame extends JFrame {
             g2d.drawString("Линий: " + tetris.getLines(), leftPos, 30);
             g2d.drawString("Уровень: " + tetris.getLevel(), leftPos, 50);
             Critter critter = tetris.getCritter();
-            g2d.drawString("Воздух: " + (int) critter.getAir() + "%", leftPos, 70);
-            g2d.drawString(critter.getStringStatus(), leftPos, 90);
+            if (critter != null) {
+                g2d.drawString("Воздух: " + (int) critter.getAir() + "%", leftPos, 70);
+                g2d.drawString(critter.getStringStatus(), leftPos, 90);
+            }
 
             //рисуем фигуру
             Figure figure = tetris.getFigure();
@@ -280,29 +285,31 @@ class GameFrame extends JFrame {
             }
 
             //рисую персонажа
-            if (critter.getStatus() != CritterState.DEAD) {
-                g2d.setColor(config.getColor(config.critterColor));
-                g2d.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
-                kx = critter.getHorizontalDirection() * 2;
-                ky = 0;
-                if (critter.getStatus() == CritterState.FALLING) ky = 1;
-                if (critter.getStatus() == CritterState.JUMPING) ky = -1;
-                if (critter.getStatus() == CritterState.STAYING) kx = 0;
-                //глаза
-                g2d.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
-                g2d.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
-                //глаза
-                if (critter.getAir() < 50) {
-                    g2d.drawRect(critter.getX() * tileWidth + 7 + kx + 1, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
-                    g2d.drawRect(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
-                }
-                //рот
-                int wx = critter.isBounded() ? 2 : 6;
+            if (critter != null) {
+                if (critter.getStatus() != CritterState.DEAD) {
+                    g2d.setColor(config.getColor(config.critterColor));
+                    g2d.drawOval(critter.getX() * tileWidth, (critter.getY() - 2) * tileHeight, tileWidth, tileHeight);
+                    kx = critter.getHorizontalDirection() * 2;
+                    ky = 0;
+                    if (critter.getStatus() == CritterState.FALLING) ky = 1;
+                    if (critter.getStatus() == CritterState.JUMPING) ky = -1;
+                    if (critter.getStatus() == CritterState.STAYING) kx = 0;
+                    //глаза
+                    g2d.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+                    g2d.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
+                    //глаза
+                    if (critter.getAir() < 50) {
+                        g2d.drawRect(critter.getX() * tileWidth + 7 + kx + 1, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
+                        g2d.drawRect(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
+                    }
+                    //рот
+                    int wx = critter.isBounded() ? 2 : 6;
 
-                if ((critter.getAir() > 75) && !critter.isBounded()) {
-                    g2d.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
-                } else
-                    g2d.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
+                    if ((critter.getAir() > 75) && !critter.isBounded()) {
+                        g2d.drawArc(critter.getX() * tileWidth + 7 + kx - 1, (critter.getY() - 2) * tileHeight + 14 - 3, wx + 2, 3, 0, -180);
+                    } else
+                        g2d.drawRect(critter.getX() * tileWidth + 7 + kx + (6 - wx) / 2, (critter.getY() - 2) * tileHeight + 14, wx, 0);
+                }
             }
         }
     }

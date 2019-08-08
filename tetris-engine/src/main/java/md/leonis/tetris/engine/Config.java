@@ -6,6 +6,8 @@ import java.util.List;
 
 public class Config {
 
+    public boolean soundOn = false;
+
     public Color[] colors = {
             Color.BLACK, // == transparent
             Color.GRAY,
@@ -65,6 +67,8 @@ public class Config {
 
     public int nextLevel = 10000; //игра очень быстро заканчивается, вероятно надо увеличить
     public int startLevel = 0;
+
+    public boolean critterEnabled = true;
 
     //                                           O,  J,  L,  T,  Z,  S,  I
     public List<Integer> scores = Arrays.asList(10, 15, 15, 15, 20, 20, 10);

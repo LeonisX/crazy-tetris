@@ -178,7 +178,7 @@ public class Figure {
         do {
             backup();
             top++;
-            if (properties.getCritter().isCrushed() && !properties.getCritter().isStandingOnTheGround()) {
+            if (properties.getCritter() != null && properties.getCritter().isCrushed() && !properties.getCritter().isStandingOnTheGround()) {
                 properties.getCritter().correctYPosition(Collections.singletonList(300));
             }
         } while (isAllowedNewPosition());

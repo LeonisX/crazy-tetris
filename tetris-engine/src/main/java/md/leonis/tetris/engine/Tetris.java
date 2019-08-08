@@ -7,6 +7,7 @@ import md.leonis.tetris.engine.model.GameState;
 
 import static md.leonis.tetris.engine.event.GameEvent.*;
 import static md.leonis.tetris.engine.model.GameState.*;
+import static md.leonis.tetris.engine.model.SoundId.*;
 
 public class Tetris extends EventManager implements PropertiesHolder {
 
@@ -25,6 +26,8 @@ public class Tetris extends EventManager implements PropertiesHolder {
     private GameState state; // VOID
     private boolean crazy; // false
 
+    private boolean soundOn;
+
     private boolean initialized;
 
     public Tetris(Config config, boolean crazy) {
@@ -39,6 +42,8 @@ public class Tetris extends EventManager implements PropertiesHolder {
             width = config.standardWidth;
             height = config.standardHeight;
         }
+
+        this.soundOn = config.soundOn;
     }
 
     public void start() {
@@ -48,14 +53,18 @@ public class Tetris extends EventManager implements PropertiesHolder {
         lines = 0;
 
         board = new Board(this);
-        critter = new Critter(this);
+        if (config.critterEnabled) {
+            critter = new Critter(this);
+        }
 
         createNextFigure();
         createFigure();
         NextMove nm = new NextMove();
         NextFrame nf = new NextFrame();
         state = RUNNING;
-        critter.start();
+        if (config.critterEnabled) {
+            critter.start();
+        }
         nm.start();
         nf.start();
         initialized = true;
@@ -67,28 +76,28 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
         switch (event) {
             case MOVE_LEFT:
-                if (figure.moveLeft()) {
-                    notify(PLAY_SOUND, "2"); // click
+                if (figure.moveLeft() && soundOn) {
+                    notify(PLAY_SOUND, CLICK.name()); // click
                 }
                 break;
             case MOVE_RIGHT:
-                if (figure.moveRight()) {
-                    notify(PLAY_SOUND, "2");
+                if (figure.moveRight() && soundOn) {
+                    notify(PLAY_SOUND, CLICK.name());
                 }
                 break;
             case STEP_DOWN:
-                if (figure.moveDown()) {
-                    notify(PLAY_SOUND, "2");
+                if (figure.moveDown() && soundOn) {
+                    notify(PLAY_SOUND, CLICK.name());
                 }
                 break;
             case ROTATE_RIGHT:
-                if (figure.rotateRight()) {
-                    notify(PLAY_SOUND, "1"); // rotate
+                if (figure.rotateRight() && soundOn) {
+                    notify(PLAY_SOUND, ROTATE.name()); // rotate
                 }
                 break;
             case ROTATE_LEFT:
-                if (figure.rotateLeft()) {
-                    notify(PLAY_SOUND, "1"); // rotate
+                if (figure.rotateLeft() && soundOn) {
+                    notify(PLAY_SOUND, ROTATE.name()); // rotate
                 }
                 break;
             case FALL_DOWN:
@@ -105,6 +114,12 @@ public class Tetris extends EventManager implements PropertiesHolder {
             case CONTINUE:
                 pause(false);
                 break;
+            case MUTE_SOUND:
+                soundOn = false;
+                break;
+            case ENABLE_SOUND:
+                soundOn = true;
+                break;
             case GAME_OVER:
                 state = FINISHED;
                 break;
@@ -116,16 +131,22 @@ public class Tetris extends EventManager implements PropertiesHolder {
             return;
         }
         if (state != VOID) {
-            critter.setPaused(true);
-            notify(PLAY_SOUND, "0"); // falled
+            if (critter != null) {
+                critter.setPaused(true);
+            }
+            if (soundOn) {
+                notify(PLAY_SOUND, FALLED.name()); // falled
+            }
             board.mergeFigure(figure);
             board.deleteCompletedRows();
-            critter.correctYPosition(board.getCompletedRows());
-            critter.setPaused(false);
+            if (critter != null) {
+                critter.correctYPosition(board.getCompletedRows());
+                critter.setPaused(false);
+            }
             updateStatistics();
         }
         createFigure();
-        if (critter.isDead() || !figure.isAllowedNewPosition()) {
+        if (critter != null && critter.isDead() || !figure.isAllowedNewPosition()) {
             finish();
         }
     }
@@ -150,7 +171,6 @@ public class Tetris extends EventManager implements PropertiesHolder {
         level = score / config.nextLevel;
         notify(UPDATE_SCORE, Integer.toString(score));
     }
-
 
 
     // Поток опускания фигуры - интервал зависит от скорости игры
@@ -178,13 +198,25 @@ public class Tetris extends EventManager implements PropertiesHolder {
         } else {
             state = RUNNING;
         }
-        critter.setPaused(isPaused);
+        if (critter != null) {
+            critter.setPaused(isPaused);
+        }
     }
 
     private void finish() {
-        critter.setStatus(CritterState.DEAD);
+        if (critter != null) {
+            critter.setStatus(CritterState.DEAD);
+            muteCritter();
+        }
         notify(GAME_OVER, null);
         state = FINISHED;
+    }
+
+    private void muteCritter() {
+        if (soundOn) {
+            Tetris.this.notify(STOP_LOOPING_SOUND, HEARTBEAT_A.name());
+            Tetris.this.notify(STOP_LOOPING_SOUND, HEARTBEAT_B.name());
+        }
     }
 
     // Поток рисования - интервал 33 мс (30 кадров в секунду), больше не надо
@@ -196,11 +228,13 @@ public class Tetris extends EventManager implements PropertiesHolder {
                 } catch (InterruptedException e) {
                     // empty
                 }
-                voiceCritter();
+                if (critter != null && soundOn) {
+                    voiceCritter();
+                }
 
                 Tetris.this.notify(REPAINT, null);
 
-                if (critter.isDead()) {
+                if (critter != null && critter.isDead()) {
                     finish();
                 }
             }
@@ -214,15 +248,16 @@ public class Tetris extends EventManager implements PropertiesHolder {
             }
             switch (critterSound) {
                 case 0:                //всё хорошо
-                    Tetris.this.notify(FADE_LOOPING_SOUND, "3"); // heartbeat-a
-                    Tetris.this.notify(STOP_LOOPING_SOUND, "4"); // heartbeat-b
+                    Tetris.this.notify(FADE_LOOPING_SOUND, HEARTBEAT_A.name()); // heartbeat-a
+                    Tetris.this.notify(STOP_LOOPING_SOUND, HEARTBEAT_B.name()); // heartbeat-b
+                    break;
                 case 1:                 //задыхаюсь
-                    Tetris.this.notify(STOP_LOOPING_SOUND, "4");
-                    Tetris.this.notify(START_LOOPING_SOUND, "3");
+                    Tetris.this.notify(STOP_LOOPING_SOUND, HEARTBEAT_B.name());
+                    Tetris.this.notify(START_LOOPING_SOUND, HEARTBEAT_A.name());
                     break;
                 case 2:                 //скоро конец
-                    Tetris.this.notify(STOP_LOOPING_SOUND, "3");
-                    Tetris.this.notify(START_LOOPING_SOUND, "4");
+                    Tetris.this.notify(STOP_LOOPING_SOUND, HEARTBEAT_A.name());
+                    Tetris.this.notify(START_LOOPING_SOUND, HEARTBEAT_B.name());
                     break;
             }
         }
@@ -250,6 +285,10 @@ public class Tetris extends EventManager implements PropertiesHolder {
 
     public boolean isInitialized() {
         return initialized;
+    }
+
+    public boolean isSoundOn() {
+        return soundOn;
     }
 
     @Override
