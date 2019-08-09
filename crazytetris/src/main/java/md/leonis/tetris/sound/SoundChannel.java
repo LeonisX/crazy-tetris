@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 
 /*
- * Класс, отвечающий за звуковой канал использует "родную" технологию воспроизведения звука
- * Отлично работает с wav файлами.
+ * Sound channel class uses native audio technology
+ * Works great with WAV files.
  * All Sound FX.
  */
 class SoundChannel {

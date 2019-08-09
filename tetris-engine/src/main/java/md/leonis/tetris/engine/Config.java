@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Config {
 
-    public boolean soundOn = false;
+    public boolean soundOn = true;
 
     public Color[] colors = {
             Color.BLACK, // == transparent
@@ -65,7 +65,7 @@ public class Config {
     public int width = 10;
     public int height = 22;
 
-    public int nextLevel = 10000; //игра очень быстро заканчивается, вероятно надо увеличить
+    public int nextLevel = 10000; //TODO the game ends very quickly, probably you need to increase
     public int startLevel = 0;
 
     public boolean critterEnabled = true;

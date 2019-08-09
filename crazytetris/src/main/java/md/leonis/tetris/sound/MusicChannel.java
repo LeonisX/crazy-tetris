@@ -7,15 +7,13 @@ import javazoom.jlgui.basicplayer.BasicPlayer;
 import javazoom.jlgui.basicplayer.BasicController;
 import javazoom.jlgui.basicplayer.BasicPlayerException;
 
-/*
- * Класс, отвечающий за музыкальный канал (MP3)
- */
+// Music Channel Class (MP3)
 public class MusicChannel {
 
-    private BasicPlayer player;                         // проигрыватель BasicPlayer
-    private BasicController control;                    // управление проирывателем
-    private double gain = 0.85;                           // громкость
-    private double pan = 0.0;                             // лево-право (сейчас по центру)
+    private BasicPlayer player;                         // BasicPlayer player
+    private BasicController control;                    // Player control
+    private double gain = 0.85;                           // Volume
+    private double pan = 0.0;                             // left-right pan (now centered)
 
     public MusicChannel(InputStream inputStream) {
         player = new BasicPlayer();
@@ -45,8 +43,8 @@ public class MusicChannel {
         }
         try {
             control.play();
-            control.setGain(gain);              // устанавливается только после запуска
-            control.setPan(pan);                // аналогично
+            control.setGain(gain); // set only after launch!
+            control.setPan(pan); // set only after launch!
         } catch (BasicPlayerException e) {
             e.printStackTrace();
         }
@@ -69,7 +67,7 @@ public class MusicChannel {
     }
 
     public int state() {
-        return player.getStatus();              // состояние проигрывателя
+        return player.getStatus(); // player status
     }
 
     public void setGain(double gain) {
@@ -80,7 +78,7 @@ public class MusicChannel {
         this.pan = pan;
     }
 
-    public void resume() {                      // возобновить после паузы
+    public void resume() { // resume after a pause
         try {
             control.resume();
         } catch (BasicPlayerException e) {

@@ -5,6 +5,7 @@ import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.CritterState;
+import md.leonis.tetris.engine.model.Language;
 import md.leonis.tetris.sound.MusicChannel;
 import md.leonis.tetris.sound.SoundMonitor;
 
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static md.leonis.tetris.FileSystemStorage.getResourceAsStream;
 import static md.leonis.tetris.engine.event.GameEvent.*;
@@ -31,140 +33,132 @@ import static md.leonis.tetris.engine.model.SoundId.*;
 
 class GameFrame extends JFrame {
 
-    private JPanel startPanel;
-    private JButton startButton;
+    private static final Logger LOGGER = Logger.getLogger("GameFrame");
 
-    private JPanel pausePanel;
-    private JButton continueButton;
+    private JPanel startPanel = new JPanel();
+    private JButton startClassicGameButton = new JButton();
+    private JButton startCrazyGameButton = new JButton();
+    private JButton exitButton = new JButton();
+    private JButton languageButton = new JButton();
 
-    private JPanel recordPanel;
-    private JButton saveButton;
-    private JLabel saveLabel;
-    private JTextField nameTextField;                        // поле для ввода текста
+    private JPanel pausePanel = new JPanel();
+    private JLabel pauseLabel = new JLabel();
+    private JButton continueButton = new JButton();
 
-    private GamePanel gamePanel;
+    private JPanel recordPanel = new JPanel();
+    private DefaultTableModel recordsTable = new DefaultTableModel();
+    private JButton saveButton = new JButton();
+    private JLabel saveLabel = new JLabel();
+    private JTextField nameTextField;
 
-    private DefaultTableModel model;
+    private GamePanel gamePanel = new GamePanel();
 
-    private Image backgroundImage, titleImage, currentBackgroundImage;
+    private Image backgroundImage, titleImage, currentBackgroundImage, ruImage, enImage;
 
-    private EventMapper eventMapper;
-    private StorageInterface storage;
+    private Config config = new Config();
+    private LanguageProvider languageProvider = new LanguageProvider(Language.RU);
+
+    private EventMapper eventMapper = new EventMapper();
+    private StorageInterface storage = new FileSystemStorage();
     private MusicChannel musicChannel;
-    private SoundMonitor soundMonitor;                    // монитор для звуковых эффектов
+    private SoundMonitor soundMonitor;
 
     private Tetris tetris;
     private Records gameRecords;
 
-    private Config config;
-
     private boolean crazy = false;
 
-    GameFrame(String title, boolean isDebug) {                            // конструктор
-        config = new Config();
-
-        eventMapper = new EventMapper();
-
-        storage = new FileSystemStorage();
-
+    GameFrame(String title, boolean isDebug) {
         musicChannel = new MusicChannel(getResourceAsStream("audio/music.mp3", isDebug));
 
-        soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
-        soundMonitor.addSoundWithGain(FALLED, getResourceAsStream("audio/falled.wav", isDebug), 0.9f);        // 0 звук; громкость (от 0 до 1.0f)
-        soundMonitor.addSoundWithGain(ROTATE, getResourceAsStream("audio/rotate.wav", isDebug), 0.9f);        // 1 звук
-        soundMonitor.addSoundWithGain(CLICK, getResourceAsStream("audio/click.wav", isDebug), 1.0f);         // 2 звук
-        soundMonitor.addSoundWithGain(HEARTBEAT_A, getResourceAsStream("audio/heartbeat-a.wav", isDebug), 0.8f);   // 3 звук
-        soundMonitor.addSoundWithGain(HEARTBEAT_B, getResourceAsStream("audio/heartbeat-b.wav", isDebug), 0.9f);   // 4 звук
+        soundMonitor = new SoundMonitor();
+        soundMonitor.addSoundWithGain(FALLEN, getResourceAsStream("audio/fallen.wav", isDebug), 0.9f);
+        soundMonitor.addSoundWithGain(ROTATE, getResourceAsStream("audio/rotate.wav", isDebug), 0.9f);
+        soundMonitor.addSoundWithGain(CLICK, getResourceAsStream("audio/click.wav", isDebug), 1.0f);
+        soundMonitor.addSoundWithGain(HEARTBEAT_A, getResourceAsStream("audio/heartbeat-a.wav", isDebug), 0.8f);
+        soundMonitor.addSoundWithGain(HEARTBEAT_B, getResourceAsStream("audio/heartbeat-b.wav", isDebug), 0.9f);
 
         try {
             backgroundImage = ImageIO.read(getResourceAsStream("bg.jpg", isDebug));
             titleImage = ImageIO.read(getResourceAsStream("title.jpg", isDebug));
+            ruImage = ImageIO.read(getResourceAsStream("ru.png", isDebug));
+            enImage = ImageIO.read(getResourceAsStream("en.png", isDebug));
         } catch (IOException e) {
-            //TODO
+            LOGGER.warning("Can't load background images!");
         }
         currentBackgroundImage = titleImage;
 
-        EventsMonitor eventsMonitor = new EventsMonitor();
-
-        setSize(config.windowWidth, config.windowHeight);                        // габариты
-        createGUI(title, eventsMonitor);
+        setSize(config.windowWidth, config.windowHeight); // Window size
+        createGUI(title, new EventsMonitor());
 
         if (config.soundOn) {
             musicChannel.play();
         }
-        startButton.requestFocus();
+
+        startClassicGameButton.requestFocus();
     }
 
     private void createGUI(String title, EventsMonitor eventsMonitor) {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // при закрытии закрывается окно
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close window on exit
         setTitle(title);
 
         setLocationRelativeTo(null);
 
-        // отступы сверху и снизу по 170. Так виртуально компоную содержимое панели в середине окна
-        /*
-         * Что делается ниже:
-         * 1. Создаётся панель, разделённая на верх и низ.
-         * 2. В верхнюю часть размещаем текстовое сообщение, в нижнюю элементы управления
-         * 3. И так три раза для каждой из рабочих панелей
-         */
         // Start Game
-        startButton = new JButton("Обычная игра");                // создаём кнопку
-        startButton.addActionListener(eventsMonitor);                // слушатель событий кнопки
-        startButton.setActionCommand(START_GAME_A.name());                // команда, которая передаётся слушателю
+        startClassicGameButton.addActionListener(eventsMonitor);
+        startClassicGameButton.setActionCommand(START_GAME_A.name());
 
-        JButton startButton2 = new JButton("Сумасшедшая игра");                // создаём кнопку
-        startButton2.addActionListener(eventsMonitor);                // слушатель событий кнопки
-        startButton2.setActionCommand(START_GAME_B.name());                // команда, которая передаётся слушателю
+        startCrazyGameButton.addActionListener(eventsMonitor);
+        startCrazyGameButton.setActionCommand(START_GAME_B.name());
 
-        JButton closeButton = new JButton("Выход");
-        closeButton.setActionCommand(EXIT.name());
-        closeButton.addActionListener(eventsMonitor);
+        exitButton.setActionCommand(EXIT.name());
+        exitButton.addActionListener(eventsMonitor);
 
-        startPanel = new JPanel();
-        startPanel.setBorder(BorderFactory.createRaisedBevelBorder());    // рамка панели
-        startPanel.setLayout(new GridLayout(3, 1));                // 3 ячейки
-        startPanel.add(startButton);                    // добавляем кнопку в контейнер для нижней ячейки
-        startPanel.add(startButton2);                    // добавляем кнопку в контейнер для нижней ячейки
-        startPanel.add(closeButton);                    // вторая кнопка, будет справа от первой, обе отцентрованы
+        JPanel startPanelButtonsContainer = new JPanel();
+        startPanelButtonsContainer.setBorder(BorderFactory.createRaisedBevelBorder());
+        startPanelButtonsContainer.setLayout((new GridLayout(3, 1)));
+        startPanelButtonsContainer.add(startClassicGameButton);
+        startPanelButtonsContainer.add(startCrazyGameButton);
+        startPanelButtonsContainer.add(exitButton);
+
+        languageButton.addActionListener(eventsMonitor);
+        languageButton.setActionCommand(CHANGE_LANGUAGE.name());
+
+        JPanel languagePanel = new JPanel();
+        languagePanel.setBackground(new Color(0, 0, 0, 0));
+        languagePanel.add(languageButton);
+
+        startPanel.setLayout(new BorderLayout());
+        startPanel.setBackground(new Color(0, 0, 0, 0));
+        startPanel.add(startPanelButtonsContainer, BorderLayout.CENTER);
+        startPanel.add(languagePanel, BorderLayout.SOUTH);
 
         // Pause
-        continueButton = new JButton("Тык");
         continueButton.addActionListener(eventsMonitor);
         continueButton.addKeyListener(eventsMonitor);
         continueButton.setActionCommand(CONTINUE.name());
         JPanel continuePanel = new JPanel();
         continuePanel.add(continueButton);
 
-        pausePanel = new JPanel();
         pausePanel.setBorder(BorderFactory.createRaisedBevelBorder());
         pausePanel.setLayout(new GridLayout(2, 1));
-        pausePanel.add(new JLabel(" Для продолжения нажмите кнопку "));
+        pausePanel.add(pauseLabel);
         pausePanel.add(continuePanel);
 
-        // Game Over / Records
-        // будем менять эти три панели
-        saveLabel = new JLabel();
+        // Game Over/Records
         JPanel newRecordPanel = new JPanel();
-        newRecordPanel.add(saveLabel);      //"Новый рекорд! Ваше имя: "
+        newRecordPanel.add(saveLabel); // "New record! Your name: "
         nameTextField = new JTextField("", 16);
         newRecordPanel.add(nameTextField);
 
-        saveButton = new JButton("Записать");
         saveButton.setActionCommand(SAVE.name());
         saveButton.addActionListener(eventsMonitor);
 
         JPanel savePanel = new JPanel();
         savePanel.add(saveButton);
 
-        model = new DefaultTableModel();
-        model.addColumn("N");
-        model.addColumn("Имя");
-        model.addColumn("Рекорд");
+        JTable table = new JTable(recordsTable);
 
-        JTable table = new JTable(model);
-
-        recordPanel = new JPanel();
         recordPanel.setBorder(BorderFactory.createRaisedBevelBorder());
         recordPanel.setLayout(new BoxLayout(recordPanel, BoxLayout.Y_AXIS));
         recordPanel.add(table.getTableHeader(), BorderLayout.PAGE_START);
@@ -173,20 +167,22 @@ class GameFrame extends JFrame {
         recordPanel.add(savePanel);
 
         // Main panel (container)
-        gamePanel = new GamePanel();
         gamePanel.setFocusable(true);
         gamePanel.add(startPanel);
         gamePanel.add(pausePanel);
         gamePanel.add(recordPanel);
-        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
+        gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3)); // horizontal alignment: middle
 
         this.add(gamePanel);
 
+        localizeInterface();
+
+        // We will switch these three panels: Start Game, Pause, Game Over/Records
         startPanel.setVisible(true);
         pausePanel.setVisible(false);
         recordPanel.setVisible(false);
 
-        this.setVisible(true);                        // делаем видимым окно
+        this.setVisible(true);
     }
 
     class GamePanel extends JPanel {
@@ -217,7 +213,7 @@ class GameFrame extends JFrame {
         }
 
         void drawPlayField(Graphics2D g2d) {
-            //рисуем стакан
+            // Draw a glass
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -244,19 +240,19 @@ class GameFrame extends JFrame {
                 }
             }
 
-            //выводим счёт, линии.
+            // Show score, lines, other statistics
             int leftPos = width * tileWidth + 7;
             g2d.setColor(config.getColor(config.transparentColor));
-            g2d.drawString("Счёт: " + tetris.getScore(), leftPos, 10);
-            g2d.drawString("Линий: " + tetris.getLines(), leftPos, 30);
-            g2d.drawString("Уровень: " + tetris.getLevel(), leftPos, 50);
+            g2d.drawString(translate("score", tetris.getScore()), leftPos, 10);
+            g2d.drawString(translate("lines", tetris.getLines()), leftPos, 30);
+            g2d.drawString(translate("level", tetris.getLevel()), leftPos, 50);
             Critter critter = tetris.getCritter();
             if (critter != null) {
-                g2d.drawString("Воздух: " + (int) critter.getAir() + "%", leftPos, 70);
-                g2d.drawString(critter.getStringStatus(), leftPos, 90);
+                g2d.drawString(translate("air", (int) critter.getAir()), leftPos, 70);
+                g2d.drawString(translate(critter.getStringStatus()), leftPos, 90);
             }
 
-            //рисуем фигуру
+            // Draw figure
             Figure figure = tetris.getFigure();
             for (Coordinate coordinate : figure.getCoordinates()) {
                 int k = figure.getGhostTop();
@@ -284,7 +280,7 @@ class GameFrame extends JFrame {
                     g2d.fillRoundRect((coordinate.getX() + figure.getLeft()) * tileWidth, (coordinate.getY() + figure.getTop() - 2) * tileHeight, tileWidth - 1, tileHeight - 1, tileWidth / 2, tileHeight / 2);
             }
 
-            //рисую персонажа
+            // Draw critter
             if (critter != null) {
                 if (critter.getStatus() != CritterState.DEAD) {
                     g2d.setColor(config.getColor(config.critterColor));
@@ -294,15 +290,15 @@ class GameFrame extends JFrame {
                     if (critter.getStatus() == CritterState.FALLING) ky = 1;
                     if (critter.getStatus() == CritterState.JUMPING) ky = -1;
                     if (critter.getStatus() == CritterState.STAYING) kx = 0;
-                    //глаза
+                    // eyes
                     g2d.drawArc(critter.getX() * tileWidth + 7 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
                     g2d.drawArc(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky, 1, 1, 0, 360);
-                    //глаза
+                    // eyes
                     if (critter.getAir() < 50) {
                         g2d.drawRect(critter.getX() * tileWidth + 7 + kx + 1, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
                         g2d.drawRect(critter.getX() * tileWidth + 12 + kx, (critter.getY() - 2) * tileHeight + 6 + ky - 1, 0, 0);
                     }
-                    //рот
+                    // mouth
                     int wx = critter.isBounded() ? 2 : 6;
 
                     if ((critter.getAir() > 75) && !critter.isBounded()) {
@@ -367,6 +363,10 @@ class GameFrame extends JFrame {
                     gamePanel.repaint();
                     break;
 
+                case CHANGE_LANGUAGE:
+                    switchLanguage();
+                    break;
+
                 case PAUSE:
                     pauseGame();
                     break;
@@ -387,9 +387,9 @@ class GameFrame extends JFrame {
                     if (tetris != null) {
                         tetris.processEvent(GAME_OVER);
                     }
-                    System.exit(0);                        // закрываем программу
+                    System.exit(0);
             }
-            gamePanel.repaint();                        // вызываем перерисовку панели
+            gamePanel.repaint();
         }
 
         private void startGame() {
@@ -407,13 +407,13 @@ class GameFrame extends JFrame {
         }
 
         private void pauseGame() {
-            if (tetris.getState() == RUNNING) {
+            if (tetris.getState() == PAUSED) {
                 tetris.processEvent(PAUSE);
-                gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
+                gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3)); // horizontal alignment: middle
                 pausePanel.setVisible(true);
                 continueButton.requestFocus();
                 gamePanel.repaint();
-            } else if (tetris.getState() == PAUSED) {
+            } else if (tetris.getState() == RUNNING) {
                 continueGame();
             }
         }
@@ -432,28 +432,28 @@ class GameFrame extends JFrame {
             int place = gameRecords.getPlace(tetris.getScore());
 
             if (gameRecords.canAddNewRecord(place)) {
-                fillModel(gameRecords, model);
+                fillModel(gameRecords, recordsTable);
                 nameTextField.setVisible(true);
-                saveButton.setText("Записать");
+                saveButton.setText(translate("save.button.save.text"));
                 switch (place) {
                     case 1:
-                        saveLabel.setText("Первое место!!! Ваше имя: ");
+                        saveLabel.setText(translate("save.label.first.place.text"));
                         break;
                     case 2:
-                        saveLabel.setText("Второе место!! Ваше имя: ");
+                        saveLabel.setText(translate("save.label.second.place.text"));
                         break;
                     case 3:
-                        saveLabel.setText("Третье место! Ваше имя: ");
+                        saveLabel.setText(translate("save.label.third.place.text"));
                         break;
                     default:
-                        saveLabel.setText(tetris.getScore() + " очков! Ваше имя: ");
+                        saveLabel.setText(translate("save.label.other.place.text", tetris.getScore()));
                 }
             } else {
                 nameTextField.setVisible(false);
-                saveButton.setText("Тык");
-                saveLabel.setText("Набрано " + tetris.getScore() + " очков. Маловато для рекорда!");
+                saveButton.setText(translate("save.button.ok.text"));
+                saveLabel.setText(translate("save.label.no.place.text", tetris.getScore()));
             }
-            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 5));    // выравнивание по горизонтали - по середине
+            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 5)); // horizontal alignment: middle
 
             recordPanel.setVisible(true);
             if (place < 30) {
@@ -463,12 +463,12 @@ class GameFrame extends JFrame {
             }
         }
 
-        private void fillModel(Records records, DefaultTableModel defaultTableModel) {
-            defaultTableModel.setRowCount(0);
+        private void fillModel(Records records, DefaultTableModel recordsTable) {
+            recordsTable.setRowCount(0);
             List<Records.Rec> recordsRecords = records.getRecords();
             for (int i = 0; i < records.getRecords().size(); i++) {
                 Records.Rec r = recordsRecords.get(i);
-                defaultTableModel.addRow(new Object[]{i + 1, r.getName(), r.getScore()});
+                recordsTable.addRow(new Object[]{i + 1, r.getName(), r.getScore()});
             }
         }
 
@@ -476,14 +476,55 @@ class GameFrame extends JFrame {
             recordPanel.setVisible(false);
             String str = nameTextField.getText();
             if (str.length() == 0) {
-                str = "Капитан Немо";
+                str = translate("anonymous.name");
             }
             gameRecords.verifyAndAddScore(str, tetris.getScore());
             storage.saveRecord(gameRecords.getRecords());
-            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3));    // выравнивание по горизонтали - по середине
+            gamePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 170, getHeight() / 3)); // horizontal alignment: middle
 
             startPanel.setVisible(true);
-            startButton.requestFocus();
+            startClassicGameButton.requestFocus();
         }
+    }
+
+    private void switchLanguage() {
+        switch (LanguageProvider.getCurrentLanguage()) {
+            case EN:
+                LanguageProvider.setCurrentLanguage(Language.RU);
+                break;
+            case RU:
+                LanguageProvider.setCurrentLanguage(Language.EN);
+                break;
+        }
+        localizeInterface();
+    }
+
+    private void localizeInterface() {
+        startClassicGameButton.setText(translate("start.classic.game.button.text"));
+        startCrazyGameButton.setText(translate("start.crazy.game.button.text"));
+        exitButton.setText(translate("exit.button.text"));
+
+        continueButton.setText(translate("continue.button.text"));
+        pauseLabel.setText(" " + translate("pause.label.text") + " ");
+
+        saveButton.setText(translate("save.button.save.text"));
+
+        recordsTable.setColumnCount(0);
+        recordsTable.addColumn(translate("records.table.number.column"));
+        recordsTable.addColumn(translate("records.table.name.column"));
+        recordsTable.addColumn(translate("records.table.score.column"));
+
+        switch (LanguageProvider.getCurrentLanguage()) {
+            case EN:
+                languageButton.setIcon(new ImageIcon(enImage));
+                break;
+            case RU:
+                languageButton.setIcon(new ImageIcon(ruImage));
+                break;
+        }
+    }
+
+    private String translate(String key, Object... params) {
+        return languageProvider.getTranslation(key, params);
     }
 }

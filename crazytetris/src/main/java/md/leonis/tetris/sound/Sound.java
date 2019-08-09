@@ -2,15 +2,14 @@ package md.leonis.tetris.sound;
 
 /*
  * http://habrahabr.ru/post/191422/
- * 26 августа 2013 в 20:36
- * Пару слов о поддержке форматов звуковых файлов: забудьте про mp3 и вспомните wav. Также поддерживаются au и aif.
+ * 26 august 2013. 20:36
+ * A few words about the support of audio file formats: forget about MP3 and remember WAV. AU and AIF are also supported.
  * (C) raid
  *
- * Эта библиотека проигрывает стандартные звуки Java. Актуально для Java SE 7/8
- * 06.03.2015 модификация и доработка
+ * This library plays standard Java sounds. Actual for Java SE 7/8
+ * 06.03.2015 modification and revision
  * (C) Leonis
  */
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,22 +74,21 @@ class Sound {
         }
     }
 
-    //true если звук успешно загружен, false если произошла ошибка
+    // true if the sound was loaded successfully, false if an error occurred
     boolean isReleased() {
         return released;
     }
 
-    //проигрывается ли звук в данный момент
+    // is the sound currently playing
     boolean isPlaying() {
         return playing;
     }
 
-    //Запуск
     /*
-      breakOld определяет поведение, если звук уже играется
-      Если breakOld==true, о звук будет прерван и запущен заново
-      Иначе ничего не произойдёт
-    */
+     * breakOld determines the behavior if the sound is already playing
+     * If breakOld==true, o sound will be interrupted and restarted
+     * Otherwise nothing will happen.
+     */
     private void play(boolean breakOld) {
         if (released) {
             if (breakOld) {
@@ -106,57 +104,54 @@ class Sound {
         }
     }
 
-    //То же самое, что и play(true)
+    // Same as play(true)
     void play() {
         play(true);
     }
 
-    //Останавливает воспроизведение
+    // Stops playback
     void stop() {
         if (playing) {
             clip.stop();
         }
     }
 
-    //Установка громкости
-    /*
-      x долже быть в пределах от 0 до 1 (от самого тихого к самому громкому)
-    */
-    void setVolume(float x) {
-        if (x < 0) {
-            x = 0;
+    // Volume setting: volume must be between 0 and 1 (from the quietest to the loudest)
+    void setVolume(float volume) {
+        if (volume < 0) {
+            volume = 0;
         }
-        if (x > 1) {
-            x = 1;
+        if (volume > 1) {
+            volume = 1;
         }
         float min = volumeC.getMinimum();
         float max = volumeC.getMaximum();
-        volumeC.setValue((max - min) * x + min);
+        volumeC.setValue((max - min) * volume + min);
     }
 
-    //Возвращает текущую громкость (число от 0 до 1)
+    // Returns the current volume (a number from 0 to 1)
     float getVolume() {
-        float v = volumeC.getValue();
+        float volume = volumeC.getValue();
         float min = volumeC.getMinimum();
         float max = volumeC.getMaximum();
-        return (v - min) / (max - min);
+        return (volume - min) / (max - min);
     }
 
     /**
-     * Позиционирование звука: по центру (0), слева (-1.0) или справа (1.0)
-     * Если данная функция не поддерживается - просто ничего не произойдёт
+     * Sound Positioning: Center (0), Left (-1.0) or Right (1.0)
+     * If this function is not supported, nothing will happen.
      */
-    void setBalance(float value) {
-        if (clip.isControlSupported(FloatControl.Type.PAN)) //необходим стерео звук, ИНАЧЕ НЕ РАБОТАЕТ!!!
+    void setBalance(float pan) {
+        if (clip.isControlSupported(FloatControl.Type.PAN)) // stereo sound is needed, OTHERWISE DOES NOT WORK !!!
             try {
                 FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
-                panControl.setValue(value);
+                panControl.setValue(pan);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
     }
 
-    //Дожидается окончания проигрывания звука
+    // Waiting for the sound to finish
     void join() {
         if (!released) return;
         synchronized (clip) {
@@ -170,7 +165,7 @@ class Sound {
         }
     }
 
-    //Статический метод, для удобства
+    // Static method, for convenience
     static Sound playSound(String s) {
         File f = new File(s);
         Sound snd = new Sound(f);

@@ -1,8 +1,6 @@
 package md.leonis.tetris.sound;
 
-/*
- * WAV звуковые эффекты отрабатываются "родными" средствами Java
- */
+// WAV sound effects are worked out by "native" possibilities of Java
 import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.GameEventListener;
 import md.leonis.tetris.engine.model.SoundId;
@@ -12,9 +10,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * Монитор звуковых каналов
- */
+// Sound channels monitor
 public class SoundMonitor implements GameEventListener {
 
     private Map<SoundId, SoundChannel> channels = new HashMap<>();

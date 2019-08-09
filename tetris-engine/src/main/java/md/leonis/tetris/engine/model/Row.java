@@ -1,4 +1,4 @@
-package md.leonis.tetris.engine;
+package md.leonis.tetris.engine.model;
 
 import java.util.Arrays;
 
@@ -8,21 +8,21 @@ public class Row {
 
     private final int[] elements;
 
-    Row(int size, int transparentColor) {
+    public Row(int size, int transparentColor) {
         this.transparentColor = transparentColor;
         elements = new int[size];
         Arrays.fill(elements, transparentColor);
     }
 
-    boolean isNotFull() {
+    public boolean isNotFull() {
         return !isFull();
     }
 
-    boolean isFull() {
+    public boolean isFull() {
         return Arrays.stream(elements).noneMatch(transparentColor::equals);
     }
 
-    int[] getElements() {
+    public int[] getElements() {
         return elements;
     }
 

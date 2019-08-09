@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Figure {
 
-    private static final Random RAND = new Random();       // для генерации случайных чисел
+    private static final Random RAND = new Random();
 
     private static List<Coordinates> FIGURE_DEF = new ArrayList<>();
 
@@ -25,8 +25,8 @@ public class Figure {
     private int type;
     private Coordinates coordinates; // Figure tiles coordinates
     private Coordinates coordinatesCopy; // Reserve copy
-    private int left, top;         // положение в "стакане"
-    private int leftCopy, topCopy;         // резервное положение в "стакане"
+    private int left, top; // position in the "glass"
+    private int leftCopy, topCopy; // Reserve copy of the position in the "glass"
     private boolean fallen;
 
     private final PropertiesHolder properties;
@@ -46,13 +46,13 @@ public class Figure {
         coordinates = new Coordinates(FIGURE_DEF.get(type), tilesCount);
         color = RAND.nextInt(properties.getColorsCount() - 1) + 1;
 
-        // Поворот фигуры в градусах
+        // Rotate a figure in degrees
         int angle = RAND.nextInt(3);
         for (int i = 0; i < angle; i++) {
             rotateLeft();
         }
 
-        //тут сделать генерацию пятого элемента
+        // generate the fifth element, if need
         if (tilesCount == 5) {
             generateFifthElement();
         }

@@ -1,6 +1,7 @@
 package md.leonis.tetris.engine;
 
 import md.leonis.tetris.engine.model.Coordinate;
+import md.leonis.tetris.engine.model.Row;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,9 +89,7 @@ public class Board {
 
         @Override
         public String toString() {
-            return "Glass{" +
-                    "rows=" + rows.stream().map(row -> row.toString() + "\n").collect(Collectors.joining()) +
-                    '}';
+            return "Glass{rows=" + rows.stream().map(row -> row.toString() + "\n").collect(Collectors.joining()) + '}';
         }
     }
 }

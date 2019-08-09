@@ -12,9 +12,9 @@ public class Critter extends Thread {
 
     private static final double MOVING_AIR_FLOW_RATE = 2.5;
     private static final double STAYING_AIR_FLOW_RATE = 5;
-    private static final double BOUNDED_AIR_FLOW_RATE = 1;    //делимое
+    private static final double BOUNDED_AIR_FLOW_RATE = 1;    // divident
     private static final double FALLING_AIR_FLOW_RATE = 0;
-    private static final double JUMPING_AIR_FLOW_RATE = 10;    //вычитается
+    private static final double JUMPING_AIR_FLOW_RATE = 10;    // deducted
 
     private static final int VERTICAL_SPEED = 400;
     private static final int HORIZONTAL_SPEED = 80;
@@ -27,8 +27,8 @@ public class Critter extends Thread {
     private int maxJump = 2;
     private int jumpPower = 0;
 
-    private int horizontalDirection = 1;        // 1 - вправо, -1 - влево, 0 - никуда
-    private int verticalDirection = 0; // аналогично
+    private int horizontalDirection = 1; // 1 - to the right, -1 - to the left, 0 - nowhere
+    private int verticalDirection = 0; // same way
 
     private boolean isPaused = false;
 
@@ -38,7 +38,7 @@ public class Critter extends Thread {
         this.properties = properties;
         x = 0;
         y = 0;
-        air = 100; //сделать учёт воздуха относительно полости
+        air = 100; // air accounting relative to the cavity
         status = MOVING;
     }
 
@@ -138,27 +138,27 @@ public class Critter extends Thread {
                 }
                 break;
             case -1:
-                if (isOccupiedCoordinate(x + horizontalDirection, y)) {           // если после подъёма нет возможности уйти в сторону
+                if (isOccupiedCoordinate(x + horizontalDirection, y)) { // if after lifting there is no way to go aside
                     if (jumpPower == 0) {
                         horizontalDirection = -horizontalDirection;
-                    }   // на излёте меняем направление движения
+                    } // at the end we change direction
                 } else {
                     x += horizontalDirection;
                     setState();
                     verticalDirection = 0;
                     return;
-                }// есть возможность уйти в сторону? уходим
+                } // is it possible to go aside? leaving
 
-                if (jumpPower == 0) {
+                if (jumpPower == 0) { // if the jump height is over
                     verticalDirection = 1;
                     return;
-                }            // если закончилась высота прыжка
+                }
 
-                if (isFreeCoordinate(x, y - 1)) {                // если есть куда ещё подниматься
+                if (isFreeCoordinate(x, y - 1)) { // if there is still more to go
                     status = JUMPING;
                     y--;
                     jumpPower--;
-                } else {                        // если некуда больше подниматься (потолок)
+                } else { // if there’s nowhere else to rise (ceiling)
                     jumpPower = 0;
                     verticalDirection = 1;
                     horizontalDirection = -horizontalDirection;
@@ -217,22 +217,22 @@ public class Critter extends Thread {
 
     public String getStringStatus() {
         if (isCrushed()) {
-            return "Раздавлен :(";
+            return "critter.status.crushed";
         }
         if (air <= 0) {
-            return "Задохнулся :(";
-        }
-        if (air < 75) {
-            return "Надо отдышаться...";
+            return "critter.status.suffocated";
         }
         if (isBounded()) {
             if (air < 50) {
-                return "Задыхаюсь!!!";
+                return "critter.status.choking";
             } else {
-                return "Тут мало воздуха...";
+                return "critter.status.need.air";
             }
         }
-        return "Жизнь прекрасна :)";
+        if (air < 75) {
+            return "critter.status.need.to.breath";
+        }
+        return "critter.status.fine";
     }
 
     void correctYPosition(List<Integer> deletedRows) { // After deleting rows

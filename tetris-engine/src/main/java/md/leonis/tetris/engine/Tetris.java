@@ -135,7 +135,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
                 critter.setPaused(true);
             }
             if (soundOn) {
-                notify(PLAY_SOUND, FALLED.name()); // falled
+                notify(PLAY_SOUND, FALLEN.name()); // fallen
             }
             board.mergeFigure(figure);
             board.deleteCompletedRows();
