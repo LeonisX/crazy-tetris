@@ -46,9 +46,8 @@ public class TetrisUI extends UI implements GameEventListener {
     public static class Servlet extends VaadinServlet {
     }
 
+    private static final int FPS = 10;
     private static final double MUSIC_VOLUME = 0.1;
-
-    private static final int PAUSE_TIME_MS = 500;
 
     private static final long serialVersionUID = -152735180021558969L;
 
@@ -94,7 +93,6 @@ public class TetrisUI extends UI implements GameEventListener {
 
     private List<String> gameList;
 
-    // TODO all timings in config
     // TODO implement version
     // TODO separate services (AudioService, GameService, ...)
     //TODO docs
@@ -102,10 +100,10 @@ public class TetrisUI extends UI implements GameEventListener {
 
     @Override
     protected void init(VaadinRequest request) {
-
         musicVolume = MUSIC_VOLUME;
 
         config = new Config();
+        config.fps = FPS;
 
         // sorry, the sound slows down the gameplay
         soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
@@ -229,7 +227,6 @@ public class TetrisUI extends UI implements GameEventListener {
                         .forEach(event -> tetris.addListener(event, soundMonitor));
 
                 tetris.start();
-                startGameThread();
 
                 startGameBtn.setIcon(VaadinIcons.PAUSE);
                 dropBtn.focus();
@@ -293,23 +290,6 @@ public class TetrisUI extends UI implements GameEventListener {
         soundMonitor.getChannels().values().forEach(GameAudio::stop);
     }
 
-    /**
-     * Start the game thread that updates the game periodically.
-     */
-    private synchronized void startGameThread() {
-        Thread t = new Thread(() -> {
-            while (!(tetris.getState() == GameState.FINISHED)) {
-                drawGameState();
-                try {
-                    Thread.sleep(PAUSE_TIME_MS);
-                } catch (InterruptedException ignored) {
-                }
-            }
-            gameOver();
-        });
-        t.start();
-    }
-
     @Override
     public synchronized void notify(GameEvent event, String message) {
         switch (event) {
@@ -319,6 +299,9 @@ public class TetrisUI extends UI implements GameEventListener {
                 break;
             case UPDATE_SCORE:
                 updateStatistics();
+                break;
+            case GAME_OVER:
+                gameOver();
                 break;
         }
     }
@@ -343,7 +326,9 @@ public class TetrisUI extends UI implements GameEventListener {
      * Quit the game.
      */
     private synchronized void gameOver() {
-        tetris.processEvent(GAME_OVER);
+        if (recordsWindow.isAttached()) {
+            return;
+        }
         updateStatistics();
         startGameBtn.setIcon(VaadinIcons.PLAY);
 
@@ -381,7 +366,7 @@ public class TetrisUI extends UI implements GameEventListener {
             }
             recordsButton.setCaption(translate("save.button.ok.text"));
         }
-        access(() -> addWindow(recordsWindow));
+        addWindow(recordsWindow);
     }
 
     private synchronized void saveGame() {

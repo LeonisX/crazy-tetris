@@ -173,7 +173,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
     }
 
 
-    // Поток опускания фигуры - интервал зависит от скорости игры
+    // Figure Lowering Thread - Interval Depends on Game Speed
     class NextMove extends Thread {
         public void run() {
             while (state != FINISHED) {
@@ -219,12 +219,12 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
     }
 
-    // Поток рисования - интервал 33 мс (30 кадров в секунду), больше не надо
+    // Drawing Thread - Interval 33 ms (30 frames per second), no longer needed
     class NextFrame extends Thread {
         public void run() {
             while (state != FINISHED) {
                 try {
-                    sleep(33);
+                    sleep(config.refreshAfter);
                 } catch (InterruptedException e) {
                     // empty
                 }

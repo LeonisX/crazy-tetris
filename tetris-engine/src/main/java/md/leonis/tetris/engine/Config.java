@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Config {
 
+    public int fps = 30;
+    public int refreshAfter = 1000 / fps;
+
     public boolean soundOn = true;
 
     public Color[] colors = {
