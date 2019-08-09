@@ -87,18 +87,28 @@ public class LanguageProvider {
     private static ResourceBundle newBundle(String baseName, Locale locale, ClassLoader loader) {
         String resourceName = baseName + "_" + locale.getLanguage() + ".properties";
         try {
-            InputStream stream = loader.getResourceAsStream(resourceName);
-            if (stream == null) {
-                throw new IOException("Can't find bundle file: " + resourceName);
-            }
+            return loadBundle(resourceName, loader);
+        } catch (Exception ex) {
+            // Try to load default locale (english)
+            resourceName = baseName + ".properties";
             try {
-                return new PropertyResourceBundle(new InputStreamReader(stream, StandardCharsets.UTF_8));
-            } finally {
-                stream.close();
+                return loadBundle(resourceName, loader);
+            } catch (Exception e) {
+                LOGGER.severe("Can't find bundle for base name: " + baseName + ", locale: " + locale);
+                throw new RuntimeException("Can't load language bundle: " + resourceName, e);
             }
-        } catch (Exception e) {
-            LOGGER.severe("Can't find bundle for base name: " + baseName + ", locale: " + locale);
-            throw new RuntimeException("Can't load language bundle: " + resourceName, e);
+        }
+    }
+
+    private static ResourceBundle loadBundle(String resourceName, ClassLoader loader) throws IOException {
+        InputStream stream = loader.getResourceAsStream(resourceName);
+        if (stream == null) {
+            throw new IOException("Can't find bundle file: " + resourceName);
+        }
+        try {
+            return new PropertyResourceBundle(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        } finally {
+            stream.close();
         }
     }
 
