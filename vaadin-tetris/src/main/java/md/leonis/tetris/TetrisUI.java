@@ -113,8 +113,6 @@ public class TetrisUI extends UI implements GameEventListener {
         soundMonitor.addSoundWithGain(HEARTBEAT_A, new GameAudio(new ThemeResource("audio/heartbeat-a.wav")), 0.8, true);
         soundMonitor.addSoundWithGain(HEARTBEAT_B, new GameAudio(new ThemeResource("audio/heartbeat-b.wav")), 0.9, true);
 
-        storage = new InMemoryStorage();
-
         Locale locale = VaadinService.getCurrentRequest().getLocale();
         if (TranslationProvider.isUnknownLocale(locale)) {
             locale = TranslationProvider.getDefaultLocale();
