@@ -89,7 +89,7 @@ class GameFrame extends JFrame {
         setSize(config.windowWidth, config.windowHeight);                        // габариты
         createGUI(title, eventsMonitor);
 
-        if (tetris.isSoundOn()) {
+        if (config.soundOn) {
             musicChannel.play();
         }
         startButton.requestFocus();
