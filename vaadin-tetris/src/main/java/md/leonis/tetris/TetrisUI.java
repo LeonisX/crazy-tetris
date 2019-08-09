@@ -5,9 +5,11 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.flow.server.Constants;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
 import md.leonis.tetris.audio.GameAudio;
@@ -18,12 +20,17 @@ import md.leonis.tetris.engine.event.GameEventListener;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.CritterState;
 import md.leonis.tetris.engine.model.GameState;
+import md.leonis.tetris.engine.model.Language;
 import org.vaadin.hezamu.canvas.Canvas;
 import org.vaadin.viritin.button.PrimaryButton;
+import org.vaadin.viritin.label.RichText;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import static md.leonis.tetris.engine.event.GameEvent.*;
 import static md.leonis.tetris.engine.model.SoundId.*;
@@ -33,7 +40,8 @@ import static md.leonis.tetris.engine.model.SoundId.*;
 @Title("Vaadin Crazy Tetris")
 public class TetrisUI extends UI implements GameEventListener {
 
-    @WebServlet(value = {"/*"}, asyncSupported = true)
+    @WebServlet(value = {"/*"}, asyncSupported = true, initParams = {
+            @WebInitParam(name = Constants.I18N_PROVIDER, value = "com.vaadin.example.ui.TranslationProvider")})
     @VaadinServletConfiguration(productionMode = false, ui = TetrisUI.class)
     public static class Servlet extends VaadinServlet {
     }
@@ -44,17 +52,18 @@ public class TetrisUI extends UI implements GameEventListener {
 
     private static final long serialVersionUID = -152735180021558969L;
 
-    private Canvas canvas;
-    private Canvas nextCanvas;
-
-    private Config config;
     private Tetris tetris;
-    private InMemoryStorage storage;
+    private Config config = new Config();
+    private InMemoryStorage storage = new InMemoryStorage();
     private Records gameRecords;
     private boolean crazy;
     private int place;
 
+    private Canvas canvas;
+    private Canvas nextCanvas;
+
     private Button startGameBtn;
+    private Button languageControlBtn;
     private ComboBox<String> gameTypeCB;
     private Label nextFigureLabel;
     private Label scoreLabel;
@@ -62,10 +71,12 @@ public class TetrisUI extends UI implements GameEventListener {
     private Label levelLabel;
     private Label airLabel;
     private Label statusLabel;
+    private Label pauseLabel;
 
     private Window pauseWindow;
-
     private Window recordsWindow;
+    private About about;
+
     private Grid<Records.Rec> recordsGrid;
     private HorizontalLayout enterNameInnerContainer;
     private Label recordsLabel;
@@ -79,12 +90,15 @@ public class TetrisUI extends UI implements GameEventListener {
 
     private double musicVolume;
 
-    // TODO audio
+    private TranslationProvider translationProvider = new TranslationProvider();
+
+    private List<String> gameList;
+
+    // TODO all timings in config
+    // TODO implement version
     // TODO separate services (AudioService, GameService, ...)
-    // https://vaadin.com/forum/thread/3355253/audio
-    // https://vaadin.com/components/vaadin-icons/java-examples
     //TODO docs
-    //TODO tile size
+    //TODO tile size ???
 
     @Override
     protected void init(VaadinRequest request) {
@@ -95,7 +109,7 @@ public class TetrisUI extends UI implements GameEventListener {
 
         // sorry, the sound slows down the gameplay
         soundMonitor = new SoundMonitor();            // создаём монитор звуковых эффектов
-        soundMonitor.addSoundWithGain(FALLED, new GameAudio(new ThemeResource("audio/falled.wav")), 0.9, false);
+        soundMonitor.addSoundWithGain(FALLEN, new GameAudio(new ThemeResource("audio/fallen.wav")), 0.9, false);
         soundMonitor.addSoundWithGain(ROTATE, new GameAudio(new ThemeResource("audio/rotate.wav")), 0.9, false);
         soundMonitor.addSoundWithGain(CLICK, new GameAudio(new ThemeResource("audio/click.wav")), 1.0, false);
         soundMonitor.addSoundWithGain(HEARTBEAT_A, new GameAudio(new ThemeResource("audio/heartbeat-a.wav")), 0.8, true);
@@ -103,12 +117,19 @@ public class TetrisUI extends UI implements GameEventListener {
 
         storage = new InMemoryStorage();
 
+        Locale locale = VaadinService.getCurrentRequest().getLocale();
+        if (TranslationProvider.isUnknownLocale(locale)) {
+            locale = TranslationProvider.getDefaultLocale();
+        }
+        TranslationProvider.setCurrentLanguage(TranslationProvider.languageByLocale(locale));
+
         VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setMargin(true);
         setContent(layout);
 
-        layout.addComponent(new About());
+        about = new About();
+        layout.addComponent(about);
 
         // Button for moving left
         final Button leftBtn = new Button(VaadinIcons.ARROW_LEFT);
@@ -127,7 +148,7 @@ public class TetrisUI extends UI implements GameEventListener {
         rightBtn.setClickShortcut(KeyCode.ARROW_RIGHT);
 
         // Button for rotating clockwise
-        final Button rotateCWBtn = new Button("[key ???]", VaadinIcons.ROTATE_RIGHT);
+        final Button rotateCWBtn = new Button("[?]", VaadinIcons.ROTATE_RIGHT);
         rotateCWBtn.addClickListener(e -> {
             tetris.processEvent(ROTATE_LEFT);
             drawGameState();
@@ -135,7 +156,7 @@ public class TetrisUI extends UI implements GameEventListener {
         //rotateCWBtn.setClickShortcut(KeyCode.ARROW_DOWN);
 
         // Button for rotating counter clockwise
-        final Button rotateCCWBtn = new Button("[key up]", VaadinIcons.ROTATE_LEFT);
+        final Button rotateCCWBtn = new Button("[↑]", VaadinIcons.ROTATE_LEFT);
         rotateCCWBtn.addClickListener(e -> {
             tetris.processEvent(ROTATE_RIGHT);
             drawGameState();
@@ -143,7 +164,7 @@ public class TetrisUI extends UI implements GameEventListener {
         rotateCCWBtn.setClickShortcut(KeyCode.ARROW_UP);
 
         // Button to accelerate lowering
-        final Button stepBtn = new Button("[key down]", VaadinIcons.ARROW_LONG_DOWN);
+        final Button stepBtn = new Button("[↓]", VaadinIcons.ARROW_LONG_DOWN);
         stepBtn.addClickListener(e -> {
             tetris.processEvent(STEP_DOWN);
             drawGameState();
@@ -151,7 +172,8 @@ public class TetrisUI extends UI implements GameEventListener {
         stepBtn.setClickShortcut(KeyCode.ARROW_DOWN);
 
         // Button for dropping the piece
-        dropBtn = new Button("[space]", VaadinIcons.ARROW_DOWN);
+        dropBtn = new Button(translate("key.space"), VaadinIcons.ARROW_DOWN);
+        dropBtn = new Button(VaadinIcons.ARROW_DOWN);
         dropBtn.addClickListener(e -> {
             tetris.processEvent(FALL_DOWN);
             drawGameState();
@@ -171,9 +193,15 @@ public class TetrisUI extends UI implements GameEventListener {
         });
         soundControlBtn.setClickShortcut(KeyCode.S);
 
+        // Language control button
+        languageControlBtn = new Button();
+        languageControlBtn.addClickListener(e -> {
+            switchLanguage();
+            dropBtn.focus();
+        });
+        languageControlBtn.setClickShortcut(KeyCode.L);
+
         gameTypeCB = new ComboBox<>();
-        gameTypeCB.setItems("Game A", "Game B");
-        gameTypeCB.setSelectedItem("Game A");
         gameTypeCB.setEmptySelectionAllowed(false);
 
         // Button for restarting the game
@@ -182,7 +210,7 @@ public class TetrisUI extends UI implements GameEventListener {
             if (null == tetris || tetris.getState() == GameState.FINISHED) {
                 music.setShowControls(true);
                 enableSound();
-                crazy = gameTypeCB.getSelectedItem().orElse("").endsWith("B");
+                crazy = gameList.indexOf(gameTypeCB.getSelectedItem().orElse(gameList.get(0))) != 0;
                 int nextCanvasWidth = crazy ? 5 : 4;
 
                 if (crazy) {
@@ -222,7 +250,7 @@ public class TetrisUI extends UI implements GameEventListener {
         music.setLoop(true);
 
         layout.addComponent(new MHorizontalLayout(
-                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn, soundControlBtn
+                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn, soundControlBtn, languageControlBtn
         ));
 
         // Label for score
@@ -246,6 +274,8 @@ public class TetrisUI extends UI implements GameEventListener {
 
         generatePauseWindow();
         generateRecordsWindow();
+
+        localizeInterface();
     }
 
     private void enableSound() {
@@ -298,13 +328,13 @@ public class TetrisUI extends UI implements GameEventListener {
      */
     private synchronized void updateStatistics() {
         access(() -> {
-            nextFigureLabel.setValue("Next figure:");
-            scoreLabel.setValue("Score: " + tetris.getScore());
-            linesLabel.setValue("Lines: " + tetris.getLines());
-            levelLabel.setValue("Level: " + tetris.getLevel());
+            nextFigureLabel.setValue(translate("next.figure"));
+            scoreLabel.setValue(translate("score", tetris.getScore()));
+            linesLabel.setValue(translate("lines", tetris.getLines()));
+            levelLabel.setValue(translate("level", tetris.getLevel()));
             if (tetris.getCritter() != null) {
-                airLabel.setValue("Air: " + (int) tetris.getCritter().getAir() + "%");
-                statusLabel.setValue(tetris.getCritter().getStringStatus());
+                airLabel.setValue(translate("air", (int) tetris.getCritter().getAir()));
+                statusLabel.setValue(translate(tetris.getCritter().getStringStatus()));
             }
         });
     }
@@ -329,33 +359,33 @@ public class TetrisUI extends UI implements GameEventListener {
         if (gameRecords.canAddNewRecord(place)) {
             switch (place) {
                 case 1:
-                    recordsLabel.setCaption("First place. Your name: ");
+                    recordsLabel.setCaption(translate("records.label.first.place.text"));
                     break;
                 case 2:
-                    recordsLabel.setCaption("Second place. Your name: ");
+                    recordsLabel.setCaption(translate("records.label.second.place.text"));
                     break;
                 case 3:
-                    recordsLabel.setCaption("Third place. Your name: ");
+                    recordsLabel.setCaption(translate("records.label.third.place.text"));
                     break;
                 default:
-                    recordsLabel.setCaption(score + " points! Your name: ");
+                    recordsLabel.setCaption(translate("records.label.other.place.text", score));
             }
-            recordsButton.setCaption("Save");
+            recordsButton.setCaption(translate("save.button.save.text"));
             if (enterNameInnerContainer.getComponentCount() == 1) {
                 enterNameInnerContainer.addComponent(nameTextField);
             }
         } else {
-            recordsLabel.setCaption("Scored " + score + " points. Not enough for a new record!");
+            recordsLabel.setCaption(translate("records.label.no.place.text", score));
             if (enterNameInnerContainer.getComponentCount() == 2) {
                 enterNameInnerContainer.removeComponent(nameTextField);
             }
-            recordsButton.setCaption("OK");
+            recordsButton.setCaption(translate("save.button.ok.text"));
         }
         access(() -> addWindow(recordsWindow));
     }
 
     private synchronized void saveGame() {
-        String name = nameTextField.getOptionalValue().orElse("Captain Nemo");
+        String name = nameTextField.getOptionalValue().orElse(translate("anonymous.name"));
         gameRecords.verifyAndAddScore(name, tetris.getScore());
         storage.saveRecord(gameRecords.getRecords());
     }
@@ -382,8 +412,6 @@ public class TetrisUI extends UI implements GameEventListener {
                     if (tileColor != config.transparentColor) {
                         canvas.setFillStyle(config.getWebColor(tileColor));
                         canvas.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 2, tileHeight - 2);
-                        // Sorry, very CPU consuming operation :(
-                        //roundRect(canvas, x * tileWidth + 1, y * tileHeight + 1, tileHeight - 1, tileWidth - 1, tileWidth / 4.0, true);
                     } else {
                         canvas.setFillStyle(config.getWebColor(config.grayColor));
                         canvas.fillRect(x * tileWidth, y * tileHeight, 1, 1);
@@ -447,25 +475,6 @@ public class TetrisUI extends UI implements GameEventListener {
         });
     }
 
-    private void roundRect(Canvas canvas, double x, double y, double width, double height, double radius, boolean fill) {
-        canvas.beginPath();
-        canvas.moveTo(x + radius, y);
-        canvas.lineTo(x + width - radius, y);
-        canvas.quadraticCurveTo(x + width, y, x + width, y + radius);
-        canvas.lineTo(x + width, y + height - radius);
-        canvas.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        canvas.lineTo(x + radius, y + height);
-        canvas.quadraticCurveTo(x, y + height, x, y + height - radius);
-        canvas.lineTo(x, y + radius);
-        canvas.quadraticCurveTo(x, y, x + radius, y);
-        canvas.closePath();
-        if (fill) {
-            canvas.fill();
-        } else {
-            canvas.stroke();
-        }
-    }
-
     private String addDirection(String imageName, int kx) {
         switch (kx) {
             case 1:
@@ -478,15 +487,16 @@ public class TetrisUI extends UI implements GameEventListener {
     }
 
     private void generatePauseWindow() {
-        pauseWindow = getWindow("Game paused");
+        pauseWindow = getWindow();
         VerticalLayout content = new VerticalLayout();
         pauseWindow.setContent(content);
-        content.addComponent(new Label("Press button to continue"));
+        pauseLabel = new Label();
+        content.addComponent(pauseLabel);
 
         Button continueBtn = new Button(VaadinIcons.CLOSE);
         continueBtn.addClickListener(e -> {
-            enableSound();
             tetris.processEvent(CONTINUE);
+            enableSound();
             startGameBtn.setIcon(VaadinIcons.PAUSE);
             pauseWindow.close();
             dropBtn.focus();
@@ -497,7 +507,7 @@ public class TetrisUI extends UI implements GameEventListener {
     }
 
     private void generateRecordsWindow() {
-        recordsWindow = getWindow("Game Over");
+        recordsWindow = getWindow();
         VerticalLayout content = new VerticalLayout();
         recordsWindow.setContent(content);
 
@@ -512,7 +522,7 @@ public class TetrisUI extends UI implements GameEventListener {
         recordsButton.setClickShortcut(KeyCode.SPACEBAR);
 
         recordsGrid = new Grid<>(Records.Rec.class);
-        recordsGrid.setColumns("name", "score");
+        //recordsGrid.setColumns(translate("name"), translate("score"));
 
         recordsLabel = new Label();
         nameTextField = new TextField();
@@ -524,13 +534,56 @@ public class TetrisUI extends UI implements GameEventListener {
         content.setComponentAlignment(recordsButton, Alignment.TOP_CENTER);
     }
 
-    private Window getWindow(String caption) {
-        Window window = new Window(caption);
+    private Window getWindow() {
+        Window window = new Window("");
         window.setClosable(false);
         window.setDraggable(false);
         window.setResizable(false);
         window.setModal(true);
         window.center();
         return window;
+    }
+
+    private void switchLanguage() {
+        switch (LanguageProvider.getCurrentLanguage()) {
+            case EN:
+                LanguageProvider.setCurrentLanguage(Language.RU);
+                break;
+            case RU:
+                LanguageProvider.setCurrentLanguage(Language.EN);
+                break;
+        }
+        localizeInterface();
+    }
+
+    private void localizeInterface() {
+        int index = (gameList == null) ? 0 : gameList.indexOf(gameTypeCB.getSelectedItem().orElse(gameList.get(0)));
+        gameList = Arrays.asList(translate("classic.game.item.text"), translate("crazy.game.item.text"));
+        gameTypeCB.setItems(gameList);
+        gameTypeCB.setSelectedItem(gameList.get(index));
+
+        recordsGrid.getDefaultHeaderRow().getCell("name").setText(translate("records.table.name.column"));
+        recordsGrid.getDefaultHeaderRow().getCell("score").setText(translate("records.table.score.column"));
+
+        dropBtn.setCaption(translate("key.space"));
+
+        if (tetris != null) {
+            updateStatistics();
+        }
+
+        about.setCaption(translate("about.caption"));
+
+        pauseWindow.setCaption(translate("pause.window.caption"));
+        pauseLabel.setCaption(translate("pause.label.text"));
+
+        recordsWindow.setCaption(translate("records.window.caption"));
+
+        String language = TranslationProvider.getCurrentLanguage().name().toLowerCase();
+        languageControlBtn.setIcon(new ThemeResource(String.format("img/%s.png", language)));
+        about.setContent(new RichText().withMarkDownResource(String.format("/about_%s.md", language)));
+    }
+
+    private String translate(String key, Object... params) {
+        return translationProvider.getTranslation(key, params);
     }
 }

@@ -20,21 +20,25 @@ public class LanguageProvider {
     private static final Locale RUSSIAN = new Locale("ru", "RU");
 
     private static final Map<Language, ResourceBundle> languageMap = new HashMap<>();
+    private static final Map<Locale, Language> localeMap = new HashMap<>();
     private static final Map<Locale, ResourceBundle> bundleMap = new HashMap<>();
 
-    private static final ResourceBundle RESOURCE_BUNDLE_RU = initializeBundle(RUSSIAN);
     private static final ResourceBundle RESOURCE_BUNDLE_EN = initializeBundle(ENGLISH);
+    private static final ResourceBundle RESOURCE_BUNDLE_RU = initializeBundle(RUSSIAN);
 
-    private static Language currentLanguage = Language.RU;
+    private static Language currentLanguage = Language.EN;
+    private static Locale defaultLocale = ENGLISH;
 
     static {
-        languageMap.put(Language.RU, RESOURCE_BUNDLE_RU);
+        localeMap.put(ENGLISH, Language.EN);
+        localeMap.put(RUSSIAN, Language.RU);
         languageMap.put(Language.EN, RESOURCE_BUNDLE_EN);
-        bundleMap.put(RUSSIAN, RESOURCE_BUNDLE_RU);
+        languageMap.put(Language.RU, RESOURCE_BUNDLE_RU);
         bundleMap.put(ENGLISH, RESOURCE_BUNDLE_EN);
+        bundleMap.put(RUSSIAN, RESOURCE_BUNDLE_RU);
     }
 
-    private List<Locale> locales = Collections.unmodifiableList(Arrays.asList(ENGLISH, RUSSIAN));
+    private static List<Locale> locales = Collections.unmodifiableList(Arrays.asList(ENGLISH, RUSSIAN));
 
     public LanguageProvider() {
     }
@@ -112,11 +116,28 @@ public class LanguageProvider {
         }
     }
 
+    public static boolean isUnknownLocale(Locale locale) {
+        return !locales.contains(locale);
+    }
+
     public static Language getCurrentLanguage() {
         return currentLanguage;
     }
 
     public static void setCurrentLanguage(Language currentLanguage) {
         LanguageProvider.currentLanguage = currentLanguage;
+    }
+
+    public static Locale getDefaultLocale() {
+        return defaultLocale;
+    }
+
+    public static void setDefaultLocale(Locale defaultLocale) {
+        LanguageProvider.defaultLocale = defaultLocale;
+    }
+
+    public static Language languageByLocale(Locale locale) {
+        Language language = localeMap.get(locale);
+        return language == null ? currentLanguage: language;
     }
 }
