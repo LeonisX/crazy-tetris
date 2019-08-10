@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <game.version>1.1.0</game.version>
+        <game.version>1.1.5</game.version>
     </properties>
 
     <modules>

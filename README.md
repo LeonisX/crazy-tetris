@@ -39,19 +39,24 @@ CrazyTetris для Java
 
 Авторские права
 ---------------
+Я уважаю права `Tetris Holding` на торговую марку `Tetris` (® & © 1985~2019). Слово `Tetris` в названии используется по историческим причинам.
+Так называлась игра для DOS, ремейк сделан на её основе. 
+
 В игре звучит мелодия "`Korobeiniki`" из альбома "`A Tribute to the Music of Tetris : Traditional`", за авторством `Brado Popcorn`.
 Она была честно куплена. [Вот его сайт](http://bradopopcorn.bandcamp.com/album/a-tribute-to-the-music-of-tetris-traditional).
 Там вы можете купить свой экземпляр мелодии, если решите оставить игру у себя.
+Если же хочется другой вариант мелодии, то [ищите треки КОробейников тут](http://muzlishko.ru/mp3/%D0%9A%D0%BE%D1%80%D0%BE%D0%B1%D0%B5%D0%B9%D0%BD%D0%B8%D0%BA%D0%B8%20(%20Remix%20))
 
 Для проигрывания MP3 музыки используется `BasicPlayer` от `JavaZOOM`.
 
 Смайлики сделаны по образцу с сайта [freepik.com](https://www.freepik.com/free-vector/funny-smileys-collection-flat-design_837327.htm).
 
-Версия для Vaadin сделана по мотивам игры [Vaadin Tetris](https://github.com/samie/VaadinTetris) от Sami Ekblad
+Версия для Vaadin сделана по мотивам игры [Vaadin Tetris](https://github.com/samie/VaadinTetris) от Sami Ekblad.
 
 Список изменений
 ----------------
 
+* 1.1.5 (09.08.2019). Интернализация, звук, оптимизация производительности.
 * 1.1.0 (07.08.2019). Версия для Vaadin. Движок игры более универсальный. Исправлены мелкие ошибки.
 * 1.0.6 (05.08.2019). Движок игры теперь как отдельный модуль.
 * 1.0.5 (05.08.2019). Генерировать более разнообразные цвета.
