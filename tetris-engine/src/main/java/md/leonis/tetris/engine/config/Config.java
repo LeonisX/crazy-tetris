@@ -1,10 +1,13 @@
-package md.leonis.tetris.engine;
+package md.leonis.tetris.engine.config;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 
 public class Config {
+
+    public Config(boolean debug) {
+        this.debug = debug;
+    }
 
     public int fps = 30;
     public int refreshAfter = 1000 / fps;
@@ -53,9 +56,6 @@ public class Config {
         return webColors[color];
     }
 
-    public int windowWidth = 380;
-    public int windowHeight = 480;
-
     public int tileWidth = 20;
     public int tileHeight = 20;
 
@@ -68,15 +68,17 @@ public class Config {
     public int width = 10;
     public int height = 22;
 
-    public int nextLevel = 10000; //TODO the game ends very quickly, probably you need to increase
-    public int startLevel = 0;
-
     public boolean critterEnabled = true;
 
-    //                                           O,  J,  L,  T,  Z,  S,  I
-    public List<Integer> scores = Arrays.asList(10, 15, 15, 15, 20, 20, 10);
+    public ScoreConfig scoreConfig = new ScoreConfig();
 
-    //                                                      0   1    2    3    4
-    public List<Integer> completedRowsBonus = Arrays.asList(0, 100, 250, 400, 600);
+    private boolean debug = false;
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
 }

@@ -9,11 +9,15 @@ public class Records {
     private static final int MAX_RECORDS = 10;
 
     private List<Rec> records;
+    private int place;
+    private int score;
 
     @SuppressWarnings("unchecked")
-    public Records(StorageInterface storage) {
+    public Records(StorageInterface storage, int score) {
         records = storage.loadRecords();
         Collections.sort(records);
+        this.score = score;
+        this.place = (int) records.stream().filter(r -> r.score > score).count() + 1;
     }
 
     public void verifyAndAddScore(String name, int score) {
@@ -25,12 +29,16 @@ public class Records {
         }
     }
 
-    public boolean canAddNewRecord(int place) {
+    public boolean canAddNewRecord() {
         return place <= MAX_RECORDS;
     }
 
-    public int getPlace(int score) {
-        return (int) records.stream().filter(r -> r.score > score).count() + 1;
+    public int getPlace() {
+        return place;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public List<Rec> getRecords() {

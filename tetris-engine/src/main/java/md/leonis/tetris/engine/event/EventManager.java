@@ -20,7 +20,7 @@ public abstract class EventManager {
         eventListeners.remove(listener);
     }
 
-    public void notify(GameEvent event, String message) {
+    public void notify(GameEvent event, Object message) {
         List<GameEventListener> eventListeners = listeners.get(event);
         for (GameEventListener listener : eventListeners) {
             listener.notify(event, message);

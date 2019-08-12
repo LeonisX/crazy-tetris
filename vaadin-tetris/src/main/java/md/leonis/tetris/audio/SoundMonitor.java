@@ -52,8 +52,8 @@ public class SoundMonitor implements GameEventListener {
     }
 
     @Override
-    public void notify(GameEvent event, String message) {
-        SoundId soundId = message == null ? null : SoundId.valueOf(message);
+    public void notify(GameEvent event, Object message) {
+        SoundId soundId = message == null ? null : SoundId.valueOf((String) message);
 
         switch (event) {
             case PLAY_SOUND:

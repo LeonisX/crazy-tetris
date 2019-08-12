@@ -1,8 +1,10 @@
 package md.leonis.tetris.engine;
 
+import md.leonis.tetris.engine.config.Config;
 import md.leonis.tetris.engine.event.GameEvent;
 import md.leonis.tetris.engine.event.EventManager;
 import md.leonis.tetris.engine.model.CritterState;
+import md.leonis.tetris.engine.model.GameScore;
 import md.leonis.tetris.engine.model.GameState;
 
 import static md.leonis.tetris.engine.event.GameEvent.*;
@@ -13,9 +15,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
 
     private final Config config;
 
-    private int level;
-    private int score;
-    private int lines;
+    private GameScore gameScore;
 
     private int width, height;
 
@@ -48,9 +48,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
 
     public void start() {
         state = VOID;
-        level = config.startLevel;
-        score = 0;
-        lines = 0;
+        gameScore = new GameScore(config.scoreConfig);
 
         board = new Board(this);
         if (config.critterEnabled) {
@@ -71,7 +69,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
     }
 
     public void processEvent(GameEvent event) {
-        if ((state == PAUSED || state == FINISHED) && event != CONTINUE) {
+        if ((state == PAUSED || state == FINISHED)) {
             return;
         }
         switch (event) {
@@ -105,14 +103,8 @@ public class Tetris extends EventManager implements PropertiesHolder {
                 generateNextFigure();
                 break;
             case NEXT_LEVEL: // Cheat
-                score += 10000;
+                gameScore.levelUp();
                 updateStatistics();
-                break;
-            case PAUSE:
-                pause(true);
-                break;
-            case CONTINUE:
-                pause(false);
                 break;
             case MUTE_SOUND:
                 soundOn = false;
@@ -163,13 +155,9 @@ public class Tetris extends EventManager implements PropertiesHolder {
     }
 
     private void updateStatistics() {
-        lines += board.getCompletedRows().size();
-
-        score += config.scores.get(figure.getType());
-        score += config.completedRowsBonus.get(board.getCompletedRows().size());
-
-        level = score / config.nextLevel;
-        notify(UPDATE_SCORE, Integer.toString(score));
+        gameScore.countCompletedRows(board.getCompletedRows().size());
+        gameScore.countFigure(figure.getType());
+        notify(UPDATE_SCORE, gameScore);
     }
 
 
@@ -181,7 +169,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
                     generateNextFigure();
                 }
                 try {
-                    sleep(1001 - level * 100);
+                    sleep(1001 - gameScore.getLevel() * 100);
                 } catch (InterruptedException e) {
                     // empty
                 }
@@ -192,7 +180,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
     }
 
-    private void pause(boolean isPaused) {
+    public void pause(boolean isPaused) {
         if (isPaused) {
             state = PAUSED;
         } else {
@@ -228,7 +216,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
                 } catch (InterruptedException e) {
                     // empty
                 }
-                if (critter != null && soundOn) {
+                if (critter != null && soundOn && isInitialized()) {
                     voiceCritter();
                 }
 
@@ -263,32 +251,16 @@ public class Tetris extends EventManager implements PropertiesHolder {
         }
     }
 
-    public GameState getState() {
+    GameState getState() {
         return state;
     }
 
-    public int getScore() {
-        return score;
-    }
-
-    public int getLines() {
-        return lines;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public Figure getNextFigure() {
+    Figure getNextFigure() {
         return nextFigure;
     }
 
-    public boolean isInitialized() {
+    boolean isInitialized() {
         return initialized;
-    }
-
-    public boolean isSoundOn() {
-        return soundOn;
     }
 
     @Override
@@ -334,5 +306,9 @@ public class Tetris extends EventManager implements PropertiesHolder {
     @Override
     public Critter getCritter() {
         return critter;
+    }
+
+    GameScore getGameScore() {
+        return gameScore;
     }
 }
