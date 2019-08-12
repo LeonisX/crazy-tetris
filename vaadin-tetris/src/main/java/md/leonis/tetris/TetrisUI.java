@@ -171,6 +171,15 @@ public class TetrisUI extends UI implements GuiInterface {
         });
         languageControlBtn.setClickShortcut(KeyCode.L);
 
+        // Level control button
+        Button levelControlBtn = new Button(VaadinIcons.LEVEL_UP);
+        levelControlBtn.addClickListener(e -> {
+            gameService.processEvent(NEXT_LEVEL);
+            repaint();
+            dropBtn.focus();
+        });
+        levelControlBtn.setClickShortcut(KeyCode.L);
+
         gameTypeCB.setEmptySelectionAllowed(false);
 
         // Button for restarting the game
@@ -206,7 +215,8 @@ public class TetrisUI extends UI implements GuiInterface {
         startGameBtn.setClickShortcut(KeyCode.P);
 
         layout.addComponent(new MHorizontalLayout(
-                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn, soundControlBtn, languageControlBtn
+                gameTypeCB, startGameBtn, leftBtn, rightBtn, rotateCCWBtn, rotateCWBtn, stepBtn, dropBtn,
+                soundControlBtn, languageControlBtn, levelControlBtn
         ));
 
         VerticalLayout verticalLayout =
