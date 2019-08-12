@@ -51,6 +51,11 @@ If you want a different version of the melody, then [look for the Korobeiniki tr
 
 To play MP3 music, is used `BasicPlayer` library from` JavaZOOM`.
 
+Download
+--------
+* [Crazy Tetris 1.2.0](/doc/maven/CrazyTetris.zip)
+* [Source Code](https://github.com/LeonisX/crazy-tetris)
+
 Changelog
 ----------------
 
@@ -64,7 +69,7 @@ Changelog
 * 1.0.2 (14.03.2015). Fully working version
 
 Task list
-------------
+---------
 
 * Translate the melody to MIDI and trim it normally (need help !!!)
 * Implement dynamic resizing of the playing field

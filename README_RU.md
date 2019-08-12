@@ -51,6 +51,11 @@ Crazy Tetris для Java 8
 
 Для проигрывания MP3 музыки используется `BasicPlayer` от `JavaZOOM`.
 
+Скачать
+-------
+* [Crazy Tetris 1.2.0](/doc/maven/CrazyTetris.zip)
+* [Исходный код](https://github.com/LeonisX/crazy-tetris)
+
 Список изменений
 ----------------
 
