@@ -16,6 +16,7 @@ import md.leonis.tetris.engine.Critter;
 import md.leonis.tetris.engine.Figure;
 import md.leonis.tetris.engine.GuiInterface;
 import md.leonis.tetris.engine.Records;
+import md.leonis.tetris.engine.config.ColorConfig;
 import md.leonis.tetris.engine.config.Config;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.CritterState;
@@ -242,7 +243,7 @@ public class TetrisUI extends UI implements GuiInterface {
         // Draw the state
         access(() -> {
             // Reset and clear canvas
-            Config config = gameService.getConfig();
+            ColorConfig config = gameService.getConfig().getColorConfig();
             canvas.clear();
             canvas.setFillStyle(config.getWebColor(config.transparentColor));
             int tileWidth = gameService.getTileWidth();

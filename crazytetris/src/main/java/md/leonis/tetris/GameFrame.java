@@ -1,6 +1,9 @@
 package md.leonis.tetris;
 
-import md.leonis.tetris.engine.*;
+import md.leonis.tetris.engine.Critter;
+import md.leonis.tetris.engine.Figure;
+import md.leonis.tetris.engine.GuiInterface;
+import md.leonis.tetris.engine.Records;
 import md.leonis.tetris.engine.model.Coordinate;
 import md.leonis.tetris.engine.model.CritterState;
 import md.leonis.tetris.engine.model.GuiAction;
@@ -17,7 +20,6 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.logging.Logger;

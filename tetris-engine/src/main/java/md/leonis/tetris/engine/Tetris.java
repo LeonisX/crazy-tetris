@@ -48,7 +48,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
 
     public void start() {
         state = VOID;
-        gameScore = new GameScore(config.scoreConfig);
+        gameScore = new GameScore(config.getScoreConfig());
 
         board = new Board(this);
         if (config.critterEnabled) {
@@ -68,7 +68,7 @@ public class Tetris extends EventManager implements PropertiesHolder {
         initialized = true;
     }
 
-    public void processEvent(GameEvent event) {
+    void processEvent(GameEvent event) {
         if ((state == PAUSED || state == FINISHED)) {
             return;
         }
@@ -265,12 +265,12 @@ public class Tetris extends EventManager implements PropertiesHolder {
 
     @Override
     public int getColorsCount() {
-        return config.colors.length;
+        return config.getColorConfig().colors.length;
     }
 
     @Override
     public Integer getTransparentColor() {
-        return config.transparentColor;
+        return config.getColorConfig().transparentColor;
     }
 
     @Override

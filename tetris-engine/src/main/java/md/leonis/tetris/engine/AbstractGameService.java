@@ -101,27 +101,27 @@ public abstract class AbstractGameService implements GameServiceInterface, GameE
 
     @Override
     public Color getTransparentColor() {
-        return config.getColor(config.transparentColor);
+        return config.getColorConfig().getColor(tetris.getTransparentColor());
     }
 
     @Override
     public Color getGrayColor() {
-        return config.getColor(config.grayColor);
+        return config.getColorConfig().getColor(config.getColorConfig().grayColor);
     }
 
     @Override
     public Color getCritterColor() {
-        return config.getColor(config.critterColor);
+        return config.getColorConfig().getColor(config.getColorConfig().critterColor);
     }
 
     @Override
     public Color getColor(int color) {
-        return config.getColor(color);
+        return config.getColorConfig().getColor(color);
     }
 
     @Override
     public Color getColor(int color, int factor) {
-        return config.getColor(color, factor);
+        return config.getColorConfig().getColor(color, factor);
     }
 
     @Override
