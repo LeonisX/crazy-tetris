@@ -2,7 +2,7 @@ Crazy Tetris for Java 8
 ===========
 
 * [In Russian](README_RU.md)
-* [Vaadin cersion](vaadin-tetris/README.md)
+* [Vaadin version](vaadin-tetris/README.md)
 * Support pages: [forum](http://tv-games.ru/forum/blog.php?b=2034), [development diary](http://tv-games.ru/forum/showthread.php?t=5661), [business card site](http://leonis.tv-games.ru/crazytetris).
 
 Description
