@@ -47,7 +47,7 @@ This was the name of the game for DOS, a remake made on its basis.
 The game sounds the melody "Korobeiniki" from the album "`A Tribute to the Music of Tetris: Traditional`", authored by `Brado Popcorn`.
 It was honestly bought. [Here is his website](http://bradopopcorn.bandcamp.com/album/a-tribute-to-the-music-of-tetris-traditional).
 There you can buy your own copy of the melody if you decide to leave the game.
-If you want a different version of the melody, then [look for the Korobeiniki tracks here](http://muzlishko.ru/mp3/%D0%9A%D0%BE%D1%80%D0%BE%D0%B1%D0%B5%D0%B9%D0%BD%D0%B8%D0%BA%D0%B8%20(%20Remix%20).
+If you want a different version of the melody, then [look for the Korobeiniki tracks here](http://muzlishko.ru/mp3/%D0%9A%D0%BE%D1%80%D0%BE%D0%B1%D0%B5%D0%B9%D0%BD%D0%B8%D0%BA%D0%B8%20(%20Remix%20)).
 
 To play MP3 music, is used `BasicPlayer` library from` JavaZOOM`.
 
