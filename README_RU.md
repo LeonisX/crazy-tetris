@@ -47,7 +47,7 @@ Crazy Tetris для Java 8
 В игре звучит мелодия "`Korobeiniki`" из альбома "`A Tribute to the Music of Tetris : Traditional`", за авторством `Brado Popcorn`.
 Она была честно куплена. [Вот его сайт](http://bradopopcorn.bandcamp.com/album/a-tribute-to-the-music-of-tetris-traditional).
 Там вы можете купить свой экземпляр мелодии, если решите оставить игру у себя.
-Если же хочется другой вариант мелодии, то [ищите треки Коробейников тут](http://muzlishko.ru/mp3/%D0%9A%D0%BE%D1%80%D0%BE%D0%B1%D0%B5%D0%B9%D0%BD%D0%B8%D0%BA%D0%B8%20(%20Remix%20).
+Если же хочется другой вариант мелодии, то [ищите треки Коробейников тут](http://muzlishko.ru/mp3/%D0%9A%D0%BE%D1%80%D0%BE%D0%B1%D0%B5%D0%B9%D0%BD%D0%B8%D0%BA%D0%B8%20(%20Remix%20)).
 
 Для проигрывания MP3 музыки используется `BasicPlayer` от `JavaZOOM`.
 
